@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Company Registration Flow</title>
+<title>Manager Not Approved</title>
 <link rel="stylesheet" href="assets/app.css">
 <style>
 /* Wireframe-only pieces. Variables are prefixed so they never collide with stageapp's own. */
@@ -117,6 +117,7 @@ body.nofb .fb{display:none}
       <button class="inline-flex items-center justify-center gap-2 rounded-pill text-base font-bold bg-brand-strong text-brand-foreground h-10 px-6 py-2" data-nav="1" id="next">Next →</button></div></div>
   </div>
 </div>
+<script>window.FLOW=1</script>
 <script>
 /* ---------- Cases (names invented) ---------- */
 const R=(sh,dir,mgr,lr)=>({sh:!!sh,dir:!!dir,mgr:!!mgr,lr:!!lr});
@@ -605,7 +606,7 @@ const MEASURE=document.createElement('canvas').getContext('2d');
 
 function fitName(el){MEASURE.font=getComputedStyle(el).font; el.style.width=Math.ceil(MEASURE.measureText(el.value||' ').width)+16+'px'}
 document.addEventListener('input',e=>{ if(e.target.classList.contains('nmin')) fitName(e.target) });
-const SKEY='mcfz-flow-wireframe-v2';
+const SKEY='mcfz-mgr-flow-v1';
 try{const sv=JSON.parse(localStorage.getItem(SKEY)||'null'); if(sv&&sv.D){Object.keys(sv.D).forEach(k=>{if(D[k]) D[k]=sv.D[k]}); if(D[sv.K]) K=sv.K; if(SCR[sv.S]) SCREEN=sv.S; if(sv.W) W={...W,...sv.W}; x_up=sv.x_up||{}; x_add=sv.x_add||{}}}catch(_){}
 let NEW=0; const newId=pre=>pre+Date.now().toString(36)+(NEW++);
 const newPerson=()=>({name:'New person',nat:'',uae:false});
