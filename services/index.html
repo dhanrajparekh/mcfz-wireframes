@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Services and Visas</title>
+<link rel="stylesheet" href="assets/app.css">
+<link rel="stylesheet" href="visa.css">
+<style>
+:root{--w-mute:#6b757b;--w-line:#e3e6e8;--w-line2:#eef0f1;--w-teal:#3f6f6d;--w-tealbg:#eaf2f1;--w-amber:#8a6100;--w-amberbg:#fdf5e3;--w-red:#b3261e}
+body{background:var(--background)}
+.wbar{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;padding:10px 16px;background:#16191b;color:#e9eeee;font-size:13px}
+.wbar b{font-size:12px;letter-spacing:.06em;color:#9fb3b3}
+.wbar select,.wbar button{background:#24302f;color:#fff;border:1px solid #3a4a49;border-radius:6px;padding:4px 8px;font:inherit;cursor:pointer}
+.wbar label{display:flex;gap:6px;align-items:center}
+.shell{display:flex;min-height:calc(100dvh - 46px);width:100%}
+.wf-side{width:248px;flex:none}
+@media (max-width:1023px){.wf-side{display:none!important}.mnav{display:flex!important}}
+.mnav{display:none;gap:4px;overflow-x:auto;padding:0 16px 8px}
+.mnav a{white-space:nowrap}
+.veil{position:fixed;inset:0;background:rgba(16,24,32,.45);display:flex;align-items:flex-start;justify-content:center;padding:60px 16px;z-index:40;overflow:auto}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:520px;padding:22px;box-shadow:0 20px 50px -20px rgba(0,0,0,.4)}
+.pick{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--w-line);border-radius:10px;padding:12px 14px;background:#fff;cursor:pointer;font:inherit}
+.pick:hover{border-color:var(--w-teal);background:var(--w-tealbg)}
+.pick small{display:block;color:var(--w-mute);font-size:12.5px}
+.tchip{font-size:11px;font-weight:700;border-radius:100px;padding:2px 9px;white-space:nowrap}
+.tchip.you{background:var(--w-amberbg);color:var(--w-amber)}.tchip.mc{background:var(--w-line2);color:#3b4246}.tchip.done{background:#e9f6ee;color:#1a7a46}
+.rq{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--w-line2);cursor:pointer}
+.rq:first-of-type{border-top:0}
+.rq small{display:block;color:var(--w-mute);font-size:12.5px;font-weight:400}
+.svc{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--w-line2)}
+.svc:first-of-type{border-top:0}
+.svc small{display:block;color:var(--w-mute);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wbar" id="wbar"></div>
+<div class="shell">
+  <aside class="wf-side flex-col">
+    <div class="flex h-14 shrink-0 items-center px-4 lg:mt-3 lg:pt-[9px]"><a class="block min-w-0 no-underline"><span class="block font-display text-xl leading-none font-bold uppercase text-foreground">Masdar City</span><span class="mt-[3px] block text-xs leading-none font-bold tracking-[0.14em] uppercase text-brand-text">Innovation Zone</span></a></div>
+    <div class="shrink-0 px-3 pt-3 pb-2"><div class="flex w-full items-center gap-2 rounded-md border border-border bg-muted px-3 py-2"><span class="min-w-0 flex-1"><span class="block text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">Company</span><span class="block truncate text-base font-bold text-foreground">Harbour Interiors Limited</span></span></div></div>
+    <div class="px-3 py-3"><nav class="flex flex-col gap-0.5" id="nav"></nav></div>
+  </aside>
+  <div class="flex min-h-0 min-w-0 flex-1 flex-col bg-canvas shadow-card lg:my-3 lg:mr-3 lg:rounded-xl">
+    <header class="flex min-h-14 shrink-0 items-center gap-3 px-4 pt-5 pb-3 lg:px-6"><div class="min-w-0 flex-1"><h1 class="truncate text-xl leading-none">Harbour Interiors Limited</h1><p class="text-sm text-muted-foreground">Masdar City Free Zone</p></div><button class="text-sm font-bold text-brand-text underline underline-offset-2">Need help?</button></header>
+    <div class="mnav" id="mnav"></div>
+    <main class="min-h-0 flex-1 px-4 pt-3 pb-10 lg:px-6"><div class="w-full max-w-[64rem]" id="screen"></div></main>
+  </div>
+</div>
+<div id="modal"></div>
+<script>
+/* ---------- Data ---------- */
+// People captured during company registration, with what registration already holds.
+const PEOPLE={
+  lay:{name:'Layla Haddad',role:'Shareholder · Director · Manager',nat:'Kenya',res:true,pass:[['Passport number','AK4471902'],['Date of birth','14 Mar 1988'],['Gender','Female'],['Nationality','Kenya'],['Place of birth','Nairobi'],['Date of issue','2 Jun 2021']],contact:[['Email','layla@harbour.ae'],['UAE mobile','+971 50 123 4567'],['Address in the UAE','Apt 1204, Marina Gate 2, Dubai']]},
+  mar:{name:'Marco Bellini',role:'Shareholder',nat:'Italy',res:false,pass:[['Passport number','YB1182240'],['Date of birth','3 Jul 1979'],['Gender','Male'],['Nationality','Italy'],['Place of birth','Treviso'],['Date of issue','11 Jan 2022']],contact:[['Email','marco@bellini.it'],['Home country phone','+39 333 555 0102'],['Home country address','Via Roma 14, Treviso']]},
+  oma:{name:'Omar Khalil',role:'Signs for Cedar Fitout Contracting',nat:'Syria',res:true,pass:[['Passport number','N014472915'],['Date of birth','20 Feb 1984'],['Gender','Male'],['Nationality','Syria'],['Place of birth','Aleppo'],['Date of issue','5 May 2020']],contact:[['Email','omar.khalil@mail.com'],['UAE mobile','+971 52 555 0199'],['Address in the UAE','Villa 8, Al Barsha 2, Dubai']]}
+};
+const NEWPASS=[['Passport number','PX2208451'],['Date of birth','9 Nov 1993'],['Gender','Female'],['Nationality','Jordan'],['Place of birth','Amman'],['Date of issue','12 Mar 2021']];
+const PKG={b1:{label:'Business One',included:1},st0:{label:'Startup',included:0},st2:{label:'Startup',included:2}};
+const ALLOC=2000; // Visa allocation, standalone: Schedule of Fees, 15 Aug 2026
+const T=['Entry permit','Your location','Pay and leave','Medical fitness','Insurance','Residence visa and Emirates ID','Biometrics','Emirates ID in hand'];
+const SHORT=['Entry permit','Location','Pay and leave','Medical','Insurance','Residence visa','Biometrics','Emirates ID'];
+
+let S={screen:'overview',pkg:'b1',stage:2,reqs:[],open:null,flow:null};
+const fresh=()=>({screen:'overview',pkg:S.pkg,stage:S.stage,reqs:[],open:null,flow:null});
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const card=(inner,cls='')=>`<div class="flex flex-col gap-4 rounded-card border bg-card p-6 text-card-foreground shadow-card ${cls}">${inner}</div>`;
+const btn=(t,solid,attr='')=>`<button class="inline-flex items-center justify-center gap-2 rounded-pill text-base font-bold h-9 px-5 whitespace-nowrap ${solid?'bg-brand-strong text-brand-foreground':'border bg-background shadow-xs'}" ${attr}>${t}</button>`;
+const used=()=>S.reqs.filter(r=>r.inPackage).length;
+const left=()=>Math.max(0,PKG[S.pkg].included-used());
+const ready=()=>S.stage===2;
+const R=()=>S.reqs.find(r=>r.id===S.open);
+
+/* ---------- Requests ---------- */
+function newReq(who){
+  const inPkg=left()>0, id='r'+(S.reqs.length+1);
+  const isNew=who==='new';
+  S.reqs.push({id,who,inPackage:inPkg,name:isNew?null:PEOPLE[who].name,first:isNew?null:PEOPLE[who].name.split(' ')[0],
+    v:{cur:0,sub:'you',med:'book',slot:null,bslot:null,photo:'none',pp:false,where:null,ins:false,eid:false,ownWent:false,f:{}}});
+  return id;
+}
+function reqStatus(r){const v=r.v;
+  if(v.cur>=8) return ['Complete','done'];
+  const you=v.sub==='you'&&v.cur!==5&&!(v.cur===3&&['booked','waiting'].includes(v.med));
+  return [`${SHORT[Math.min(v.cur,7)]} · ${you?'Needs you':'With Masdar City'}`,you?'you':'mc']}
+function reqTitle(r){return r.name||'New visa · passport to upload'}
+function reqRows(){return S.reqs.map(r=>{const [s,c]=reqStatus(r); return `<div class="rq" data-openreq="${r.id}"><b>Employment visa · ${esc(reqTitle(r))}<small>${r.inPackage?'Included in your package':`Visa allocation paid, AED ${ALLOC.toLocaleString()}`}</small></b><span class="tchip ${c}">${s}</span></div>`}).join('')}
+
+/* ---------- Overview and Services ---------- */
+function overview(){
+  const stages=['Application checks','Licence issued','Establishment card and e-channel done'];
+  let visa='';
+  if(ready()&&left()>0) visa=card(`<div class="flex flex-wrap items-center justify-between gap-4"><div><b class="text-lg">Your package includes ${left()} visa${left()>1?'s':''}</b><p class="text-base text-muted-foreground">Already paid for.</p></div>${btn('Start now',true,'data-startvisa')}</div>`);
+  else if(ready()) visa=card(`<div class="flex flex-wrap items-center justify-between gap-4"><div><b class="text-lg">Need a visa?</b><p class="text-base text-muted-foreground">Apply from Services.</p></div>${btn('Go to Services',false,'data-go="services"')}</div>`);
+  return `<div class="flex flex-col gap-4">${visa}${S.reqs.length?card(`<b class="text-lg">Your requests</b><div>${reqRows()}</div>`):''}
+    ${card(`<span class="text-sm font-bold text-brand-text">${['Intake','Issue','Immigration'][S.stage]}</span><b class="text-2xl">${stages[S.stage]}</b>`)}</div>`;
+}
+function services(){
+  const cats=[['Visa services',[['visa','Apply for a new visa',left()>0?`${left()} included in your package`:`AED ${ALLOC.toLocaleString()} visa allocation, then the visa fees`],['amend','Amend a visa','Change the job title, salary or contract'],['renew','Renew a visa','Before it expires'],['cancel','Cancel a visa','When someone leaves the company']]],
+    ['Company services',[['activity','Change of activity',''],['shareholders','Change of shareholders',''],['name','Change of company name','']]],
+    ['Value-added services',[['copy','Certified hard copies of your licence documents','']]]];
+  return `<div class="flex flex-col gap-4"><header><h2 class="text-2xl">Services</h2></header>
+    ${!ready()?`<div class="rounded-card border border-border bg-card p-4 text-base">Visa services open once your establishment card and e-channel are done.</div>`:''}
+    ${S.reqs.length?card(`<b class="text-lg">Your requests</b><div>${reqRows()}</div>`):''}
+    ${cats.map(([c,list])=>card(`<b class="text-lg">${c}</b><div>${list.map(([k,t,sub])=>{const off=c==='Visa services'&&!ready();
+      return `<div class="svc"><span>${t}${sub?`<small>${sub}</small>`:''}</span>${btn('Start',k==='visa',`data-svc="${k}" ${off?'disabled style="opacity:.45"':''}`)}</div>`}).join('')}</div>`)).join('')}</div>`;
+}
+
+/* ---------- The visa application (from the 30 Sep wireframe) ---------- */
+const PASSVIEW=rows=>`<div class="kv">${rows.map(([k,v])=>`<div><span class="k">${k}</span>${esc(v)}</div>`).join('')}${rows.length%2?'<div></div>':''}</div>`;
+const fld=(r,key,label,type='text',opts)=>{const val=r.v.f[key]??''; return `<div class="f"><label>${label}</label>${type==='select'?`<select data-vf="${key}"><option value="" ${val?'':'selected'} disabled>Choose</option>${opts.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('')}</select>`:`<input data-vf="${key}" value="${esc(val)}">`}</div>`};
+// Step 1. The live /visas form (2 Oct), field for field. Lists are the live ICP lists unless marked.
+const JOBS=[['Accountant','محاسب',1],['Accounting Assistant','مساعد حسابات',0],['Accounting Clerk / General','كاتب حسابات/فنى حسابات',0],['Admin Assistant','مشرف شؤون الاداره',1],['Administartive Assistant','مساعد ادارى',0],['Academic Counselor','مستشار اكاديمى',1]];
+const QUAL=['Below education age','None','Primary education','Lower secondary education','Upper secondary education','Diploma','High diploma','Bachelor','Master','Doctoral'];
+const PTYPE=['Ordinary passport','Diplomatic passport','Private passport','Return','Assignment passport','Bahraini travel document','Egyptian travel document'];
+const yn2=(key,val)=>`<div class="yn">${[['Yes',true],['No',false]].map(([t,b])=>`<button class="${val===b?'on':''}" data-vyn="${key}:${b?1:0}">${t}</button>`).join('')}</div>`;
+const pv=(r,key)=>r.v.f[key]??(r.who==='new'?Object.fromEntries(NEWPASS):Object.fromEntries(PEOPLE[r.who].pass))[{dob:'Date of birth',gender:'Gender',issue:'Date of issue',pob:'Place of birth'}[key]]??'';
+function b0(r){
+  const v=r.v, F=r.first||'them', isNew=r.who==='new', p=isNew?null:PEOPLE[r.who];
+  if(v.sub==='mc') return `<p class="note">Masdar City is applying for ${F}’s entry permit. Nothing needed from you.</p>`;
+  if(isNew&&!v.pp) return `<div class="doc" style="margin-top:0"><div><b>Passport</b><small>Front page, and last page if applicable.</small></div><button class="btn solid" data-vpp>Upload</button></div>`;
+  const f=v.f, nat=isNew?'Jordan':p.nat, res=!isNew&&p.res;
+  const job=JOBS.find(j=>j[0]===f.job);
+  const sel=(key,label,opts,req,dflt)=>{const val=f[key]??dflt??''; return `<div class="f"><label>${label}${req?' *':''}</label><select data-vf="${key}"><option value="" ${val?'':'selected'} disabled>Choose</option>${opts.map(o=>`<option ${val===o?'selected':''}>${o}</option>`).join('')}</select></div>`};
+  const inp=(key,label,val,req,note)=>`<div class="f"><label>${label}${req?' *':''}</label><input data-vf="${key}" value="${esc(f[key]??val??'')}">${note?`<small class="fn">${note}</small>`:''}</div>`;
+  return `<div class="grp" style="margin-top:0">Passport</div><p class="fn" style="margin:-4px 0 10px">Read from the passport.</p>
+  <div class="fields">${inp('dob','Date of birth',pv(r,'dob'),0,'')}${sel('gender','Gender',['Female','Male'],0,pv(r,'gender'))}
+    ${sel('ptype','Passport type',PTYPE,0,'Ordinary passport')}${inp('issue','Date of issue',pv(r,'issue'))}${inp('issplace','Place of issue',f.issplace??(isNew?'AMMAN':p.pass.find(x=>x[0]==='Place of birth')[1].toUpperCase()))}${inp('pob','Place of birth',pv(r,'pob'))}</div>
+  <div class="grp">Parents</div><div class="fields">${inp('mother','Mother’s full name','',1)}${inp('father','Father’s full name','')}</div>
+  <div class="grp">Job</div><div class="fields"><div class="f"><label>Job title * <span class="tipq" title="These are the job titles the immigration authority recognise. Choosing the closest one avoids your application being sent back over the wording.">ⓘ</span></label><select data-vf="job"><option value="" ${f.job?'':'selected'} disabled>Choose a job title</option>${JOBS.map(([en,ar,c])=>`<option value="${en}" ${f.job===en?'selected':''}>${en} · ${ar}${c?' · Degree certificate needed':''}</option>`).join('')}</select>${job?`<small class="fn">${job[1]}</small>${job[2]?'<small class="fn warn">This title needs an attested degree certificate, uploaded below.</small>':''}`:''}</div>${sel('qual','Qualification',QUAL,1)}</div>
+  <div class="grp">Personal</div><div class="fields">${sel('marital','Marital status',['Single','Married','Divorced','Widowed'],1)}
+    <div class="f"><label>Religion * <span class="wfq">ICP list, from Pavan</span></label><select data-vf="religion"><option value="" ${f.religion?'':'selected'} disabled>Choose</option>${['Islam','Christianity','Hinduism'].map(o=>`<option ${f.religion===o?'selected':''}>${o}</option>`).join('')}</select></div>
+    ${f.religion?`<div class="f"><label>Faith <span class="wfq">ICP list, from Pavan</span></label><select data-vf="faith"><option value="" ${f.faith?'':'selected'} disabled>Choose</option>${({Islam:['Sunni','Shia'],Christianity:['Catholicism','Orthodox','Protestant'],Hinduism:['Hinduism']}[f.religion]).map(o=>`<option ${f.faith===o?'selected':''}>${o}</option>`).join('')}</select></div>`:''}
+    ${sel('prevnat','Previous nationality',['None','Egypt','India','Jordan','Lebanon','Syria','United Kingdom'])}</div>
+  <div class="grp">Contact</div><div class="fields">${inp('email','Email',isNew?'':p.contact[0][1],1)}
+    ${inp('pcountry','Permanent country',nat,1)}
+    ${inp('haddr','Home country address',isNew?'':(p.contact.find(c=>/Home country address/.test(c[0]))||[])[1],1)}
+    ${inp('hphone','Home country mobile',isNew?'':(p.contact.find(c=>/Home country phone/.test(c[0]))||[])[1],1)}</div>
+  <div class="grp">Photo</div>${v.photo==='bad'?`<div class="doc warn"><div><b>Passport-size photo</b><small class="warn">The background is not white. Upload another photo.</small></div><button class="btn solid" data-vphoto>Upload another</button></div>`:
+   v.photo==='ok'?`<div class="doc"><div><b>Passport-size photo</b><small class="ok">Meets the ICP specification</small></div><button class="link" data-vphoto>Replace</button></div>`:
+   v.photo==='reading'?`<div class="doc"><div><b>Passport-size photo</b><small>Checking…</small></div></div>`:
+   `<div class="doc"><div><b>Passport-size photo</b><small>White background, face straight on. JPG, up to 2 MB.</small></div><button class="btn" data-vphoto>Upload</button></div>`}
+  ${job&&job[2]?`<div class="doc"><div><b>Attested degree certificate</b><small>Needed for ${esc(job[0])}.</small></div><button class="btn" data-vdeg>${v.deg?'Replace':'Upload'}</button></div>`:''}
+  <div class="acts"><small>Saved as you type</small><button class="btn solid" data-vsend="0" ${v.photo==='ok'?'':'disabled'}>Send to Masdar City</button></div>`;
+}
+function b1(r){const v=r.v, F=r.first;
+  if(v.sub==='mc') return `<p class="note">Masdar City is changing ${F}’s status. Nothing needed from you.</p>`;
+  const W=[['out','Outside the UAE',`${F} enters on the entry permit.`],['visit','Inside the UAE on a visit visa','Status changed here.'],['cancel','Inside the UAE on a cancelled residence visa','Status changed here.']];
+  const fee=v.where&&v.where!=='out';
+  return `<div class="doc" style="margin-top:0"><div><b>Entry permit</b><small class="ok">Issued · valid 60 days</small></div><button class="link">Download</button></div>
+  <div class="q" style="margin-top:16px">Where is ${F} now?</div>
+  <div class="opts">${W.map(([k,t,s])=>`<label class="opt ${v.where===k?'sel':''}"><input type="radio" name="w" value="${k}" ${v.where===k?'checked':''}><span><b>${t}</b><small>${s}</small></span></label>`).join('')}</div>
+  ${v.where==='cancel'?`<div class="fields" style="margin-top:12px"><div class="f"><label>Residence visa number</label><input data-vf="rvnum" value="${esc(v.f.rvnum||'')}"></div></div>`:''}
+  ${fee?`<div class="money"><span>Change of status</span><span>AED 940</span><span>In-country visa</span><span>AED 800</span><span class="t">Total</span><span class="t">AED 1,740</span></div>`:''}
+  <div class="acts"><button class="btn solid" data-vsend="1" ${v.where?'':'disabled'}>${fee?'Pay AED 1,740':'Confirm'}</button></div>`;}
+function b2(r){const F=r.first, i=(k,l,note,cls='')=>`<div class="f ${cls}"><label>${l}</label><input data-vf="${k}" inputmode="decimal" value="${esc(r.v.f[k]||'')}">${note?`<small class="fn">${note}</small>`:''}</div>`;
+  return `<div class="grp" style="margin-top:0">Pay</div><div class="fields">${i('salary','Basic monthly salary, in AED','Enter it as a number, for example 8000.')}${i('transport','Transport allowance, in AED')}${i('accom','Accommodation allowance, in AED')}${i('other','Other allowance, in AED')}</div>
+  <div class="grp">Contract</div><div class="fields"><div class="f"><label>Probation</label><select data-vf="prob">${['No probation','1 month','3 months','6 months'].map(o=>`<option ${r.v.f.prob===o?'selected':''}>${o}</option>`).join('')}</select></div>${i('start','Contract starts')}${i('end','Contract ends')}</div>
+  <div class="grp">Leave and Ticket</div><div class="fields">${i('leave','Annual leave, in days')}${i('tclass','Ticket class')}${i('tdest','Ticket destination','A return flight from Abu Dhabi.')}${i('tevery','Ticket every, in months')}</div>
+  <div class="acts"><small>Saved as you type</small><button class="btn solid" data-vsend="2">Confirm</button></div>`}
+const SL=[['Mon','5 Oct'],['Wed','7 Oct'],['Fri','9 Oct']];
+function slotPicker(v,title){return `<div class="q">${title}</div><div class="slots">${SL.map(([d,dt],i)=>`<button class="slot ${v.slot===i?'sel':''}" data-vslot="${i}"><b>${d} ${dt}</b><small>9:00 to 9:30</small></button>`).join('')}</div>
+  <div class="acts"><button class="link" data-vmed="own">None of these work</button><button class="btn solid" data-vmed="booked" ${v.slot===null?'disabled':''}>Book</button></div>`}
+function b3(r){const v=r.v, F=r.first, m=v.med, booked=()=>{const [d,dt]=SL[v.slot??1];return `${d} ${dt}, 9:00`};
+  if(m==='book') return slotPicker(v,`SEHA Visa Medical Center, Al Shahama. A Masdar City PRO meets ${F} at the entrance.`);
+  if(m==='booked') return `<div class="doc" style="margin-top:0"><div><b>${booked()}</b><small>SEHA Visa Medical Center, Al Shahama. A Masdar City PRO meets ${F} at the entrance.</small></div><button class="link">Add to calendar</button></div><div class="acts"><button class="link" data-vmed="book">Change the slot</button></div>`;
+  if(m==='own') return `<p class="note">${F} books the medical directly with a centre. Upload the receipt afterwards so Masdar City can follow the result.</p><div class="doc"><div><b>Medical receipt</b><small>From the medical centre</small></div><button class="btn solid" data-vmed="waiting">Upload</button></div><div class="acts"><button class="link" data-vmed="book">Book a Masdar City slot instead</button></div>`;
+  if(m==='waiting') return `<p class="note">The result comes to Masdar City. Nothing needed from you.</p>`;
+  if(m==='unfit') return `<div class="doc warn" style="margin-top:0"><div><b>Result: not fit</b><small class="warn">The residence visa cannot go ahead on this result. Masdar City will contact you about what happens next.</small></div></div>`;
+  return ''}
+function b4(r){const v=r.v, F=r.first;
+  if(v.sub==='mc') return `<p class="note">Received. Nothing needed from you.</p>`;
+  return `<div class="doc" style="margin-top:0"><div><b>Health insurance card</b><small>${v.ins?'Insurance card received':`From any Department of Health approved insurer, in ${F}’s name.`}</small></div>${v.ins?'<span>✓</span>':'<button class="btn" data-vins>Upload</button>'}</div>
+  <div class="acts"><button class="btn solid" data-vsend="4" ${v.ins?'':'disabled'}>Send to Masdar City</button></div>`}
+function b5(r){return `<p class="note">Masdar City is applying for ${r.first}’s residence visa and Emirates ID. Nothing needed from you.</p>`}
+const BSL=[['Tue','13 Oct'],['Thu','15 Oct'],['Tue','20 Oct']];
+function b6(r){const v=r.v, F=r.first;
+  if(v.sub==='mc') return `<p class="note">Booked. Waiting for ICP to issue the residence visa. Nothing needed from you.</p>`;
+  return `<div class="q">ICP needs ${F}’s fingerprints and photo. Pick a slot.</div><div class="slots">${BSL.map(([d,dt],i)=>`<button class="slot ${v.bslot===i?'sel':''}" data-vbslot="${i}"><b>${d} ${dt}</b><small>9:00 to 9:30</small></button>`).join('')}</div>
+  <div class="acts"><button class="btn solid" data-vsend="6" ${v.bslot==null?'disabled':''}>Book</button></div>`}
+function b7(r){const v=r.v, F=r.first;
+  return `<p class="note">The card comes by Emirates Post, or to Masdar City for collection. When ${F} has it, upload a photo of the front.</p><div class="doc"><div><b>Emirates ID</b><small>${v.eid?'Received':'The front of the card'}</small></div>${v.eid?'<span>✓</span>':'<button class="btn solid" data-veid>Upload</button>'}</div>`}
+const BODY=[b0,b1,b2,b3,b4,b5,b6,b7];
+function visa(){
+  const r=R(); if(!r) return services();
+  const v=r.v, F=r.first||'them';
+  let steps='';
+  T.forEach((t,i)=>{
+    const st=i<v.cur?'done':i===v.cur?'on':'later';
+    const medMC=i===3&&['booked','waiting'].includes(v.med);
+    const who=st==='on'?(v.sub==='you'&&i!==5&&!medMC?'Needs you':'With Masdar City'):'';
+    steps+=`<section class="step ${st}"><div class="sh" ${st==='on'?'':`data-vjump="${i}" style="cursor:pointer"`}><span class="num">${st==='done'?'✓':i+1}</span><div class="t">${st==='on'?`<span class="eyebrow">Step ${i+1} of 8</span>`:''}<b>${t}</b>${st==='done'?'<small class="ok">Done</small>':''}</div>${who?`<span class="who ${who==='Needs you'?'you':'mc'}">${who}</span>`:''}</div>${st==='on'?`<div class="sb">${BODY[i](r)}</div>`:''}</section>`;
+  });
+  const [s,c]=reqStatus(r);
+  const pct=Math.min(v.cur,7)/7*100;
+  return `<div class="vapp"><section class="vtop"><div class="crumbs"><a data-go="services">Services</a> › Employment visa</div>
+    <div class="vhead"><div><h2 class="font-display">${esc(r.name||'New visa')}</h2><div class="sub">Employment visa${r.who==='new'?'':' · '+esc(PEOPLE[r.who].role)}</div></div><span class="chip ${c==='you'?'you':c==='done'?'done':''}">${s}</span></div>
+    <nav class="track"><div class="rail"><div class="fill" style="width:${pct}%"></div></div>${SHORT.map((t,i)=>`<span class="node ${i<v.cur?'done':i===v.cur?'on':''} ${i===6?'maybe':''}" data-vjump="${i}"><span class="dot">${i<v.cur?'✓':i+1}</span><span class="lb">${t}${i===6?'<small>If ICP asks</small>':''}</span></span>`).join('')}</nav></section>
+    <div class="cols"><div>${v.cur>=8?`<p style="font-weight:700">${F}’s residence visa is complete.</p>`:''}${steps}</div>
+      <aside class="cm"><h3>Your case manager</h3><div class="who2"><div class="av">MC</div><div><b>Masdar City Team</b><small>Abu Dhabi office hours</small></div></div><button class="btn">Book a call</button></aside></div></div>`;
+}
+
+/* ---------- Pop-up: only who the visa is for ---------- */
+function modal(){
+  const f=S.flow; if(!f) return '';
+  let body='';
+  if(f.step==='who'){
+    const taken=new Set(S.reqs.map(r=>r.who));
+    body=`<b class="text-xl">Who is this visa for?</b><p class="text-base text-muted-foreground">${left()>0?`${left()} visa${left()>1?'s':''} left in your package.`:`Beyond your package: AED ${ALLOC.toLocaleString()} visa allocation, paid now.`}</p>
+     <div class="flex flex-col gap-2">${Object.entries(PEOPLE).filter(([id])=>!taken.has(id)).map(([id,p])=>`<button class="pick" data-who="${id}" ${f.who===id?'style="border-color:var(--w-teal)"':''}><span><b>${esc(p.name)}</b><small>${esc(p.role)} · ${esc(p.nat)}</small></span><span class="tchip mc">On the application</span></button>`).join('')}
+     <button class="pick" data-who="new"><span><b>Someone new</b><small>An employee, or anyone not on the application</small></span><span>›</span></button></div>
+     ${left()>0?'':`<div class="flex justify-end">${btn(`Pay AED ${ALLOC.toLocaleString()}`,true,`data-pay ${f.who?'':'disabled style="opacity:.45"'}`)}</div>`}`;
+  }
+  if(f.step==='generic'){
+    body=`<b class="text-xl">${esc(f.title)}</b><div><div class="mb-2 text-base font-bold text-muted-foreground">What do you need?</div><textarea class="w-full rounded-card border border-input p-3" rows="4" data-gtext>${esc(f.text||'')}</textarea></div><div class="flex justify-between">${btn('Cancel',false,'data-close')}${btn('Send to Masdar City',true,`data-gsubmit ${f.text?'':'disabled style="opacity:.45"'}`)}</div>`;
+  }
+  return `<div class="veil" data-veil><div class="modal flex flex-col gap-4">${body}</div></div>`;
+}
+
+/* ---------- Shell ---------- */
+function people(){
+  const has=id=>S.reqs.find(r=>r.who===id);
+  return `<div class="flex flex-col gap-4"><header><h2 class="text-2xl">People</h2></header>${card(Object.entries(PEOPLE).map(([id,p])=>`<div class="svc"><span>${esc(p.name)}<small>${esc(p.role)} · ${esc(p.nat)}</small></span>${has(id)?btn('Open visa',false,`data-openreq="${has(id).id}"`):btn('Start a visa',false,`data-startfor="${id}" ${ready()?'':'disabled style="opacity:.45"'}`)}</div>`).join(''))}</div>`;
+}
+const stub=t=>()=>`<div class="flex flex-col gap-4"><header><h2 class="text-2xl">${t}</h2></header>${card('<p class="text-base text-muted-foreground">Not part of this wireframe.</p>')}</div>`;
+const SCR={overview,services,visa,people,company:stub('Company'),documents:stub('Documents'),payments:stub('Payments'),access:stub('Share access')};
+const NAV=[['Overview','overview'],['Company','company'],['People','people'],['Documents','documents'],['Payments','payments'],['Share access','access'],['Services','services']];
+function wbar(){
+  const r=S.screen==='visa'?R():null;
+  return `<b>WIREFRAME</b><label>Package <select id="w-pkg">${Object.entries({b1:'Business One, 1 visa included',st0:'Startup, no visas',st2:'Startup, 2 visas bought'}).map(([k,l])=>`<option value="${k}" ${S.pkg===k?'selected':''}>${l}</option>`).join('')}</select></label>
+   <label>Case at <select id="w-stage">${['Application checks','Licence issued','Establishment card and e-channel done'].map((t,i)=>`<option value="${i}" ${S.stage===i?'selected':''}>${t}</option>`).join('')}</select></label>
+   ${r?`<label>Visa at <select id="w-step">${SHORT.map((t,i)=>`<option value="${i}" ${r.v.cur===i?'selected':''}>${i+1} ${t}</option>`).join('')}<option value="8" ${r.v.cur>=8?'selected':''}>Finished</option></select></label>
+     <label>Medical <select id="w-med">${['book','booked','own','waiting','unfit'].map(m=>`<option ${r.v.med===m?'selected':''}>${m}</option>`).join('')}</select></label>`:''}
+   <button id="w-reset">Reset</button>`;
+}
+function render(){
+  const nav=NAV.map(([t,k])=>`<a ${k?`data-go="${k}"`:''} class="flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-2 text-base no-underline ${k===S.screen||(k==='services'&&S.screen==='visa')?'bg-sidebar-accent text-sidebar-accent-foreground font-bold':'font-medium text-muted-foreground'}">${t}</a>`).join('');
+  document.getElementById('nav').innerHTML=nav; document.getElementById('mnav').innerHTML=nav;
+  document.getElementById('wbar').innerHTML=wbar();
+  document.getElementById('screen').innerHTML=SCR[S.screen]();
+  document.getElementById('modal').innerHTML=modal();
+  try{localStorage.setItem('mcfz-services-wf-v3',JSON.stringify({...S,flow:null}))}catch(_){}
+}
+try{const sv=JSON.parse(localStorage.getItem('mcfz-services-wf-v3')||'null'); if(sv&&sv.screen) S={...S,...sv,flow:null}}catch(_){}
+function openVisa(id){S.open=id; S.screen='visa'; S.flow=null; render(); scrollTo(0,0)}
+function vgo(r,i,sub){r.v.cur=i; r.v.sub=sub||'you'; if(i===3){r.v.med='book'; r.v.slot=null} render()}
+document.addEventListener('click',e=>{const t=e.target, r=R();
+  if(t.closest('input,select,textarea,.wbar')&&!t.closest('[data-vslot],[data-vbslot]')) return;
+  if(t.matches('[data-veil]')||t.closest('[data-close]')){S.flow=null; render(); return}
+  const g=t.closest('[data-go]'); if(g){S.screen=g.dataset.go; S.flow=null; render(); return}
+  const oq=t.closest('[data-openreq]'); if(oq){openVisa(oq.dataset.openreq); return}
+  if(t.closest('[data-startvisa]')||t.closest('[data-svc="visa"]')){S.flow={step:'who'}; render(); return}
+  const sv=t.closest('[data-svc]'); if(sv&&!sv.disabled){S.flow={step:'generic',title:sv.closest('.svc').querySelector('span').childNodes[0].textContent}; render(); return}
+  const w=t.closest('[data-who]'); if(w){ if(left()>0){openVisa(newReq(w.dataset.who))} else {S.flow.who=w.dataset.who; render(); document.querySelectorAll('[data-who]').forEach(b=>b.style.borderColor=b.dataset.who===S.flow.who?'var(--w-teal)':'')} return}
+  const sf=t.closest('[data-startfor]'); if(sf&&!sf.disabled){ if(left()>0) openVisa(newReq(sf.dataset.startfor)); else {S.flow={step:'who',who:sf.dataset.startfor}; render()} return}
+  const pay=t.closest('[data-pay]'); if(pay&&!pay.disabled){openVisa(newReq(S.flow.who)); return}
+  const gs=t.closest('[data-gsubmit]'); if(gs&&!gs.disabled){S.flow=null; render(); return}
+  if(!r) return;
+  const v=r.v;
+  const vj=t.closest('[data-vjump]'); if(vj&&S.screen==='visa'){const i=+vj.dataset.vjump; if(i>1&&!v.where) v.where='out'; if(r.who==='new'&&!v.pp){v.pp=true; r.name='Rania Saleh'; r.first='Rania'} vgo(r,i,i===5?'mc':'you'); return}
+  if(t.closest('[data-vpp]')){v.pp=true; r.name='Rania Saleh'; r.first='Rania'; render(); return}
+  if(t.closest('[data-vdeg]')){v.deg=true; render(); return}
+  if(t.closest('[data-vphoto]')){const first=v.photo==='none'; v.photo='reading'; render(); setTimeout(()=>{v.photo=first?'bad':'ok'; render()},900); return}
+  const vs=t.closest('[data-vsend]'); if(vs&&!vs.disabled){const i=+vs.dataset.vsend;
+    if(i===0){v.sub='mc'; render(); setTimeout(()=>vgo(r,1),1400)}
+    if(i===1) vgo(r,2);
+    if(i===2){ if(v.where==='out') vgo(r,3); else {v.sub='mc'; render(); setTimeout(()=>vgo(r,3),1400)} }
+    if(i===4){vgo(r,5,'mc'); setTimeout(()=>vgo(r,6),1600)}
+    if(i===6){v.sub='mc'; render(); setTimeout(()=>vgo(r,7),1400)}
+    return}
+  const sl=t.closest('[data-vslot]'); if(sl){v.slot=+sl.dataset.vslot; render(); return}
+  const bs=t.closest('[data-vbslot]'); if(bs){v.bslot=+bs.dataset.vbslot; render(); return}
+  const md=t.closest('[data-vmed]'); if(md&&!md.disabled){v.med=md.dataset.vmed; if(v.med==='waiting') v.ownWent=true; render(); return}
+  if(t.closest('[data-vins]')){v.ins=true; render(); return}
+  if(t.closest('[data-veid]')){v.eid=true; render(); setTimeout(()=>vgo(r,8),900); return}
+});
+document.addEventListener('change',e=>{const t=e.target, r=R();
+  if(t.id==='w-pkg'){S.pkg=t.value; render(); return}
+  if(t.id==='w-stage'){S.stage=+t.value; render(); return}
+  if(t.id==='w-step'&&r){const i=+t.value; if(i>1&&!r.v.where) r.v.where='out'; if(r.who==='new'&&!r.v.pp){r.v.pp=true; r.name='Rania Saleh'; r.first='Rania'} vgo(r,i,i===5?'mc':'you'); return}
+  if(t.id==='w-med'&&r){r.v.cur=3; r.v.sub='you'; r.v.med=t.value; if(t.value==='booked'&&r.v.slot==null) r.v.slot=1; render(); return}
+  if(t.name==='w'&&r){r.v.where=t.value; render(); return}
+  if(t.dataset.vf&&r){r.v.f[t.dataset.vf]=t.value; if(t.dataset.vf==='religion') delete r.v.f.faith; if(t.tagName==='SELECT'||t.dataset.vf==='rvnum') render()}
+});
+document.addEventListener('input',e=>{const t=e.target, r=R();
+  if(t.dataset.vf&&r&&t.tagName==='INPUT'){r.v.f[t.dataset.vf]=t.value}
+  if(t.dataset.gtext!==undefined&&S.flow){S.flow.text=t.value; const pos=t.selectionStart; render(); const n=document.querySelector('[data-gtext]'); n.focus(); n.setSelectionRange(pos,pos)}
+});
+document.addEventListener('click',e=>{ if(e.target.id==='w-reset'){S=fresh(); render()} });
+render();
+</script>
+</body>
+</html>
