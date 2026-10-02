@@ -250,15 +250,22 @@ function payment(){
 
 /* ---------- Pre-approval ---------- */
 const yn3=(v,key)=>`<div class="inline-flex w-fit overflow-hidden rounded-pill border border-border">${[['Yes',true,1],['No',false,0]].map(([t,b,n])=>`<button class="h-8 px-4 text-base font-bold ${v===b?'bg-brand-strong text-brand-foreground':'text-muted-foreground'}" data-yn="${key}:${n}">${t}</button>`).join('')}</div>`;
-function manager(){const g=W.mgr, round=W.preRound;
-  const up=(k,label,hint)=>`<div class="flex items-center justify-between gap-3 px-4 py-3"><span class="min-w-0"><b class="block text-md">${label}</b><span class="text-sm text-muted-foreground">${g[k]?'✓ '+k+'.pdf':hint}</span></span><button class="text-sm font-bold text-brand-text underline" data-mup="${k}">${g[k]?'Replace':'Upload'}</button></div>`;
-  let resid='';
-  if(g.uae===true) resid=box(up('eid','Emirates ID','The front of the card. Add the back too if you have it.')+up('rv','Residence visa','The visa page.'));
-  if(g.uae===false){ resid=box(row('Has the manager entered the UAE before?',yn3(g.been,'mbeen')));
-    if(g.been===true) resid+=`<div>${lbl('Unified number')}${inp(g.uid||'','data-muid')}</div>`;
-    if(g.been===false) resid+=`<div class="rounded-card border p-4" style="border-color:#efe0b8;background:var(--w-amberbg)"><b>This manager can’t be approved yet</b><p class="mt-1 text-base">ICP only clear a manager who has entered the UAE before. Choose a different manager, or apply once they have entered.</p></div>`; }
-  return wrap(title(round>1?'Choose a Different Manager':'Manager')+(round>1?`<p class="text-base text-muted-foreground">ICP did not approve the first manager. Enter someone else.</p>`:'')+card(`<div class="grid gap-4 sm:grid-cols-2"><div>${lbl('Full name')}${inp(g.name||'','data-mf="name"')}</div><div>${lbl('Full name in Arabic')}${inp(g.ar||'','data-mf="ar" dir="rtl"')}</div><div>${lbl('Email')}${inp(g.email||'','data-mf="email"')}</div><div>${lbl('Mobile')}${inp(g.mobile||'','data-mf="mobile"')}</div></div>`)
-    +box(up('pp','Passport','Front page, and last page if applicable.'))+box(row('Does the manager have UAE residency?',yn3(g.uae,'muae')))+resid);
+function manager(){const g=W.mgr, round=W.preRound, res=g.uae;
+  const FILES={pp:'manager-passport.pdf',eid:'manager-emirates-id.pdf',rv:'manager-residence-visa.pdf'};
+  const drow=(k,label,hint)=>`<div class="grid items-start gap-3 border-t border-border px-4 py-3" style="grid-template-columns:22px 1fr auto"><span class="mt-0.5 flex size-[18px] items-center justify-center rounded-full ${g[k]?'bg-brand-strong text-brand-foreground':'border-[1.5px] border-border'} text-xs">${g[k]?'✓':''}</span><div class="min-w-0"><b>${label}</b><p class="mt-px text-sm text-muted-foreground">${g[k]?'✓ '+FILES[k]:hint}</p></div><button class="text-sm font-bold text-brand-text underline" data-mup="${k}">${g[k]?'Replace':'Upload'}</button></div>`;
+  const docsL=[['pp','Passport','Front page, and last page if applicable.']].concat(res===true?[['eid','Emirates ID','The front of the card. Add the back too if you have it.'],['rv','Residence visa','The visa page.']]:[]);
+  const need=docsL.length+(res===false?1:0), have=docsL.filter(([k])=>g[k]).length+(res===false&&g.been===true&&g.uid?1:0);
+  const ask=`<div class="flex flex-wrap items-center gap-3 border-t border-border px-4 py-3 text-base"><span>Does the manager have UAE residency?</span>${yn3(res,'muae')}</div>`;
+  let notres='';
+  if(res===false){ notres=`<div class="flex flex-wrap items-center gap-3 border-t border-border px-4 py-3 text-base"><span>Has the manager entered the UAE before?</span>${yn3(g.been,'mbeen')}</div>`;
+    if(g.been===true) notres+=`<div class="grid items-start gap-3 border-t border-border px-4 py-3" style="grid-template-columns:22px 1fr"><span class="mt-0.5 flex size-[18px] items-center justify-center rounded-full ${g.uid?'bg-brand-strong text-brand-foreground':'border-[1.5px] border-border'} text-xs">${g.uid?'✓':''}</span><div class="min-w-0"><b>Unified number</b><div class="mt-2 max-w-[260px]">${inp(g.uid||'','data-muid')}</div></div></div>`;
+    if(g.been===false) notres+=`<div class="border-t border-border px-4 py-3" style="background:var(--w-amberbg)"><b>This manager can’t be approved yet</b><p class="mt-1 text-base">ICP only clear a manager who has entered the UAE before. Choose a different manager, or apply once they have entered.</p></div>`; }
+  const editAll=W.medit==='*';
+  const rows=[['name','Full name',g.name],['ar','Full name in Arabic',g.ar],['email','Email',g.email],['mobile',res?'UAE mobile number':'Mobile',g.mobile]];
+  const aboutB=`<div class="border-t border-border px-4 pt-3.5 pb-4"><div class="mb-2 flex items-center justify-between"><span class="text-base font-bold text-muted-foreground">About ${g.name?esc(g.name.split(' ')[0]):'the manager'}</span><button class="inline-flex items-center gap-1.5 text-sm font-bold text-brand-text" data-medit="*">${editAll?'Done':'✎ Edit details'}</button></div>${box(rows.map(([k,l,v])=>{const on=editAll||W.medit===k;
+    return `<div class="grid min-h-12 items-center gap-4 px-4 py-2.5" style="grid-template-columns:170px 1fr"><div class="text-md text-muted-foreground">${l}</div><div>${on?inp(v||'',`data-mf="${k}" ${k==='ar'?'dir="rtl"':''}`,'max-w-[340px]'):v?`<span class="text-md font-bold" ${k==='ar'?'dir="rtl"':''}>${esc(v)}</span>`:`<button class="text-md font-bold text-brand-text underline underline-offset-2" data-medit="${k}">Add</button>`}</div></div>`}).join(''))}</div>`;
+  const head=`<div class="grid w-full items-center gap-3 bg-surface-sunken px-4 py-3.5" style="grid-template-columns:1fr auto"><div><b class="block">${g.name?esc(g.name):'Manager'}</b><small class="block text-sm text-muted-foreground">Manager · checked with ICP</small></div><span class="text-sm text-muted-foreground tabular">${have} of ${need}</span></div>`;
+  return wrap(title(round>1?'Choose a Different Manager':'Manager')+(round>1?`<p class="text-base text-muted-foreground">ICP did not approve the first manager. Enter someone else.</p>`:'')+`<section class="overflow-hidden rounded-lg border border-border bg-card">${head}${ask}${docsL.map(([k,l,h])=>drow(k,l,h)).join('')}${notres}${aboutB}</section>`);
 }
 const mgrBlocked=()=>{const g=W.mgr; return !(g.name&&g.pp&&(g.uae===true?(g.eid&&g.rv):g.uae===false?(g.been===true&&g.uid):false))};
 function prepay(){const second=W.preRound>1;
@@ -534,6 +541,7 @@ document.addEventListener('click',e=>{
   const lg=t.closest('[data-legal]'); if(lg){const k=lg.dataset.legal; if(k==='pre'){W.pre=true} else {W.pre=false; if(k==='branch'&&!isBranch()) K='branch'; if(k==='llc'&&isBranch()) K='multi'} render(); return}
   const pr=t.closest('[data-preres]'); if(pr){W.preRes=pr.dataset.preres; render(); return}
   if(t.closest('[data-newmgr]')){W.preRound=2; W.preRes='wait'; W.mgr={}; go('manager'); return}
+  const me=t.closest('[data-medit]'); if(me){const k=me.dataset.medit; W.medit=(W.medit===k)?null:k; render(); const i=document.querySelector(`[data-mf="${k==='*'?'name':k}"]`); i&&i.focus(); return}
   const mu=t.closest('[data-mup]'); if(mu){W.mgr[mu.dataset.mup]=true; render(); return}
   const myn=t.closest('[data-yn^="muae:"],[data-yn^="mbeen:"]'); if(myn){const [k,v]=myn.dataset.yn.split(':'); if(k==='muae'){W.mgr.uae=v==='1'; delete W.mgr.been} else W.mgr.been=v==='1'; render(); return}
   const nv=t.closest('[data-nav]'); if(nv){ if(nv.disabled) return; const i=ALLF().findIndex(([k])=>k===SCREEN)+(+nv.dataset.nav); let k=ALLF()[i]?.[0]; if(k){ go(k) } return}
