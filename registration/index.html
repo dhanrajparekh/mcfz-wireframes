@@ -249,12 +249,39 @@ function nameStep(){
   return wrap(title('Company Name')+card(`<div class="grid gap-4 sm:grid-cols-2"><div>${lbl('Company name')}${inp(x.company.replace(/ Limited$/,''))}<p class="mt-2 text-sm text-muted-foreground">“Limited” is added for you.</p></div><div>${lbl('Arabic')}${inp(x.arabic,'dir="rtl"')}</div></div><div class="text-sm font-bold text-brand-text">✓ Available</div>`));
 }
 function pkg(){
-  return wrap(title('Choose a Package')+card(`<div class="flex items-center justify-between"><b class="text-lg">Licence length</b><b>2 years</b></div>`)+card(`<div class="grid gap-3" style="grid-template-columns:1fr 1fr 1fr"><span></span><span class="text-right"><b class="block text-brand-text">Business One</b><span class="text-sm text-muted-foreground">You are buying this</span></span><b class="text-right">Startup</b></div>
-    <div class="grid gap-3 border-t border-border pt-3" style="grid-template-columns:1fr 1fr 1fr"><span class="text-muted-foreground">What it buys</span><span class="text-right">${isBranch()?'3 activities included':'3 activities and any number of shareholders included'}</span><span class="text-right">${isBranch()?'2 activities included':'2 activities and 3 shareholders included'}</span></div>
-    <div class="grid gap-3 border-t border-border pt-3" style="grid-template-columns:1fr 1fr 1fr"><b>Total for 2 years${fb('D2')}</b><b class="text-right text-lg tabular">AED 17,520</b><b class="text-right text-lg tabular">AED 22,970</b></div>`)+(W.struct==='free'?'':payHow()));
-}
-function payHow(){const c2=window.__card2;
-  return `<section class="mt-2"><header><h2 class="text-xl">How Do You Want to Pay?</h2></header><div class="mt-4 flex flex-col gap-3">${c2('nopre','Pay for the package now','AED 17,520. Registration continues straight away.',!W.pre,null,'data-legal="nopre"')}${c2('pre','Pre-approval first','AED 500 now. ICP check the manager and the name is reserved for 60 days. The package is paid after approval.',W.pre,null,'data-legal="pre"')}</div></section>`;
+  const P=W.pk||(W.pk={visas:1,sh:3,yrs:1,pkg:'b1',cmp:false}), pre=W.pre&&W.struct!=='free', b1=P.pkg!=='st';
+  const PK={b1:{name:'Business One',buys:'3 activities, any number of shareholders',first:12510,after:17510},st:{name:'Startup',buys:'2 activities, 3 shareholders',first:16410,after:12260}};
+  const cur=PK[b1?'b1':'st'], aed=n=>'AED '+n.toLocaleString();
+  const ob='inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full border bg-background shadow-xs size-8 text-base font-bold disabled:opacity-50';
+  const pill='inline-flex h-8 shrink-0 items-center rounded-pill border bg-background px-4 text-base font-bold shadow-xs';
+  const step=(k,val,lbl,min,max)=>`<div class="flex items-center gap-2"><button class="${ob}" data-pk="${k}:-1" ${val<=min?'disabled':''} aria-label="Fewer">−</button><span class="text-center text-lg tabular ${k==='yrs'?'min-w-24 px-1':'w-8'}">${lbl}</span><button class="${ob}" data-pk="${k}:1" ${val>=max?'disabled':''} aria-label="More">+</button></div>`;
+  const prow=(id,label,ctrl,below='')=>`<div id="${id}" class="border-b border-border px-5 py-4 last:border-b-0"><div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3"><div class="min-w-0 flex-1" style="flex-basis:16rem"><div class="font-bold text-foreground">${label}</div></div><div class="flex shrink-0 items-center gap-3">${ctrl}</div></div>${below}</div>`;
+  const ynp=(v)=>`<div class="inline-flex w-fit overflow-hidden rounded-pill border border-border">${[['Yes',true],['No',false]].map(([t,b])=>`<button class="h-8 px-4 text-base font-bold ${v===b?'bg-brand-strong text-brand-foreground':'text-muted-foreground'}" data-legal="${b?'pre':'nopre'}">${t}</button>`).join('')}</div>`;
+  const radio=on=>`<span style="display:inline-block;width:16px;height:16px;border-radius:50%;flex-shrink:0;border:${on?'5px solid var(--brand-strong)':'1.5px solid var(--border)'};background:var(--card)"></span>`;
+  const col=k=>{const on=(k==='b1')===b1;return `<th class="p-0 text-left align-bottom" style="${on?'background:var(--brand-subtle)':''}"><button type="button" data-pkg="${k}" class="flex w-full items-center gap-2 px-3 py-2.5 text-left text-base font-bold ${on?'text-brand-text':'text-foreground'}">${radio(on)}${PK[k].name}</button></th>`};
+  const cell=(k,v,bold)=>{const on=(k==='b1')===b1;return `<td class="px-3 py-2.5 align-top text-base tabular ${bold?'font-bold':''}" style="white-space:normal;${on?'background:var(--brand-subtle)':''}">${v}</td>`};
+  const tr=(l,f,bold)=>`<tr class="border-t border-border"><td class="py-2.5 pr-3 align-top text-base text-muted-foreground" style="white-space:normal">${l}</td>${cell('b1',f(PK.b1),bold)}${cell('st',f(PK.st),bold)}</tr>`;
+  const cmp=P.cmp?`<table class="mt-4 w-full table-fixed border-collapse"><colgroup><col style="width:28%"><col style="width:36%"><col style="width:36%"></colgroup><thead><tr><th></th>${col('b1')}${col('st')}</tr></thead><tbody>${tr('Includes',x=>x.buys)}${tr('First year',x=>aed(x.first),true)}${tr('Each year after',x=>aed(x.after))}</tbody></table>`:'';
+  const left=`<div class="flex flex-col rounded-card border border-border bg-card text-card-foreground shadow-card p-0 gap-0">
+    ${prow('visa-count','How many residence visas do you need?',step('visas',P.visas,P.visas,0,6))}
+    ${isBranch()?'':prow('shareholder-count','How many shareholders?',step('sh',P.sh,P.sh,1,99))}
+    ${prow('business-activities','Business activities',`<button type="button" class="inline-flex items-center gap-1 rounded-pill border border-dashed border-border px-2.5 py-1 text-sm font-bold text-muted-foreground">+ Add activity</button>`)}
+    ${prow('licence-years','Licence length',step('yrs',P.yrs,P.yrs+(P.yrs>1?' years':' year'),1,b1?2:1))}
+    ${prow('package','Package',`<span class="text-base font-bold">${cur.name}</span><button type="button" class="${pill}" data-pkcmp>${P.cmp?'Close':'Compare'}</button>`,cmp)}
+    ${W.struct==='free'?'':prow('pre-approval','Clear the manager with ICP first?'+fb('Pre'),ynp(!!W.pre))}</div>`;
+  const total=b1?(P.yrs>1?17520:12510):16410;
+  const li=(k,v,sub,cls='')=>`<li><div class="flex items-baseline justify-between gap-3 text-base ${cls}"><span class="min-w-0 ${cls?'':'text-muted-foreground'}">${k}</span><span class="shrink-0 tabular">${v}</span></div>${sub?`<p class="text-sm text-muted-foreground" style="opacity:.75">${sub}</p>`:''}</li>`;
+  const pkgList=`<ul class="mt-4 flex list-none flex-col gap-2 border-t border-border pt-3">${b1?li('Business One package','AED 17,500','17,500 a year, first visa included')+li('NER fee','AED 10')+li('Summer promotion','−AED 5,000','Business One at 12,500 for 1 year','font-bold text-success')+(P.yrs>1?li('Second year','AED 5,010'):''):li('Startup package','AED 16,400')+li('NER fee','AED 10')}</ul>`;
+  const promo=b1?`<span class="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-warning"><span class="size-1.5 rounded-full bg-warning"></span>Summer promotion</span>`:'';
+  const right=`<div class="flex h-full flex-col gap-0 rounded-card border border-border bg-card p-0 text-card-foreground shadow-card"><div class="p-5">
+    <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1"><span class="text-base font-bold text-muted-foreground">${pre?'Pay now':'Your cost'}</span>${promo}</div>
+    ${pre?`<div class="mt-1.5"><span class="font-display text-4xl font-bold leading-none tabular">AED 500</span></div><p class="mt-1.5 text-base text-muted-foreground">Pre-approval and company name reservation</p><p class="mt-1 text-base font-bold text-brand-text">The package is paid after approval</p>
+      <div class="mt-4 border-t border-border pt-3"><div class="flex items-baseline justify-between"><span class="text-base font-bold">After approval</span><span class="font-display text-xl font-bold tabular">${aed(total)}</span></div>${pkgList}</div>`
+    :`<div class="mt-1.5"><span class="font-display text-4xl font-bold leading-none tabular">${aed(total)}</span></div><p class="mt-1.5 text-base text-muted-foreground">${cur.name} · VAT included</p>${b1?'<p class="mt-1 text-base font-bold text-brand-text">Business One at 12,500 for 1 year</p>':''}${pkgList}
+      <div class="mt-3 flex items-baseline justify-between gap-3 border-t-2 border-border pt-3"><span class="text-md font-bold">Total</span><span class="font-display text-xl font-bold tabular">${aed(total)}</span></div>`}
+    ${b1&&P.yrs<2?`<div class="mt-3"><p class="border-t border-border pt-3 text-base"><button type="button" class="font-bold text-brand-text underline underline-offset-2" data-pk="yrs:1">Add a second year for AED 5,010</button><span class="ml-1.5 text-muted-foreground">Renewing later costs AED 17,510.</span></p></div>`:''}
+    <dl class="mt-3 border-t border-border pt-3"><div class="flex items-baseline justify-between gap-3"><dt class="text-base font-bold">Each year after</dt><dd class="tabular text-base font-bold">${aed(cur.after)}</dd></div></dl></div></div>`;
+  return `<div class="flex w-full flex-col gap-4 pb-10"><header><h2 class="text-2xl">Your Licence</h2></header><div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]"><div class="flex min-w-0 flex-col gap-4">${left}</div>${right}</div></div>`;
 }
 function payment(){
   return wrap(title('Payment')+card(`<div class="flex items-center justify-between"><b class="text-lg">Paid</b><span class="text-sm font-bold text-brand-text">✓ Payment confirmed</span></div><div class="flex justify-between border-t border-border pt-3"><span>Business One, 2 years</span><b class="tabular">AED 17,520</b></div>`));
@@ -551,6 +578,9 @@ document.addEventListener('click',e=>{
   const g=t.closest('[data-go]'); if(g){go(g.dataset.go); return}
   const pt=t.closest('[data-pretype]'); if(pt){K=pt.dataset.pretype; render(); return}
   const mo=t.closest('[data-more]'); if(mo){OPEN['more:'+mo.dataset.more]=!OPEN['more:'+mo.dataset.more]; render(); return}
+  if(t.closest('[data-pkcmp]')){W.pk.cmp=!W.pk.cmp; render(); return}
+  const pks=t.closest('[data-pkg]'); if(pks){W.pk.pkg=pks.dataset.pkg; if(W.pk.pkg==='st') W.pk.yrs=1; render(); return}
+  const pkb=t.closest('[data-pk]'); if(pkb&&!pkb.disabled){const [k,d]=pkb.dataset.pk.split(':'); W.pk=W.pk||{visas:1,sh:3,yrs:1}; W.pk[k]=Math.max(0,(W.pk[k]||0)+(+d)); render(); return}
   const lg=t.closest('[data-legal]'); if(lg){const k=lg.dataset.legal; if(k==='pre') W.pre=true; else if(k==='nopre') W.pre=false; else { W.struct=k; if(k==='branch'&&!isBranch()) K='branch'; if(k==='llc'&&isBranch()) K='multi'; if(k==='free') W.pre=false } render(); return}
   const pm=t.closest('[data-premodal]'); if(pm){W.preModal=false; if(pm.dataset.premodal==='go') go('activities'); else render(); return}
   if(t.matches('[data-premodal-bg]')){W.preModal=false; render(); return}
