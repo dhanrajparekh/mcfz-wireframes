@@ -153,8 +153,11 @@ const LIMIT={sh:99,dir:6,mgr:1,lr:1};
 const TH=25;
 const STEPS=[['legal','Legal Structure'],['activities','Business Activities'],['name','Company Name'],['package','Package'],['payment','Payment'],['stake','Stakeholders'],['own','Ownership'],['docs','Documents'],['addl','Additional Documents'],['review','Review']];
 const AFTER=[['overview','Overview'],['services','Services']];
+const PRE_STEPS=[['legal','Legal Structure'],['activities','Business Activities'],['name','Company Name'],['manager','Manager'],['prepay','Payment'],['decision','Pre-approval'],['package','Package'],['payment','Payment'],['stake','Stakeholders'],['own','Ownership'],['docs','Documents'],['addl','Additional Documents'],['review','Review']];
+const SL=()=>W.pre?PRE_STEPS:STEPS;
+const ALLF=()=>[...SL(),...AFTER];
 const D=JSON.parse(JSON.stringify(CASES));
-let K='multi', SCREEN='stake', OPEN={}, MENU=null, W={risk:'Low',check:'none',stage:0,visa:false};
+let K='multi', SCREEN='stake', OPEN={}, MENU=null, W={risk:'Low',check:'none',stage:0,visa:false,pre:false,preRes:'wait',preRound:1,mgr:{}};
 const c=()=>D[K];
 const fmt=x=>(Math.round(x*10)/10).toString()+'%';
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
@@ -223,9 +226,10 @@ const wrap=inner=>`<div class="flex w-full max-w-[54rem] flex-col gap-4 pb-6">${
 function legal(){
   const opts=[['llc','Limited Liability Company (LLC)',['An LLC is a separate legal entity from its owners. A shareholder’s liability is limited to their share capital.','It must have at least one shareholder, one manager, one director and one legal representative. One person can hold all of these roles.','The manager, director and legal representative must be individuals. The shareholder can be an individual or a company.']],
     ['branch','Branch of an Existing Company',['A branch is an extension of an existing company (the parent company), which can be registered in the UAE or overseas.','A branch is not a separate legal entity, so the parent company remains fully responsible for its obligations.','It has no shareholders or directors, is run by a manager, and operates under the parent company’s registered name.']],
-    ['free','Freelancer Permit',['A Freelancer Permit allows an individual to carry out approved activities under their own name.','It is issued to one person and is not a separate legal entity, so the permit holder is personally liable.','It does not include shareholders, partners, directors or a manager, and the holder cannot hire employees.']]];
-  return wrap(title('Choose a Legal Structure'+fb('D1'))+`<div class="flex flex-col gap-3">${opts.map(([k,t,lines])=>{const on=k===c().type;
-    return `<section class="overflow-hidden rounded-card border bg-card shadow-card ${on?'border-brand ring-1 ring-brand':'border-border'}"><div class="flex items-start gap-5 px-6 py-5"><span class="mt-0.5 size-[17px] flex-none rounded-full ${on?'border-[5px] border-brand':'border-[1.5px] border-input'}"></span><span class="min-w-0 flex-1"><span class="block text-lg font-bold">${t}</span><ul class="mt-2 flex flex-col gap-1.5 text-base text-muted-foreground" style="list-style:disc;padding-left:18px">${lines.map(l=>`<li>${l}</li>`).join('')}</ul></span></div></section>`}).join('')}</div><p class="text-sm text-muted-foreground">Switch between a company and a branch with the Case menu above.</p>`);
+    ['free','Freelancer Permit',['A Freelancer Permit allows an individual to carry out approved activities under their own name.','It is issued to one person and is not a separate legal entity, so the permit holder is personally liable.','It does not include shareholders, partners, directors or a manager, and the holder cannot hire employees.']],
+    ['pre','Pre-approval',['Clear your manager with ICP and reserve your company name before you register.','AED 500, paid now. It is not taken off the package price.','If approved, the name is held for 60 days and your answers carry into registration.']]];
+  return wrap(title('Choose a Legal Structure'+fb('D1'))+`<div class="flex flex-col gap-3">${opts.map(([k,t,lines])=>{const on=W.pre?k==='pre':k===c().type;
+    return `<section data-legal="${k}" class="cursor-pointer overflow-hidden rounded-card border bg-card shadow-card ${on?'border-brand ring-1 ring-brand':'border-border'}"><div class="flex items-start gap-5 px-6 py-5"><span class="mt-0.5 size-[17px] flex-none rounded-full ${on?'border-[5px] border-brand':'border-[1.5px] border-input'}"></span><span class="min-w-0 flex-1"><span class="block text-lg font-bold">${t}</span><ul class="mt-2 flex flex-col gap-1.5 text-base text-muted-foreground" style="list-style:disc;padding-left:18px">${lines.map(l=>`<li>${l}</li>`).join('')}</ul></span></div></section>`}).join('')}</div><p class="text-sm text-muted-foreground">Switch between a company and a branch with the Case menu above.</p>`);
 }
 function activities(){
   return wrap(title('Business Activities')+card(`<div class="text-base font-bold text-muted-foreground">Your activities</div><div class="flex items-center justify-between border-t border-border pt-3"><b>${c().activity}</b><span class="text-sm text-muted-foreground">Included in the package</span></div>`));
@@ -236,12 +240,37 @@ function nameStep(){
   return wrap(title('Company Name')+card(`<div class="grid gap-4 sm:grid-cols-2"><div>${lbl('Company name')}${inp(x.company.replace(/ Limited$/,''))}<p class="mt-2 text-sm text-muted-foreground">“Limited” is added for you.</p></div><div>${lbl('Arabic')}${inp(x.arabic,'dir="rtl"')}</div></div><div class="text-sm font-bold text-brand-text">✓ Available</div>`));
 }
 function pkg(){
-  return wrap(title('Choose a Package')+card(`<div class="flex items-center justify-between"><b class="text-lg">Licence length</b><b>2 years</b></div>`)+card(`<div class="grid gap-3" style="grid-template-columns:1fr 1fr 1fr"><span></span><span class="text-right"><b class="block text-brand-text">Business One</b><span class="text-sm text-muted-foreground">You are buying this</span></span><b class="text-right">Startup</b></div>
+  return wrap(title('Choose a Package')+(W.pre?`<p class="text-base text-muted-foreground">Pre-approval paid separately (AED 500). Name reserved until 1 December 2026.</p>`:'')+card(`<div class="flex items-center justify-between"><b class="text-lg">Licence length</b><b>2 years</b></div>`)+card(`<div class="grid gap-3" style="grid-template-columns:1fr 1fr 1fr"><span></span><span class="text-right"><b class="block text-brand-text">Business One</b><span class="text-sm text-muted-foreground">You are buying this</span></span><b class="text-right">Startup</b></div>
     <div class="grid gap-3 border-t border-border pt-3" style="grid-template-columns:1fr 1fr 1fr"><span class="text-muted-foreground">What it buys</span><span class="text-right">${isBranch()?'3 activities included':'3 activities and any number of shareholders included'}</span><span class="text-right">${isBranch()?'2 activities included':'2 activities and 3 shareholders included'}</span></div>
     <div class="grid gap-3 border-t border-border pt-3" style="grid-template-columns:1fr 1fr 1fr"><b>Total for 2 years${fb('D2')}</b><b class="text-right text-lg tabular">AED 17,520</b><b class="text-right text-lg tabular">AED 22,970</b></div>`));
 }
 function payment(){
   return wrap(title('Payment')+card(`<div class="flex items-center justify-between"><b class="text-lg">Paid</b><span class="text-sm font-bold text-brand-text">✓ Payment confirmed</span></div><div class="flex justify-between border-t border-border pt-3"><span>Business One, 2 years</span><b class="tabular">AED 17,520</b></div>`));
+}
+
+/* ---------- Pre-approval ---------- */
+const yn3=(v,key)=>`<div class="inline-flex w-fit overflow-hidden rounded-pill border border-border">${[['Yes',true,1],['No',false,0]].map(([t,b,n])=>`<button class="h-8 px-4 text-base font-bold ${v===b?'bg-brand-strong text-brand-foreground':'text-muted-foreground'}" data-yn="${key}:${n}">${t}</button>`).join('')}</div>`;
+function manager(){const g=W.mgr, round=W.preRound;
+  const up=(k,label,hint)=>`<div class="flex items-center justify-between gap-3 px-4 py-3"><span class="min-w-0"><b class="block text-md">${label}</b><span class="text-sm text-muted-foreground">${g[k]?'✓ '+k+'.pdf':hint}</span></span><button class="text-sm font-bold text-brand-text underline" data-mup="${k}">${g[k]?'Replace':'Upload'}</button></div>`;
+  let resid='';
+  if(g.uae===true) resid=box(up('eid','Emirates ID','The front of the card. Add the back too if you have it.')+up('rv','Residence visa','The visa page.'));
+  if(g.uae===false){ resid=box(row('Has the manager entered the UAE before?',yn3(g.been,'mbeen')));
+    if(g.been===true) resid+=`<div>${lbl('Unified number')}${inp(g.uid||'','data-muid')}</div>`;
+    if(g.been===false) resid+=`<div class="rounded-card border p-4" style="border-color:#efe0b8;background:var(--w-amberbg)"><b>This manager can’t be approved yet</b><p class="mt-1 text-base">ICP only clear a manager who has entered the UAE before. Choose a different manager, or apply once they have entered.</p></div>`; }
+  return wrap(title(round>1?'Choose a Different Manager':'Manager')+(round>1?`<p class="text-base text-muted-foreground">ICP did not approve the first manager. Enter someone else.</p>`:'')+card(`<div class="grid gap-4 sm:grid-cols-2"><div>${lbl('Full name')}${inp(g.name||'','data-mf="name"')}</div><div>${lbl('Full name in Arabic')}${inp(g.ar||'','data-mf="ar" dir="rtl"')}</div><div>${lbl('Email')}${inp(g.email||'','data-mf="email"')}</div><div>${lbl('Mobile')}${inp(g.mobile||'','data-mf="mobile"')}</div></div>`)
+    +box(up('pp','Passport','Front page, and last page if applicable.'))+box(row('Does the manager have UAE residency?',yn3(g.uae,'muae')))+resid);
+}
+const mgrBlocked=()=>{const g=W.mgr; return !(g.name&&g.pp&&(g.uae===true?(g.eid&&g.rv):g.uae===false?(g.been===true&&g.uid):false))};
+function prepay(){const second=W.preRound>1;
+  return wrap(title('Payment')+card(`<div class="flex justify-between"><span>Pre-approval and company name reservation</span><b class="tabular">AED 500</b></div>${second?`<div class="rounded-card border border-dashed border-border p-3 text-sm text-muted-foreground">Second manager check: fee to confirm with Masdar City. ${fb('Open')}</div>`:''}<div class="flex justify-between border-t border-border pt-3"><b>Total</b><b class="tabular text-lg">AED 500</b></div><p class="text-sm text-muted-foreground">Separate from the package. It is not taken off the package price.</p>`));
+}
+function decision(){const r=W.preRes, g=W.mgr, name=c().company, until='1 December 2026';
+  const show=`<div class="flex flex-wrap items-center gap-2 text-sm"><span class="text-muted-foreground">Show:</span>${[['wait','Waiting'],['ok','Approved'],['no','Not approved']].map(([k,t])=>`<button class="rounded-pill border px-3 h-8 ${r===k?'bg-brand-strong text-brand-foreground':'bg-background'}" data-preres="${k}">${t}</button>`).join('')}</div>`;
+  let body;
+  if(r==='wait') body=card(`<span class="text-sm font-bold text-brand-text">With Masdar City</span><b class="text-2xl">Checking your manager and company name</b><p class="text-base text-muted-foreground">Masdar City check ${esc(g.name||'the manager')} with ICP and the name against the register. We will email you with the decision.</p>`);
+  if(r==='ok') body=card(`<span class="text-sm font-bold text-brand-text">✓ Pre-approved</span><b class="text-2xl">${esc(name)}</b><div class="grid gap-2" style="grid-template-columns:12rem 1fr"><span class="text-muted-foreground">Manager</span><b>${esc(g.name||'')}</b><span class="text-muted-foreground">Name reserved until</span><b>${until}</b></div><div class="flex items-center justify-between rounded-card border border-border p-3"><span><b class="block">Name Reservation Certificate</b><span class="text-sm text-muted-foreground">PDF</span></span>${btn('Download')}</div><p class="text-base">Finish registration before ${until}. Your activities, name and manager carry over.</p>`);
+  if(r==='no') body=card(`<span class="text-sm font-bold" style="color:var(--w-red)">Not approved</span><b class="text-2xl">ICP did not approve ${esc(g.name||'the manager')} as manager</b><p class="text-base text-muted-foreground">Your company name and activities are kept. Choose a different manager to continue.</p><div>${btn('Choose a different manager',true,'data-newmgr')}</div>`);
+  return wrap(title('Pre-approval')+show+body);
 }
 
 /* ---------- 6 Stakeholders ---------- */
@@ -461,27 +490,29 @@ function services(){
 }
 
 /* ---------- Shell ---------- */
-const SCR={legal,activities,name:nameStep,package:pkg,payment,stake,own,docs,addl,review,overview,services};
+const SCR={legal,activities,name:nameStep,manager,prepay,decision,package:pkg,payment,stake,own,docs,addl,review,overview,services};
 const ALL=[...STEPS,...AFTER];
 function render(){
   document.getElementById('side-co').textContent=c().company;
   document.getElementById('head-co').textContent=c().company;
-  const idx=STEPS.findIndex(([k])=>k===SCREEN);
+  const idx=SL().findIndex(([k])=>k===SCREEN);
   const navItem=([k,t],i,done)=>`<a data-go="${k}" class="flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-2 text-base no-underline ${k===SCREEN?'bg-sidebar-accent text-sidebar-accent-foreground font-bold':'font-medium text-muted-foreground'}"><span class="flex size-5 shrink-0 items-center justify-center rounded-full border text-xs ${done?'border-transparent bg-brand-subtle text-brand-text':'border-border text-muted-foreground'}">${done?'✓':i}</span><span class="min-w-0 flex-1 truncate">${t}</span></a>`;
-  document.getElementById('nav').innerHTML=`<div class="flex flex-col gap-0.5"><div class="px-2 pb-2 text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">Setting Up</div>${STEPS.map((s,i)=>navItem(s,i+1,i<5)).join('')}</div><div class="flex flex-col gap-0.5"><div class="px-2 pb-2 text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">After You Submit</div>${AFTER.map((s,i)=>navItem(s,'',false)).join('')}</div>`;
+  document.getElementById('nav').innerHTML=`<div class="flex flex-col gap-0.5">${W.pre?`<div class="px-2 pb-2 text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">Pre-approval</div>${PRE_STEPS.slice(0,6).map((s,i)=>navItem(s,i+1,i<idx)).join('')}</div><div class="flex flex-col gap-0.5"><div class="px-2 pb-2 text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">Registration</div>${PRE_STEPS.slice(6).map((s,i)=>navItem(s,i+7,i+6<idx)).join('')}`:`<div class="px-2 pb-2 text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">Setting Up</div>${STEPS.map((s,i)=>navItem(s,i+1,i<5)).join('')}`}</div><div class="flex flex-col gap-0.5"><div class="px-2 pb-2 text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">After You Submit</div>${AFTER.map((s,i)=>navItem(s,'',false)).join('')}</div>`;
   document.getElementById('screen').innerHTML=SCR[SCREEN]();
   document.getElementById('help').innerHTML=`<button class="text-sm font-bold text-brand-text underline underline-offset-2" data-help>Need help?</button>${fb('V9')}${W.help?`<div class="absolute right-0 top-8 z-30 w-64 rounded-card border border-border bg-card p-4 shadow-card"><p class="text-base">Talk to the Masdar City team.</p><div class="mt-3 flex flex-wrap gap-2">${btn('Book a call',true)}${btn('Send a message')}</div></div>`:''}`;
   document.getElementById('w-case').innerHTML=ORDER.map(k=>`<option value="${k}" ${k===K?'selected':''}>${CASES[k].label}</option>`).join('');
   document.getElementById('w-risk').value=W.risk; document.getElementById('w-check').value=W.check;
   const n=document.getElementById('next'); const m=compute();
   const block=SCREEN==='own'&&ownErrors(m).length;
-  n.disabled=!!block; n.style.opacity=block?'.45':'';
-  n.textContent=SCREEN==='review'?'Sign and submit →':'Next →';
+  const preBlock=(SCREEN==='manager'&&mgrBlocked())||(SCREEN==='decision'&&W.preRes!=='ok');
+  n.disabled=!!(block||preBlock); n.style.opacity=(block||preBlock)?'.45':'';
+  n.textContent=SCREEN==='review'?'Sign and submit →':SCREEN==='prepay'?'Pay AED 500 →':SCREEN==='decision'?'Continue to registration →':'Next →';
   try{localStorage.setItem(SKEY,JSON.stringify({D,K,S:SCREEN,W,x_up,x_add}))}catch(_){}
   const org=document.querySelector('.org'); if(org) org.scrollLeft=(org.scrollWidth-org.clientWidth)/2;
   document.querySelectorAll('.nmin').forEach(fitName);
 }
 const MEASURE=document.createElement('canvas').getContext('2d');
+if(location.hash==='#pre'){setTimeout(()=>{W.pre=true; go('legal')},0)}
 function fitName(el){MEASURE.font=getComputedStyle(el).font; el.style.width=Math.ceil(MEASURE.measureText(el.value||' ').width)+16+'px'}
 document.addEventListener('input',e=>{ if(e.target.classList.contains('nmin')) fitName(e.target) });
 const SKEY='mcfz-flow-wireframe-v1';
@@ -499,7 +530,12 @@ document.addEventListener('click',e=>{
   const t=e.target, x=c();
   if(t.closest('input,select,.wbar')) return;
   const g=t.closest('[data-go]'); if(g){go(g.dataset.go); return}
-  const nv=t.closest('[data-nav]'); if(nv){const i=ALL.findIndex(([k])=>k===SCREEN)+(+nv.dataset.nav); let k=ALL[i]?.[0]; if(k){ go(k) } return}
+  const lg=t.closest('[data-legal]'); if(lg){const k=lg.dataset.legal; if(k==='pre'){W.pre=true} else {W.pre=false; if(k==='branch'&&!isBranch()) K='branch'; if(k==='llc'&&isBranch()) K='multi'} render(); return}
+  const pr=t.closest('[data-preres]'); if(pr){W.preRes=pr.dataset.preres; render(); return}
+  if(t.closest('[data-newmgr]')){W.preRound=2; W.preRes='wait'; W.mgr={}; go('manager'); return}
+  const mu=t.closest('[data-mup]'); if(mu){W.mgr[mu.dataset.mup]=true; render(); return}
+  const myn=t.closest('[data-yn^="muae:"],[data-yn^="mbeen:"]'); if(myn){const [k,v]=myn.dataset.yn.split(':'); if(k==='muae'){W.mgr.uae=v==='1'; delete W.mgr.been} else W.mgr.been=v==='1'; render(); return}
+  const nv=t.closest('[data-nav]'); if(nv){ if(nv.disabled) return; const i=ALLF().findIndex(([k])=>k===SCREEN)+(+nv.dataset.nav); let k=ALLF()[i]?.[0]; if(k){ go(k) } return}
   const am=t.closest('[data-addmenu]'); if(am){MENU=MENU===am.dataset.addmenu?null:am.dataset.addmenu; render(); return}
   if(MENU && !t.closest('.amenu')){MENU=null; render()}
   const ax=t.closest('[data-addx]'); if(ax){const [cid,id]=ax.dataset.addx.split(':'); (x.owners[cid]=x.owners[cid]||[]).push({id,pct:0}); if(x.C[id]&&!x.owners[id]) x.owners[id]=[]; MENU=null; render(); return}
@@ -539,7 +575,7 @@ document.addEventListener('change',e=>{const d=e.target.dataset, x=c(), v=e.targ
   if(d.exec!==undefined){let id=v; if(id==='__new'){id=newId('p'); x.P[id]=newPerson()} x.C[d.exec].exec=id; render(); return}
   if(d.controller!==undefined){x.controller=v; render(); return}
 });
-document.addEventListener('input',e=>{const d=e.target.dataset, x=c(), v=e.target.value;
+document.addEventListener('input',e=>{const d=e.target.dataset, x=c(), v=e.target.value; if(d.mf){W.mgr[d.mf]=v; const n=document.getElementById('next'); if(n){const b=mgrBlocked(); n.disabled=b; n.style.opacity=b?'.45':''} return} if(d.muid!==undefined){W.mgr.uid=v; const n=document.getElementById('next'); if(n){const b=mgrBlocked(); n.disabled=b; n.style.opacity=b?'.45':''} return}
   if(d.split) keep(`[data-split="${d.split}"]`,()=>{x.shares[d.split]=parseInt(v)||0; render()});
   else if(d.opct){const [cid,id]=d.opct.split(':'); keep(`[data-opct="${d.opct}"]`,()=>{x.owners[cid].find(o=>o.id===id).pct=parseFloat(v)||0; render()})}
   else if(d.cap) keep(`[data-cap="${d.cap}"]`,()=>{x.capital[d.cap]=parseInt(v.replace(/,/g,''))||0; render()});
