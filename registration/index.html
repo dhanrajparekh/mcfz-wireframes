@@ -267,7 +267,7 @@ function manager(){const g=W.mgr, round=W.preRound, res=g.uae;
   const head=`<div class="grid w-full items-center gap-3 bg-surface-sunken px-4 py-3.5" style="grid-template-columns:1fr auto"><div><b class="block">${g.name?esc(g.name):'Manager'}</b><small class="block text-sm text-muted-foreground">Manager · checked with ICP</small></div><span class="text-sm text-muted-foreground tabular">${have} of ${need}</span></div>`;
   return wrap(title(round>1?'Choose a Different Manager':'Manager')+(round>1?`<p class="text-base text-muted-foreground">ICP did not approve the first manager. Enter someone else.</p>`:'')+`<section class="overflow-hidden rounded-lg border border-border bg-card">${head}${ask}${docsL.map(([k,l,h])=>drow(k,l,h)).join('')}${notres}${aboutB}</section>`);
 }
-const mgrBlocked=()=>{const g=W.mgr; return !(g.name&&g.pp&&(g.uae===true?(g.eid&&g.rv):g.uae===false?(g.been===true&&g.uid):false))};
+const mgrBlocked=()=>{const g=W.mgr; return !(g.name&&g.ar&&g.email&&g.mobile&&g.pp&&(g.uae===true?(g.eid&&g.rv):g.uae===false?(g.been===true&&g.uid):false))};
 function prepay(){const second=W.preRound>1;
   return wrap(title('Payment')+card(`<div class="flex justify-between"><span>${second?'Second manager check':'Pre-approval and company name reservation'}</span><b class="tabular">AED 500</b></div><div class="flex justify-between border-t border-border pt-3"><b>Total</b><b class="tabular text-lg">AED 500</b></div><p class="text-sm text-muted-foreground">${second?'Each manager checked is charged separately.':'Separate from the package. It is not taken off the package price.'}</p>`));
 }
