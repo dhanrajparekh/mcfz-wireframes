@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Staff Console Case</title>
+<title>Pre-approval Console</title>
 <link rel="stylesheet" href="assets/8bc4025667f5d65a.css">
 <link rel="stylesheet" href="assets/4b7f1220c1ed02d1.css">
 <style>
@@ -57,8 +57,9 @@ kbd{font:10px ui-monospace,monospace;border:1px solid hsl(var(--border));border-
   <nav class="side w-[212px] shrink-0 bg-nav py-3"><div class="px-4 pb-4 text-[13px] font-semibold tracking-tight text-navactive">Masdar City Console</div><div id="nav"></div></nav>
   <div id="portal"></div><main class="flex-1 min-w-0 bg-background"><header id="topbar" class="flex h-13 items-center gap-3 border-b border-border bg-card px-4"></header><div class="mx-auto max-w-6xl px-4 py-6 min-[820px]:px-8" id="app"></div></main>
 </div>
+<script>window.BOOT={cs:'co',sr:'pre',role:'reg',tab:'application',screen:'case'};</script>
 <script>
-const SKEY='mcfz-console-case-wf-v9';
+const SKEY='mcfz-pre-wf-v1';
 /* ---------- Cases (invented) ---------- */
 const CASES={
  fl:{sr:'SR-87020',type:'Freelancer permit',name:'Rohan Mehta',ar:'روهان ميهتا',risk:['Medium','12.1'],paid:'AED 11,010',
@@ -95,7 +96,7 @@ const WHO={p1:'Rohan Mehta',lay:'Layla Haddad',mar:'Marco Bellini',jam:'James Wh
 const REC={fl:[['Full name','Rohan Mehta','ROHAN MEHTA',1],['Nationality','IN','IN',1],['Date of birth','1996-07-14','1996-07-14',1],['Passport number','P5531207','P5531207',1],['Passport expiry','2034-05-02','2034-05-02',1],['Name in Arabic','روهان ميهتا','Not read',0]],
            co:[['Full name','Layla Haddad','LAYLA HADDAD',1],['Nationality','KE','KE',1],['Date of birth','1988-03-14','1988-03-14',1],['Passport number','AK4471902','AK4471902',1],['Passport expiry','2031-06-01','2031-06-01',1],['Name in Arabic','ليلى حداد','Not read',0]]};
 const blank=()=>({...(window.BOOT||{}),cs:(window.BOOT||{}).cs||'fl',tab:(window.BOOT||{}).tab||'application',name:false,docs:{},sel:null,letter:false,step:1,af:'All',back:false,sr:'reg',screen:'case',role:'reg',src:'app',icpNo:'',dlg:null,why:null,confirmFail:false,t:{},view:null,more:false,showRest:false,err:10013,ovr:{},stale:false,rk:null,vstep:0,vdone:false,reason:'',allRec:false,edits:{},log:[],editing:null,portal:false,...(window.BOOT||{})});
-let S; try{S=JSON.parse(localStorage.getItem(SKEY))||blank()}catch(e){S=blank()}
+let S; try{S=JSON.parse(localStorage.getItem(SKEY))||blank()}catch(e){S=blank()} if(window.BOOT&&S.sr!=='pre'){S.cs='co'; S.sr='pre'; S.tab='application'; S.screen='case'}
 const save=()=>{try{localStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 const C=()=>CASES[S.cs];
