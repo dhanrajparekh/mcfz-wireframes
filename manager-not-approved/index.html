@@ -58,6 +58,7 @@ function status(){
   const calm=(eye,h,p,extra='')=>`<div class="flex flex-col rounded-card border p-5 text-card-foreground shadow-card gap-5 border-brand-border/60 bg-brand-subtle/40"><div><span class="eyebrow-label">${eye}</span><h2 class="text-2xl leading-none mt-1.5">${h}</h2></div><p class="text-md text-foreground">${p}</p>${extra}</div>`;
   const act=(eye,h,p,btns)=>`<div class="flex flex-col rounded-card border p-5 text-card-foreground shadow-card gap-5 border-warning bg-warning-subtle"><div><span class="eyebrow-label">${eye}</span><h2 class="text-2xl leading-none mt-1.5">${h}</h2></div><p class="text-md text-foreground">${p}</p><div class="flex flex-wrap gap-2">${btns}</div></div>`;
   if(S.s===1||S.s===2||S.s===4) return act('Government','Manager not approved','ICP did not approve Layla Haddad as manager. Choose a different manager to continue, or withdraw your application.',btnP('Choose a different manager','data-go="2"')+btnO('Withdraw','data-go="4"'));
+  if(S.s===11) return act('Government','Pay for your new manager check','Your case manager set Omar Khalil as manager, as you asked. Pay AED 500 so ICP can check them.',btnP('Pay AED 500','data-go="3"'));
   if(S.s===3) return calm('Government','Checking your new manager',`${mgr} is being checked with ICP. Nothing is needed from you.`,bar(33,3));
   if(S.s===5) return calm('Closed','Application withdrawn',`${aed(PAID+CHECK*(S.checks-1)-CHECK*S.checks)} has been refunded to the card or account you paid with.`);
   if(S.s===6||S.s===7||S.s===8) return act('Intake','Choose a different manager','Layla Haddad has never entered the UAE, and ICP only approve a manager who has. Nothing has been sent to ICP.',btnP('Choose a different manager','data-go="7"')+btnO('Withdraw','data-go="8"'));
@@ -66,7 +67,7 @@ function status(){
 }
 
 function where(){
-  const at=S.s<=5?'gov':'checks', closed=S.s===5||S.s===10, need=[1,2,4,6,7,8].includes(S.s);
+  const at=(S.s<=5||S.s===11)?'gov':'checks', closed=S.s===5||S.s===10, need=[1,2,4,6,7,8,11].includes(S.s);
   const dot=(st)=>st==='done'?`<span class="absolute -left-[11px] top-0 flex size-5 items-center justify-center rounded-full border-2 border-brand-strong bg-brand-strong text-brand-foreground">${ico.ok}</span>`:st==='now'?`<span class="absolute -left-[11px] top-0 flex size-5 items-center justify-center rounded-full border-2 ${need?'border-warning bg-warning':'border-brand-strong bg-brand-strong'}"></span>`:`<span class="absolute -left-[11px] top-0 flex size-5 items-center justify-center rounded-full border-2 bg-card border-border"></span>`;
   const pill=need?'<span class="rounded-full bg-warning whitespace-nowrap px-2 py-0.5 text-xs font-bold tracking-[0.06em] uppercase text-white">Action needed</span>':closed?'<span class="rounded-full border border-border whitespace-nowrap px-2 py-0.5 text-xs font-bold tracking-[0.06em] uppercase text-muted-foreground">Withdrawn</span>':'<span class="rounded-full bg-brand-strong whitespace-nowrap px-2 py-0.5 text-xs font-bold tracking-[0.06em] uppercase text-brand-foreground">Now</span>';
   const li=(t,st,last)=>`<li class="relative ml-[11px] flex gap-3 border-l-2 pl-[21px] ${last?'border-transparent pb-0':'pb-4 '+(st==='done'?'border-brand-border':'border-border')}">${dot(st)}<div class="min-w-0"><div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-md ${st==='todo'?'text-muted-foreground':'text-foreground'} ${st==='now'?'font-bold':''}"><span>${t}</span>${st==='now'?pill:''}</div></div></li>`;
@@ -101,17 +102,17 @@ function dialog(){
 }
 
 /* wireframe strip: every screen in order, one click each */
-const STRIP=[['ICP did not approve the manager',[[1,'Not approved'],[2,'New manager'],[3,'Checking'],[4,'Withdraw'],[5,'Withdrawn']]],['Never entered the UAE',[[6,'Stopped'],[7,'New manager, free'],[8,'Full refund']]]];
+const STRIP=[['ICP did not approve the manager',[[1,'Not approved'],[2,'New manager'],[3,'Checking'],[4,'Withdraw'],[5,'Withdrawn']]],['Chosen by your case manager',[[11,'Pay for the check']]],['Never entered the UAE',[[6,'Stopped'],[7,'New manager, free'],[8,'Full refund']]]];
 const stripOn=()=>({9:7,10:8})[S.s]||S.s;
 function render(){
-  document.getElementById('wf').innerHTML='<b>WIREFRAME</b>'+STRIP.map(([g,l],gi)=>(gi?'<span class="sep"></span>':'')+l.map(([n,t])=>`<button data-go="${n}" class="${stripOn()===n?'on':''}"><i>${n}</i>${t}</button>`).join('')).join('');
+  let k=0; document.getElementById('wf').innerHTML='<b>WIREFRAME</b>'+STRIP.map(([g,l],gi)=>(gi?'<span class="sep"></span>':'')+l.map(([n,t])=>`<button data-go="${n}" class="${stripOn()===n?'on':''}"><i>${++k}</i>${t}</button>`).join('')).join('');
   document.getElementById('nav').innerHTML=nav();
   document.getElementById('main').innerHTML=page();
   document.getElementById('dlg').innerHTML=dialog();
   const h=document.getElementById('wf').offsetHeight, a=document.querySelector('.app'); a.style.setProperty('top',h+'px','important'); a.style.height=`calc(100dvh - ${h}px)`;
 }
 document.addEventListener('click',e=>{
-  const g=e.target.closest('[data-go]'); if(g){S.s=+g.dataset.go; if(S.s===1||S.s===6) S.pick='marco'; render(); return}
+  const g=e.target.closest('[data-go]'); if(g){S.s=+g.dataset.go; if(S.s===1||S.s===6) S.pick='marco'; if(S.s===11) S.pick='new'; render(); return}
   const p=e.target.closest('[data-pick]'); if(p){S.pick=p.dataset.pick; render(); return}
 });
 render();
