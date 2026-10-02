@@ -57,13 +57,13 @@ function status(){
   const bar=(pct,step)=>`<div class="flex flex-col gap-2"><div class="h-1.5 overflow-hidden rounded-full bg-surface-sunken"><span class="block h-full rounded-full bg-brand-strong" style="width:${pct}%"></span></div><p class="text-xs tracking-[0.04em] text-muted-foreground tabular">Step ${step} of 9</p></div>`;
   const calm=(eye,h,p,extra='')=>`<div class="flex flex-col rounded-card border p-5 text-card-foreground shadow-card gap-5 border-brand-border/60 bg-brand-subtle/40"><div><span class="eyebrow-label">${eye}</span><h2 class="text-2xl leading-none mt-1.5">${h}</h2></div><p class="text-md text-foreground">${p}</p>${extra}</div>`;
   const act=(eye,h,p,btns)=>`<div class="flex flex-col rounded-card border p-5 text-card-foreground shadow-card gap-5 border-warning bg-warning-subtle"><div><span class="eyebrow-label">${eye}</span><h2 class="text-2xl leading-none mt-1.5">${h}</h2></div><p class="text-md text-foreground">${p}</p><div class="flex flex-wrap gap-2">${btns}</div></div>`;
-  if(S.s===1||S.s===2||S.s===4) return act('Government','Manager not approved','ICP did not approve Layla Haddad as manager. Choose a different manager to continue, or withdraw your application.',btnP('Choose a different manager','data-go="2"')+btnO('Withdraw','data-go="4"'));
-  if(S.s===11) return act('Government','Pay for your new manager check','Your case manager set Omar Khalil as manager, as you asked. Pay AED 500 so ICP can check them.',btnP('Pay AED 500','data-go="3"'));
-  if(S.s===3) return calm('Government','Checking your new manager',`${mgr} is being checked with ICP. Nothing is needed from you.`,bar(33,3));
-  if(S.s===5) return calm('Closed','Application withdrawn',`${aed(PAID+CHECK*(S.checks-1)-CHECK*S.checks)} has been refunded to the card or account you paid with.`);
-  if(S.s===6||S.s===7||S.s===8) return act('Intake','Choose a different manager','Layla Haddad has never entered the UAE, and ICP only approve a manager who has. Nothing has been sent to ICP.',btnP('Choose a different manager','data-go="7"')+btnO('Withdraw','data-go="8"'));
+  if(S.s===1||S.s===2||S.s===4) return act('Government','Manager not approved','ICP did not approve Layla Haddad.',btnP('Choose a different manager','data-go="2"')+btnO('Withdraw','data-go="4"'));
+  if(S.s===11) return act('Government','Pay for the manager check','Omar Khalil, chosen with your case manager.',btnP('Pay AED 500','data-go="3"'));
+  if(S.s===3) return calm('Government','Checking your new manager',`${mgr} is with ICP. Nothing is needed from you.`,bar(33,3));
+  if(S.s===5) return calm('Closed','Application withdrawn',`${aed(PAID-CHECK)} refunded to your card.`);
+  if(S.s===6||S.s===7||S.s===8) return act('Intake','Choose a different manager','Layla Haddad has never entered the UAE. ICP only approve a manager who has.',btnP('Choose a different manager','data-go="7"')+btnO('Withdraw','data-go="8"'));
   if(S.s===9) return calm('Intake','Application checks','Your proposed company name is being reserved and your documents are being verified. Nothing is needed from you.',bar(22,2));
-  if(S.s===10) return calm('Closed','Application withdrawn',`${aed(PAID)} has been refunded to the card or account you paid with.`);
+  if(S.s===10) return calm('Closed','Application withdrawn',`${aed(PAID)} refunded to your card.`);
 }
 
 function where(){
@@ -96,7 +96,7 @@ function dialog(){
   }
   if(S.s===4||S.s===8){ const full=S.s===8, kept=full?0:CHECK, ref=PAID-kept;
     const row=(k,v,b)=>`<div class="flex items-baseline justify-between gap-3 text-md ${b?'font-bold border-t-2 border-border pt-3':''}"><span class="${b?'':'text-muted-foreground'}">${k}</span><span class="tabular">${v}</span></div>`;
-    return shell('Withdraw Your Application?',`<div class="flex flex-col gap-2">${row('Paid',aed(PAID))}${full?row('Manager check','Not run'):row('Manager check','−'+aed(kept))}${row('Refund',aed(ref),1)}</div><p class="text-base text-muted-foreground">Refunded to the card or account you paid with.</p>`,btnO('Cancel',`data-go="${full?6:1}"`)+btnD('Withdraw and refund '+aed(ref),`data-go="${full?10:5}"`));
+    return shell('Withdraw Your Application?',`<div class="flex flex-col gap-2">${row('Paid',aed(PAID))}${full?row('Manager check','Not run'):row('Manager check','−'+aed(kept))}${row('Refund',aed(ref),1)}</div>`,btnO('Cancel',`data-go="${full?6:1}"`)+btnD('Withdraw and refund '+aed(ref),`data-go="${full?10:5}"`));
   }
   return '';
 }

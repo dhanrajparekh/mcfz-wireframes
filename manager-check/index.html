@@ -3,635 +3,100 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Manager Check Console</title>
-<link rel="stylesheet" href="assets/8bc4025667f5d65a.css">
+<title>Manager Not Cleared</title>
+<link rel="stylesheet" href="assets/02deab34320570aa.css">
 <link rel="stylesheet" href="assets/4b7f1220c1ed02d1.css">
 <style>
-body{margin:0}
-.wbar{background:#000;color:#ddd;font:12.5px/1.4 system-ui,sans-serif;padding:8px 16px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
-.wbar b{color:#fff}.wbar button,.wbar select{color:#9fd8cf;background:#000;border:1px solid #333;border-radius:6px;padding:2px 8px;font:inherit;cursor:pointer}
-.ar{direction:rtl;unicode-bidi:isolate}
-.pv{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font:12px/1 ui-monospace,monospace;color:hsl(var(--muted-foreground))}
-.pv .pg{width:62%;aspect-ratio:1.42;border:1px solid hsl(var(--border));border-radius:6px;background:repeating-linear-gradient(135deg,hsl(var(--panel)),hsl(var(--panel)) 8px,hsl(var(--panel2)) 8px,hsl(var(--panel2)) 9px)}
-.thumb{height:100%;background:repeating-linear-gradient(135deg,hsl(var(--panel2)),hsl(var(--panel2)) 6px,hsl(var(--border)) 6px,hsl(var(--border)) 7px)}
-.masonry{column-gap:1rem}
-.rows>div:first-child{border-top:0}
-.split{display:grid;gap:1rem;align-items:start}
-@media (min-width:760px){.masonry{column-count:2}}
-@media (min-width:900px){.split{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.sticky-v{position:sticky;top:12px}}
-kbd{font:10px ui-monospace,monospace;border:1px solid hsl(var(--border));border-radius:4px;padding:0 4px;color:hsl(var(--muted-foreground))}
-/* Ownership diagram, from the client wireframe, recoloured for the console */
-.dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
-.org{overflow-x:auto;padding:14px 0 6px}
-.org ul{display:flex;justify-content:center;margin:0;padding:22px 0 0;position:relative;list-style:none}
-.org>ul{padding-top:0;width:max-content;min-width:100%}
-.org li{list-style:none;position:relative;padding:22px 5px 0;display:flex;flex-direction:column;align-items:center}
-.org li::before,.org li::after{content:'';position:absolute;top:0;right:50%;width:50%;height:22px;border-top:1px solid hsl(var(--border))}
-.org li::after{right:auto;left:50%;border-left:1px solid hsl(var(--border))}
-.org li:only-child::before,.org li:only-child::after{display:none}
-.org li:only-child{padding-top:0}
-.org li:first-child::before,.org li:last-child::after{border:0}
-.org li:last-child::before{border-right:1px solid hsl(var(--border));border-radius:0 6px 0 0}
-.org li:first-child::after{border-radius:6px 0 0 0}
-.org ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:1px solid hsl(var(--border));height:22px}
-.nd{position:relative;border:1px solid hsl(var(--border));border-top:3px solid var(--c);border-radius:9px;background:hsl(var(--panel));padding:9px 12px 8px;min-width:118px;max-width:168px;text-align:center}
-.nd b{display:block;font-size:12.5px;line-height:1.3;font-weight:600}
-.nd small{display:block;font-size:11px;color:hsl(var(--muted-foreground));margin-top:2px;line-height:1.3}
-.nd .pp{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:hsl(var(--panel2));border:1px solid hsl(var(--border));border-radius:100px;font-size:10.5px;font-weight:600;padding:0 7px;line-height:17px;white-space:nowrap}
-.nd.root{background:hsl(var(--foreground));border-color:hsl(var(--foreground));color:hsl(var(--background));padding:10px 16px}
-.nd.bo{background:hsl(var(--warn-wash))}
-.nd.bo small{color:hsl(var(--warn));font-weight:600}
-.nd.dim{border-style:dashed;background:transparent}
-.nd.dim b{color:hsl(var(--muted-foreground))}
-.grid-cols-\[10rem_1fr_auto\]{grid-template-columns:10rem 1fr auto}.grid-cols-\[1fr_1fr_auto\]{grid-template-columns:1fr 1fr auto}.grid-cols-\[1fr_auto_auto\]{grid-template-columns:1fr auto auto}.grid-cols-\[7rem_1fr_auto\]{grid-template-columns:7rem 1fr auto}.h-14{height:3.5rem}.w-11{width:2.75rem}.p-2\.5{padding:.625rem}.w-\[212px\]{width:212px}
-@media (max-width:600px){.grid-cols-\[10rem_1fr_auto\]{grid-template-columns:7rem 1fr auto}}
-.min-w-\[180px\]{min-width:180px}.gap-\[3px\]{gap:3px}.w-12{width:3rem}.w-\[320px\]{width:320px}.w-\[300px\]{width:300px}.w-\[220px\]{width:220px}.w-\[240px\]{width:240px}.h-13{height:3.25rem}.size-\[18px\]{width:18px;height:18px}.max-h-\[60vh\]{max-height:60vh}
-.aspect-\[3\/4\]{aspect-ratio:3/4}.max-w-\[210px\]{max-width:210px}.max-w-\[420px\]{max-width:420px}.text-neutral-800{color:#262626}.text-neutral-500{color:#737373}.text-\[6px\]{font-size:6px}.text-\[7px\]{font-size:7px}.bg-neutral-200{background:#e5e5e5}.border-neutral-300{border-color:#d4d4d4}
-.size-6{width:1.5rem;height:1.5rem}.cursor-copy{cursor:copy}.text-\[15px\]{font-size:15px}
-@media (max-width:820px){.side{display:none}}
+.wf{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:9px 16px;background:#e9eeee;color:#16191b;font:13px/1.2 system-ui,sans-serif}
+.wf b{font-size:11px;letter-spacing:.08em;color:#4a5a5a}
+.wf button{display:inline-flex;align-items:center;gap:7px;border-radius:100px;padding:4px 11px 4px 5px;background:#fff;color:#16191b;border:1px solid #c9d0d4;font:inherit;cursor:pointer}
+.wf button i{font-style:normal;display:inline-flex;width:19px;height:19px;border-radius:50%;align-items:center;justify-content:center;background:#e3e8e8;font-size:11px;font-weight:700}
+.wf button.on{background:#16191b;color:#fff;border-color:#16191b}
+.wf button.on i{background:#3f6f6d;color:#fff}
 </style>
 </head>
-<body class="bg-background text-foreground antialiased">
-
-<div class="flex min-h-svh">
-  <nav class="side w-[212px] shrink-0 bg-nav py-3"><div class="px-4 pb-4 text-[13px] font-semibold tracking-tight text-navactive">Masdar City Console</div><div id="nav"></div></nav>
-  <div id="portal"></div><main class="flex-1 min-w-0 bg-background"><header id="topbar" class="flex h-13 items-center gap-3 border-b border-border bg-card px-4"></header><div class="mx-auto max-w-6xl px-4 py-6 min-[820px]:px-8" id="app"></div></main>
+<body class="antialiased">
+<div class="wf" id="wf"></div>
+<div id="app" class="fixed inset-x-0 bottom-0 flex flex-col overflow-hidden min-[820px]:grid min-[820px]:grid-cols-[212px_1fr] min-[820px]:grid-rows-[52px_1fr] min-[820px]:[grid-template-areas:'brand_top'_'nav_main']">
+  <div class="hidden items-center gap-2 bg-nav px-4 min-[820px]:flex min-[820px]:[grid-area:brand]"><span class="text-[13px] font-semibold tracking-tight text-navactive">Masdar City Console</span></div>
+  <header class="flex items-center gap-3 border-b border-border bg-card px-3 h-13 shrink-0 min-[820px]:[grid-area:top]"><div class="min-w-0 flex-1"><span class="block truncate text-sm font-medium">Service request</span></div><div class="hidden h-8 w-72 items-center gap-2 rounded-md border border-border bg-panel px-2.5 text-xs text-muted-foreground md:flex"><span class="flex-1 text-left">Account, company, person or SR</span><kbd class="rounded border border-border px-1 font-mono text-[10px]">⌘K</kbd></div><div class="hidden items-center gap-2 border-l border-border pl-3 sm:flex"><div class="text-right leading-tight"><div class="text-xs font-medium">GS Officer (Demo)</div><div class="font-mono text-[10px] text-muted-foreground">GS Team</div></div></div></header>
+  <nav class="flex flex-row gap-1 overflow-x-auto bg-nav py-2 min-[820px]:flex-col min-[820px]:gap-0 min-[820px]:py-3 shrink-0 min-[820px]:[grid-area:nav]" id="nav"></nav>
+  <main class="flex-1 overflow-auto overscroll-contain bg-background min-[820px]:[grid-area:main]" id="main"></main>
 </div>
-<script>window.FLOW=1</script>
 <script>
-const SKEY='mcfz-mgr-wf-v3';
-/* ---------- Cases (invented) ---------- */
-const CASES={
- fl:{sr:'SR-87020',type:'Freelancer permit',name:'Rohan Mehta',ar:'روهان ميهتا',risk:['Medium','12.1'],paid:'AED 11,010',
-   app:[
-    ['Legal Structure',[['Type','Freelancer permit']]],
-    ['Business Activities',[['Main activity','Accounting Records and Book Keeping'],['Activities','1 of 2 included']]],
-    ['Package',[['Visas','1'],['Establishment card','1 year'],['Paid','AED 11,010 · 2 Oct']]],
-    ['Your Details',[['Full name','Rohan Mehta'],['UAE residency','Yes'],['Nationality','India'],['Date of birth','1996-07-14'],['Gender','Male'],['Address in the UAE','Apt 902, Al Reem Island, Abu Dhabi'],['Email','rohan.mehta@example.com'],['UAE mobile number','+971 50 000 4417'],['ICP unified number','104477218 · active to 2028-03-15']]],
-    ['Declaration',[['Signed by','Rohan Mehta'],['Signed','2 Oct 01:04']]]],
-   people:[{id:'p1',name:'Rohan Mehta',role:'Permit holder'}],
-   docs:[{k:'pp',t:'Passport',who:'p1',f:'WP_4_ROHAN_PASSPORT.pdf',sz:'1.7 MB'},{k:'eid',t:'Emirates ID',who:'p1',f:'WP_4_ROHAN_EID.jpg',sz:'0.2 MB'},{k:'poa',t:'Proof of Address',who:'p1',f:'WP_4_ROHAN_BILL.pdf',sz:'0.3 MB'},{k:'noc',t:'No-objection letter',who:'p1'},{k:'cv',t:'CV or Experience Letter',who:'p1'},{k:'edu',t:'Educational Certificate',who:'p1'}]},
- co:{sr:'SR-87031',type:'Limited company',name:'Harbour Interiors Limited',ar:'هاربر انتيريورز ليمتد',risk:['Medium','14.4'],paid:'AED 17,520',
-   app:[
-    ['Legal Structure',[['Type','Limited company (L.L.C-FZ)']]],
-    ['Company Name',[['Name','Harbour Interiors Limited'],['Arabic','هاربر انتيريورز ليمتد'],['Name check','Passed']]],
-    ['Business Activities',[['Main activity','Interior Design Consultancy'],['Activities','2 of 3 included']]],
-    ['Package',[['Package','Business One · 2 years'],['Visas','1'],['Paid','AED 17,520 · 1 Oct']]],
-    ['Stakeholders',[['Layla Haddad','Shareholder · Director · Manager · Legal representative'],['Marco Bellini','Shareholder'],['Cedar Fitout Contracting','Shareholder · Mainland · signed by Omar Khalil']]],
-    ['Layla Haddad',[['Roles','Shareholder · Director · Manager · Legal representative'],['UAE residency','Yes'],['Nationality','Kenya'],['Email','layla@harbour-interiors.example'],['UAE mobile number','+971 50 000 1204'],['Address in the UAE','Apt 1204, Marina Gate 2, Dubai Marina, Dubai']]],
-    ['Marco Bellini',[['Roles','Shareholder'],['UAE residency','No'],['Nationality','Italy'],['Email','marco.bellini@example.it'],['Home country phone number','+39 333 000 0102'],['Home country address','Via Roma 14, Treviso, Italy']]],
-    ['James Whitfield',[['Roles','Beneficial owner · 56% through Cedar Fitout Contracting'],['UAE residency','Yes'],['Nationality','Australia'],['Email','james.w@example.com'],['UAE mobile number','+971 52 000 7781'],['Address in the UAE','Villa 3, Street 9, Jumeirah 1, Dubai']]],
-    ['Ownership',[['Share capital','100 shares at AED 1,000 · AED 100,000'],['Split','Cedar Fitout Contracting 70 · Layla Haddad 25 · Marco Bellini 5']]],
-    ['Declaration',[['Signed by','Layla Haddad'],['Signed','1 Oct 18:22']]]],
-   people:[{id:'lay',name:'Layla Haddad',role:'Manager'},{id:'mar',name:'Marco Bellini',role:'Shareholder'},{id:'jam',name:'James Whitfield',role:'Beneficial owner'}],
-   docs:[{k:'pp',t:'Passport',who:'lay',f:'layla-passport.pdf',sz:'1.2 MB'},{k:'eid',t:'Emirates ID',who:'lay',f:'layla-eid.pdf',sz:'0.6 MB'},{k:'poa',t:'Proof of Address',who:'lay',f:'layla-dewa.pdf',sz:'0.3 MB'},{k:'pp2',t:'Passport',who:'mar',f:'marco-passport.pdf',sz:'1.4 MB'},{k:'tl',t:'Trade Licence',who:'cf',f:'cedar-fitout-trade-licence.pdf',sz:'0.8 MB'},{k:'sd',t:'Shareholder Distribution Document',who:'cf',f:'cedar-fitout-share-distribution.pdf',sz:'0.5 MB'},{k:'pp3',t:'Passport',who:'jam',f:'james-passport.pdf',sz:'1.1 MB'},{k:'poa3',t:'Proof of Address',who:'jam'}]}
-};
-CASES.co.visa={sr:'SR-87044',type:'Employment visa',sub:'Layla Haddad',
-  docs:[{k:'pp',t:'Passport',who:'lay',f:'layla-passport.pdf',sz:'1.2 MB',from:'SR-87031'},{k:'photo',t:'Passport-size photo',who:'lay',f:'layla-photo.jpg',sz:'0.3 MB'},{k:'deg',t:'Attested degree certificate',who:'lay',f:'layla-degree-attested.pdf',sz:'1.0 MB'}],
-  app:[['Visa',[['Job title','Marketing Manager · مدير تسويق'],['Qualification','Bachelor'],['Marital status','Married'],['Religion','Islam'],['Mother’s full name','Salma Haddad'],['Location','Inside the UAE, visit visa']]],['Pay',[['Basic monthly salary','AED 18,000'],['Transport allowance','AED 2,000'],['Probation','3 months'],['Contract','2 years']]]]};
-const ACCT0=null;
-const ACCT={fl:[['reg','SR-87020','Freelancer permit'],['ec','SR-87021','Establishment card'],['ech','SR-87022','e-Channel']],
-            co:[['reg','SR-87031','Company registration'],['visa','SR-87044','Employment visa · Layla Haddad'],[null,'SR-87032','Establishment card']]};
-const WHO={p1:'Rohan Mehta',lay:'Layla Haddad',mar:'Marco Bellini',jam:'James Whitfield',cf:'Cedar Fitout Contracting'};
-const REC={fl:[['Full name','Rohan Mehta','ROHAN MEHTA',1],['Nationality','IN','IN',1],['Date of birth','1996-07-14','1996-07-14',1],['Passport number','P5531207','P5531207',1],['Passport expiry','2034-05-02','2034-05-02',1],['Name in Arabic','روهان ميهتا','Not read',0]],
-           co:[['Full name','Layla Haddad','LAYLA HADDAD',1],['Nationality','KE','KE',1],['Date of birth','1988-03-14','1988-03-14',1],['Passport number','AK4471902','AK4471902',1],['Passport expiry','2031-06-01','2031-06-01',1],['Name in Arabic','ليلى حداد','Not read',0]]};
-const blank=()=>({...(window.BOOT||{}),cs:(window.BOOT||{}).cs||'fl',tab:(window.BOOT||{}).tab||'application',name:false,docs:{},sel:null,letter:false,step:1,af:'All',back:false,sr:'reg',screen:'case',role:'reg',src:'app',icpNo:'',dlg:null,why:null,confirmFail:false,t:{},view:null,more:false,showRest:false,err:10013,ovr:{},stale:false,rk:null,vstep:0,vdone:false,reason:'',allRec:false,edits:{},log:[],editing:null,portal:false,...(window.BOOT||{})});
-let S; try{S=JSON.parse(localStorage.getItem(SKEY))||blank()}catch(e){S=blank()}
-const save=()=>{try{localStorage.setItem(SKEY,JSON.stringify(S))}catch(e){}};
-const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
-const C=()=>CASES[S.cs];
-const isAr=s=>/[؀-ۿ]/.test(s);
+/* Invented case. Paid AED 17,520 (Business One, 2 years); AED 500 kept per manager check (decisions.md, 3 Oct 2026). */
+const PAID=17520, CHECK=500;
+let S={s:1, pick:'Someone new', how:'Chat'};
+const aed=n=>'AED '+n.toLocaleString('en-US');
+const esc=t=>String(t);
+const btn=(t,a='')=>`<button type="button" ${a} class="inline-flex h-9 shrink-0 items-center rounded-md border border-border px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">${t}</button>`;
+const btnP=(t,a='')=>`<button type="button" ${a} class="inline-flex h-9 shrink-0 items-center rounded-md bg-foreground px-3 text-sm font-medium text-background">${t}</button>`;
+const more=`<button type="button" class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm text-muted-foreground">More<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-3.5"><path d="m6 9 6 6 6-6"/></svg></button>`;
+const chip=(t,on,a)=>`<span class="rounded px-1.5 py-0.5 text-[10px] ${on}">${t}</span>`;
 
-/* ---------- Live console markup ---------- */
-const pill=(t,tone)=>`<span class="inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-xs font-medium ${tone==='ok'?'border-ok/40 bg-ok-wash text-ok':tone==='warn'?'border-warn/40 bg-warn-wash text-warn':'border-border bg-panel2 text-foreground'}">${t}</span>`;
-const tag=(t,ok)=>`<span class="inline-flex items-center rounded px-1.5 py-0.5 text-[11px] whitespace-nowrap ${ok?'bg-ok-wash text-ok':'bg-panel2 text-muted-foreground'}">${t}</span>`;
-const btnP=(t,a='',dis)=>`<button type="button" ${a} ${dis?'disabled':''} class="shrink-0 rounded-md font-medium transition-colors disabled:opacity-50 px-4 py-2 text-sm bg-foreground text-background hover:opacity-90">${t}</button>`;
-const btnB=(t,a='')=>`<button type="button" ${a} class="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-brand px-2.5 py-1 text-xs font-medium text-link transition-colors hover:bg-wash disabled:opacity-40">${t}</button>`;
-const btnS=(t,a='')=>`<button type="button" ${a} class="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:text-foreground disabled:opacity-40">${t}</button>`;
-const link=(t,a)=>`<button type="button" ${a} class="ml-auto shrink-0 text-xs font-medium text-link hover:underline">${t} ›</button>`;
-const card=(h,inner,right='',sub='')=>`<div class="mb-4 break-inside-avoid rounded-lg border border-border bg-panel"><div class="flex items-center gap-2 border-b border-border px-4 py-3"><h3 class="text-sm font-semibold text-foreground">${h}</h3>${sub?`<span class="text-xs text-muted-foreground">· ${sub}</span>`:''}${right}</div><div class="px-4 py-3"><div class="grid gap-1.5">${inner}</div></div></div>`;
-const row=(k,v)=>`<div class="flex gap-3 text-xs"><span class="w-40 shrink-0 text-muted-foreground">${k}</span><span class="min-w-0 ${isAr(v)?'ar':''}">${v}</span></div>`;
-const recRow=(k,v,a='')=>`<div class="grid grid-cols-[10rem_1fr_auto] items-center gap-3 px-3 py-1.5 text-sm"><span class="text-xs text-muted-foreground">${k}</span><span class="min-w-0 ${isAr(v)?'ar':''}">${v}</span>${a}</div>`;
-const recBox=(h,rows,right='')=>`<div><div class="flex items-center gap-2"><div class="label-cap text-muted-foreground">${h}</div>${right}</div><div class="mt-2 divide-y divide-border overflow-hidden rounded-md border border-border bg-panel">${rows}</div></div>`;
-const ek=l=>S.cs+':'+l;
-const val=(l,d)=>S.edits[ek(l)]??d;
-const now=()=>{const d=new Date(); return `2 Oct ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};
-function erow(l,d,kind,key){key=key||l; const v=val(key,d), on=S.editing===key, ed=ek(key) in S.edits;
-  const shown=v?`<span class="text-foreground ${isAr(v)?'ar':''}">${esc(v)}</span>`:`<span class="text-muted-foreground">Not given</span>`;
-  const val2=on?`<span class="flex gap-2"><input data-ein class="min-w-0 flex-1 rounded-md border border-brand bg-background px-2 py-1 text-sm ${isAr(v)?'ar':''}" value="${esc(v)}">${btnS('Cancel','data-a="ecancel"')}${btnB('Save','data-a="esave"')}</span>`:`<span class="flex flex-wrap items-center gap-2">${shown}${ed?tag('Edited by staff'):''}</span>`;
-  const b=on?'':`<button data-edit="${esc(key)}" class="inline-flex h-7 items-center rounded-md px-2.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground">Edit</button>`;
-  return kind==='rec'?`<div class="grid grid-cols-[10rem_1fr_auto] items-center gap-3 px-3 py-1.5 text-sm"><span class="text-xs text-muted-foreground">${l}</span><span class="min-w-0">${val2}</span>${b}</div>`
-    :`<div class="grid grid-cols-[10rem_1fr_auto] items-center gap-3 text-xs"><span class="text-muted-foreground">${l}</span><span class="min-w-0">${val2}</span>${b}</div>`}
-const editBtn=`<button class="inline-flex h-7 items-center rounded-md px-2.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground">Edit</button>`;
-const mark=ok=>`<span aria-hidden="true" class="flex size-[18px] shrink-0 items-center justify-center rounded-full border text-[10px] ${ok?'border-ok/50 bg-ok-wash text-ok':'border-border'}">${ok?'✓':''}</span>`;
-const tl=(t,a)=>`<button type="button" ${a} class="shrink-0 text-sm font-medium text-link hover:underline">${t}</button>`;
-
-CASES.fl.ec={sr:'SR-87021',type:'Establishment card',sub:'Rohan Mehta',docs:[],app:[]};
-const mgrNow=()=>S.mgrName||'Layla Haddad';
-const SRD=()=>S.sr!=='reg'&&C()[S.sr]?C()[S.sr]:null;
-CASES.co.pre={sr:'SR-87030',type:'Pre-approval',sub:'Harbour Interiors Limited',
-  docs:[{k:'ppp',t:'Passport',who:'lay',f:'layla-passport.pdf',sz:'1.2 MB'},{k:'peid',t:'Emirates ID',who:'lay',f:'layla-eid.pdf',sz:'0.6 MB'},{k:'prv',t:'Residence visa',who:'lay',f:'layla-residence-visa.pdf',sz:'0.4 MB'}],
-  app:[['Company',[['Company type','Limited company'],['Proposed name 1','Harbour Interiors'],['Proposed name 2','Harbour Interior Design'],['Proposed name 3','Harbour Fitout'],['Main activity','Interior Design Consultancy']]],['Manager',[['Full name','Layla Haddad'],['Full name in Arabic','ليلى حداد'],['Email','layla@harbour-interiors.example'],['Mobile','+971 50 000 1204'],['UAE residency','Yes']]],['Payment',[['Pre-approval and name reservation','AED 500 · card · 2 Oct']]]]};
-const PRESTEPS=[['Payment','1m','System'],['Review','','Registration'],['Security Check','','Government Services'],['Decision','','Government Services'],['Released','','Government Services']];
-const PRESTEPT=[
-  [['Payment received',()=>'AED 500 · card · approved by Stripe','auto']],
-  [['Check the proposed names',()=>'3 proposed · first available is used','prenames','Confirm'],['Review the manager’s documents',()=>`${received().filter(d=>S.docs[dkey(d)]).length} of ${received().length} reviewed`,'docs','Review'],['Screen the manager',()=>'AML','prescreen','Run']],
-  [['Send the security approval letter to ICP',()=>'Covering letter, security approval for name reservation','presend','Record as sent'],['Upload the cleared certificate',()=>S.preNo?`Sent to ICP · ${esc(S.preNo)}`:'When ICP clear the manager','precert','Upload']],
-  [['Decide',()=>'','predecide','Approve']],
-  [['Name Reservation Certificate released',()=>'Harbour Interiors Limited · valid until 1 December 2026','auto']]];
-CASES.fl.ech={sr:'SR-87022',type:'e-Channel',sub:'Rohan Mehta',docs:[],app:[]};
-const ECHSTEPS=[['Send','0d','Government Services'],['Waiting on ICP','','ICP'],['Registered','','Government Services']];
-const ECHSTEPT=[[['Submit the e-Channel registration',()=>'On ICP’s own portal. No letter for this one.','echsend','Record as sent']],[['Record the registration',()=>'','echreg','Register']],[['e-Channel registered',()=>'','auto']]];
-const ECSTEPS=[['Apply','0d','Government Services'],['Waiting on ICP','','ICP'],['Check','','Government Services'],['Issued','','Government Services']];
-const ECSTEPT=[[['Apply at ICP',()=>'Copy the ICP form, submit it at ICP, then record the request number','ecapply','Mark as applied']],[['Upload the establishment card',()=>S.ecNo?`Sent to ICP · ${esc(S.ecNo)}`:'When ICP issues it','eccard','Upload']],[['Check the establishment card',()=>'','eccheck','Release']],[['Establishment card issued',()=>'2/1/1306201 · to 30 Sep 2027','auto']]];
-const SSTEPS=()=>S.sr==='pre'?PRESTEPS:S.sr==='ech'?ECHSTEPS:S.sr==='ec'?ECSTEPS:S.sr==='visa'?VSTEPS:STEPS;
-const STASKS=()=>S.sr==='pre'?PRESTEPT:S.sr==='ech'?ECHSTEPT:S.sr==='ec'?ECSTEPT:S.sr==='visa'?VSTEPT:STEPT;
-const SCUR=()=>S.sr==='pre'?(S.prestep??1):S.sr==='ech'?(S.echstep||0):S.sr==='ec'?(S.ecstep||0):S.sr==='visa'?S.vstep:S.step;
-const docs=()=>SRD()?SRD().docs:C().docs;
-const docsOf=(cs,sr)=>sr==='reg'?CASES[cs].docs:((CASES[cs][sr]||{}).docs||[]);
-const dkey=d=>S.cs+':'+d.k;
-const dstate=d=>!d.f?'missing':d.from?(S.docs[dkey(d)]==='ok'?'ok':'elsewhere'):S.docs[dkey(d)]||'received';
-const DP={elsewhere:['On SR-87031',''],missing:['Missing','warn'],received:['Received',''],ok:['Accepted','ok'],back:['Sent back','warn']};
-const dpill=d=>pill(...DP[dstate(d)]);
-const received=()=>docs().filter(d=>d.f&&!d.from), reviewed=()=>received().every(d=>S.docs[dkey(d)]);
-const VSTEPS=[['Documents','5m','Visas'],['Entry permit',''],['Location',''],['Medical',''],['Insurance',''],['Residence visa',''],['Emirates ID','']];
-const STEPS=[['Payment','13m','System'],['Registration','8m','Registration'],['Security Check','','Government Services'],['Compliance','','Compliance'],['Manager/Senior Approval','','Manager'],['Release Queue','','Manager']];
-const ROLETEAM={reg:'Registration',gs:'Government Services',comp:'Compliance',mgr:'Manager',obs:null};
-const SKIPPED=i=>!SRD()&&(i===3||i===4)&&S.step>i&&S.skipped;
-
-const FACT=[['Jurisdiction','19.5','Medium'],['Entity','6.5','Low'],['Initiation','10','Low'],['Property','10','Low'],['Activity','0','Low']];
-const RATES=['Low','Medium','Medium-high','High'];
-function riskCard(nat,c){
-  const rows=FACT.map(([f,sc,rt])=>{const o=S.ovr[S.cs+':'+f], cur=o?o[0]:rt;
-    if(S.rk===f) return `<div class="rounded-md border border-brand p-2.5"><div class="text-xs text-muted-foreground">${f}${f==='Jurisdiction'?' · '+nat:''}</div><div class="mt-2 flex flex-wrap gap-1.5">${RATES.map(x=>`<button data-rate="${x}" class="rounded-full border px-2.5 py-0.5 text-xs ${S.rpick===x?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${x}</button>`).join('')}</div><input data-rreason class="mt-2 w-full rounded-md border border-border bg-background px-2 py-1 text-xs" aria-label="Reason"><div class="mt-1 text-[11px] text-muted-foreground">Reason, for the audit trail</div><div class="mt-2 flex justify-end gap-2">${btnS('Cancel','data-a="rcancel"')}${btnB('Save','data-a="rsave"')}</div></div>`;
-    if(S.role!=='comp') return `<div class="flex w-full items-center gap-3 px-1 py-1 text-xs"><span class="w-32 shrink-0 text-muted-foreground">${f}${f==='Jurisdiction'?' · '+nat:''}</span><span class="tnum flex-1 ${cur!=='Low'?'text-warn':''}">${o?`${cur} <span class="text-muted-foreground">· changed by Compliance · was ${rt}</span>`:`${sc} · ${cur}`}</span></div>`;
-    return `<button data-rk="${f}" class="group flex w-full items-center gap-3 rounded px-1 py-1 text-left text-xs hover:bg-panel2"><span class="w-32 shrink-0 text-muted-foreground">${f}${f==='Jurisdiction'?' · '+nat:''}</span><span class="tnum flex-1 ${cur!=='Low'?'text-warn':''}">${o?`${cur} <span class="text-muted-foreground">· score recalculated by the ERR · was ${rt}</span>`:`${sc} · ${cur}`}</span><span class="text-muted-foreground opacity-50 group-hover:opacity-100">✎</span></button>`}).join('');
-  const right=S.stale&&S.role==='comp'?`<span class="ml-auto">${btnB('Regenerate ERR','data-a="regen"')}</span>`:`<span class="ml-auto flex items-center gap-2">${S.role==='comp'?'':'<span class="text-[11px] text-muted-foreground">Compliance changes this</span>'}${link('ERR-'+S.err,'').replace('ml-auto ','')}</span>`;
-  return card('Risk',rows,right,`${c.risk[0]} · ${c.risk[1]}`);
+function nav(){
+  const L=[['Dashboard'],['@Work'],['Work queue',1,'50'],['Accounts'],['Document review',0,'94'],['Client follow-ups'],['With ICP'],['Payments'],['CSPs'],['Closed cases'],['@Insight'],['What to check'],['@Admin'],['Team']];
+  return L.map(([t,on,n])=>t[0]==='@'?`<div class="label-cap hidden px-3 pb-1.5 pt-4 text-navfg/60 min-[820px]:block">${t.slice(1)}</div>`:`<a class="flex w-full shrink-0 items-center gap-2.5 border-l-2 py-2 pl-3 pr-2.5 text-left text-[13px] font-medium ${on?'border-brand bg-white/[0.04] text-navactive':'border-transparent text-navfg'}"><span class="whitespace-nowrap">${t}</span>${n?`<span class="tnum ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${t==='Document review'?'bg-warn text-white':'bg-white/10 text-navfg'}">${n}</span>`:''}</a>`).join('');
 }
-function header(){const c0=C(), v=SRD(), c={...c0,sr:v?v.sr:c0.sr,type:v?(['ec','ech','pre'].includes(S.sr)?v.type:`${v.type} · ${c0.name}`):c0.type,name:S.cs==='fl'?val('Full name',c0.name):val('Name',c0.name),ar:S.cs==='fl'?val('Name in Arabic',c0.ar):val('Arabic',c0.ar)};
-  return `<nav class="mb-2 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"><span>Accounts</span><span>/</span><span>${c.name}</span><span>/</span><span class="text-foreground">${c.sr}</span></nav>
-  <div class="overflow-hidden rounded-xl border border-border bg-panel">
-    <div class="px-5 py-4"><div class="flex flex-wrap items-start justify-between gap-4"><div class="min-w-0">
-      <div class="flex items-center gap-2">${srMenu(c.sr)}${v?'':`<span class="ar text-sm text-muted-foreground">${c.ar}</span>`}</div>
-      <h1 class="mt-1 text-2xl font-semibold tracking-tight">${v?v.sub:c.name}</h1>
-      <div class="mt-2 flex flex-wrap items-center gap-2"><span class="text-xs font-medium text-ok">Paid</span><span class="inline-flex items-center rounded-md border border-border bg-panel2 px-2 py-0.5 text-[11px] font-semibold">${c.type}</span></div></div>
-      ${['ec','ech','pre'].includes(S.sr)?'':`<div class="text-right"><div class="label-cap text-muted-foreground">Risk</div><div class="mt-0.5 text-[26px] font-semibold leading-none tracking-tight text-warn">${c.risk[0]}</div><div class="tnum mt-1 text-[11px] text-muted-foreground">${c.risk[1]}</div></div>`}</div></div>
-    <div class="h-px bg-border"></div>
-    ${`<div class="px-5 pb-3.5 pt-4"><div class="grid gap-x-3" style="grid-template-columns:repeat(${Math.max(SSTEPS().length,6)},minmax(0,1fr))">${SSTEPS().map(([n,t],i,A)=>{const cur=SCUR(),done=i<cur,on=i===cur;
-      const vw=(S.view??cur)===i; return `<div role="button" data-view="${i}" class="min-w-0 cursor-pointer rounded pr-3 pb-1 ${vw&&!on?'bg-panel2':''}"><div class="relative mb-2 h-[22px]">${i<A.length-1?`<span class="absolute left-[11px] right-[-12px] top-1/2 h-px -translate-y-1/2 ${done?'bg-ok/45':'bg-border'}"></span>`:''}<span class="relative z-10 flex size-[22px] items-center justify-center rounded-full border font-mono text-[10px] ${done?'border-ok/50 bg-ok-wash text-ok':on?'border-brand bg-wash text-link ring-2 ring-brand/25':'border-border bg-panel2 text-muted-foreground'}">${done?'✓':i+1}</span></div><div class="truncate text-[12.5px] leading-tight ${on?'font-semibold text-foreground':done?'text-foreground':'text-muted-foreground'}">${n}</div><div class="mt-0.5 truncate text-[10.5px] text-muted-foreground">${SKIPPED(i)?'Skipped · under 21':i<=cur?A[i][1]:(A[i][2]||'')}</div></div>`}).join('')}</div></div>`}
-  </div>`;
-}
-const toReview=(cs,sr)=>docsOf(cs,sr).filter(d=>d.f&&!d.from&&!S.docs[cs+':'+d.k]).length;
-function requests(){return ''}
-function srMenu(sr){  const list=ACCT[S.cs].filter(x=>x[0]);
-  if(list.length<2) return `<span class="tnum font-mono text-xs text-muted-foreground">${sr}</span>`;
-  return `<span class="relative"><button data-a="srdd" class="tnum inline-flex items-center gap-1 font-mono text-xs text-muted-foreground hover:text-foreground">${sr} <span>▾</span></button>${S.srdd?`<div class="absolute left-0 top-full z-20 mt-1 w-[300px] rounded-lg border border-border bg-panel p-1 shadow-lg">${list.map(([k,no,t])=>{const n=toReview(S.cs,k), ec=k==='ec';return `<button data-sr="${k}" class="flex w-full items-center justify-between gap-3 rounded-md px-2.5 py-2 text-left text-sm hover:bg-panel2 ${k===S.sr?'bg-wash':''}"><span><span class="tnum block font-mono text-[11px] text-muted-foreground">${no}</span>${t}</span><span class="text-xs ${n?'text-foreground':'text-ok'}">${k==='pre'?(S.t['co:pre:predecide']?'Pre-approved':S.preRej?'Rejected':'<span class="text-foreground">Open</span>'):k==='ech'?(S.echReg?'Registered':'<span class="text-foreground">With GS</span>'):ec?(S.t['fl:ec:eccheck']?'Issued':'<span class="text-foreground">With GS</span>'):n?n+' to review':'✓'}</span></button>`}).join('')}</div>`:''}</span>`}
-const STEPT=[
-  [['Payment received',()=>`${C().paid} · card · Network International`,'auto']],
-  [['Confirm the name',()=>`${hdrName()} · <span class="ar">${hdrAr()}</span>`,'name','Confirm'],['Review the documents',()=>`${received().filter(d=>S.docs[dkey(d)]).length} of ${received().length} reviewed · ${docs().length-received().length} missing`,'docs','Review']],
-  [['Get the unified number from ICP',()=>'104477218','auto'],['Generate the covering letter',()=>'Covering Letter to ICP','auto'],['Send the security check letter to ICP',()=>'Covering Letter to ICP is ready','letter','Record as sent'],['Upload the cleared certificate',()=>S.icpNo?`Sent to ICP · ${esc(S.icpNo)}`:'When ICP clears it','cert','Upload']],
-  [['Screen every person',()=>`${C().people.length} not screened`,'screen','Run'],['Confirm the risk rating',()=>`ERR-${S.err} · ${C().risk.join(' · ')}`,'err','Confirm']],
-  [['Approve the application',()=>'','approve','Approve']],
-  [['Release gate',()=>'8 of 8 checks pass','auto'],['Generate the licence pack',()=>'','pack','Generate'],['Release to the applicant',()=>'','release','Release']]];
-const VSTEPT=[
-  [['Review the documents',()=>`${received().filter(d=>S.docs[dkey(d)]).length} of ${received().length} reviewed · passport from SR-87031`,'docs','Review']],
-  [['Send the entry permit application to ICP',()=>'','vsend','Send'],['Upload the entry permit',()=>'When ICP issues it','vpermit','Upload']],
-  [['Confirm where Layla Haddad is',()=>'Applicant: inside the UAE, visit visa','vloc','Confirm']],
-  [['Confirm the medical',()=>'Booked by the applicant','vmed','Confirm']],
-  [['Check the insurance',()=>'Uploaded by the applicant','vins','Check']],
-  [['Apply for the residence visa',()=>'','vres','Send']],
-  [['Hand over the Emirates ID',()=>'','veid','Confirm']]];
-const hdrName=()=>S.cs==='fl'?val('Full name',C().name):val('Name',C().name);
-const hdrAr=()=>S.cs==='fl'?val('Name in Arabic',C().ar):val('Arabic',C().ar);
-const isDone=(k)=>k==='auto'?true:k==='name'?S.name:k==='docs'?reviewed():!!S.t[S.cs+':'+S.sr+':'+k];
-function todo(){
-  const V=!!SRD(), T=STASKS(), L=SSTEPS(), cur=SCUR(), vi=S.view??cur;
-  if(vi!==cur){ const tasks=T[vi], past=vi<cur;
-    return `<div class="mt-5 rounded-lg border border-border bg-panel px-4 pb-3 pt-3"><div class="flex items-center justify-between gap-3"><div class="label-cap text-muted-foreground">Step record · ${L[vi][0]}</div><button data-view="${cur}" class="text-xs text-link hover:underline">Back to ${L[cur][0]}</button></div>
-      <div class="mt-1 text-xs text-muted-foreground">${past?'Done':'Not started'}</div>
-      <ol class="mt-2 list-none">${tasks.map(([t,d])=>`<li class="flex items-center gap-3 py-2">${mark(past)}<div class="min-w-0 flex-1"><div class="text-sm ${past?'text-muted-foreground':''}">${t}</div>${d()?`<div class="mt-0.5 text-xs text-muted-foreground">${d()}</div>`:''}</div></li>`).join('')}</ol></div>`; }
-  const tasks=T[cur]||[], open=tasks.filter(x=>!isDone(x[2])), last=cur>=L.length-1;
-  const team=L[cur][2], mine=V||S.role!=='obs'&&ROLETEAM[S.role]===team;
-  if(!mine&&!(last&&!open.length)) return `<div class="mt-5 rounded-lg border border-border bg-panel p-4"><div class="label-cap text-muted-foreground">Where this case is</div><h2 class="mt-1.5 text-lg font-semibold">With ${team}, at ${L[cur][0]}</h2><p class="mt-1 text-sm text-muted-foreground">${open[0]?open[0][0]:'Ready to approve'}</p></div>`;
-  const nx=open[0];
-  const more=`<span class="relative"><button data-a="more" class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm text-muted-foreground hover:text-foreground">More ▾</button>${S.more?`<div class="absolute right-0 top-full z-20 mt-1 w-[220px] rounded-lg border border-border bg-panel p-1 shadow-lg">${['Request from customer','Move to another team','Reject the application'].map(x=>`<button class="block w-full rounded-md px-2.5 py-2 text-left text-sm hover:bg-panel2 ${/Reject/.test(x)?'text-danger':''}">${x}</button>`).join('')}</div>`:''}</span>`;
-  let title, detail='', action, label='Do this next', warn='', below='';
-  const mr=S.cs==='co'&&S.sr==='reg'&&(S.mgrRej||S.wd||S.link), n500=S.checks||1, paidN=+String(C().paid).replace(/[^0-9]/g,'')+500*(n500-1), refundN=paidN-500*n500, aed=x=>'AED '+x.toLocaleString();
-  const money=`<div class="mt-4 overflow-hidden rounded-md border border-border">${[['Paid',aed(paidN)],[`Kept · ${n500} manager check${n500>1?'s':''} × AED 500`,'−'+aed(500*n500)],['Refund if they withdraw',aed(refundN)]].map(([k,v],i)=>`<div class="flex items-center justify-between gap-3 border-t border-border px-4 py-2 first:border-t-0 ${i===2?'font-semibold':''}"><span class="text-sm ${i===2?'':'text-muted-foreground'}">${k}</span><span class="tnum text-sm">${v}</span></div>`).join('')}</div>`;
-  const how=`<div class="mt-3 text-xs text-muted-foreground">How did they ask?</div><div class="mt-1.5 flex flex-wrap gap-1.5">${['Chat','Call','Email','In person'].map(w=>`<button data-how="${w}" class="rounded-full border px-2.5 py-1 text-xs ${S.how===w?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${w}</button>`).join('')}</div>`;
-  const CAND=[['Marco Bellini','Italy · Shareholder'],['James Whitfield','United Kingdom · Director'],['Someone new','Not on the application yet']];
-  if(mr&&S.wd){ label='Closed'; title='Withdrawn'; detail=`Refund ${aed(refundN)} issued automatically to the card they paid with · ${S.wdBy||'by the applicant'}`; action=''; }
-  else if(mr&&S.link){ label='Waiting on the applicant'; title=`Payment link sent for ${esc(S.newMgr)}`; detail=`AED 500 · emailed to the applicant${S.how?' · they asked by '+S.how.toLowerCase():''} · the security check restarts when it is paid`; action=`${btnS('Resend the link')}${btnS('Copy the link')}`; }
-  else if(mr){ label='Waiting on the applicant'; title=`ICP did not clear ${esc(mgrNow())} as manager`; detail='The applicant has been emailed and can choose a new manager or withdraw in their portal.'; below=money;
-    if(S.mp==='pick') below+=`<div class="mt-4 rounded-md border border-border bg-panel2 p-3"><div class="text-sm font-semibold">Choose a new manager for the applicant</div><div class="mt-2 overflow-hidden rounded-md border border-border">${CAND.map(([n,sub])=>`<button data-mpick="${n}" class="flex w-full items-center gap-3 border-t border-border px-3 py-2 text-left first:border-t-0"><span class="flex size-4 items-center justify-center rounded-full border ${S.mpick===n?'border-brand':'border-border'}">${S.mpick===n?'<span class="size-2 rounded-full bg-brand"></span>':''}</span><span><span class="block text-sm">${n}</span><span class="block text-xs text-muted-foreground">${sub}</span></span></button>`).join('')}</div>${S.mpick==='Someone new'?`<div class="mt-2 grid gap-2">${[['Full name','Omar Khalil'],['Email','omar@harbour-interiors.example']].map(([k,v])=>`<label class="grid grid-cols-[7rem_1fr] items-center gap-2 text-xs text-muted-foreground">${k}<input class="h-8 rounded-md border border-border bg-background px-2 text-sm text-foreground" value="${v}"></label>`).join('')}<div class="text-xs text-muted-foreground">Passport · omar-khalil-passport.pdf</div></div>`:''}${how}<div class="mt-3 text-xs text-muted-foreground">The applicant pays the AED 500 themselves. The check restarts when it is paid.</div><div class="mt-3 flex justify-end gap-2">${btnS('Cancel','data-a="mpx"')}${btnP('Send AED 500 payment link','data-a="mlink"',!S.how)}</div></div>`;
-    if(S.mp==='wd') below+=`<div class="mt-4 rounded-md border border-border bg-panel2 p-3"><div class="text-sm font-semibold">Withdraw for the applicant?</div><div class="mt-1 text-xs text-muted-foreground">Refund ${aed(refundN)} to the card they paid with. They are emailed.</div>${how}<div class="mt-3 flex justify-end gap-2">${btnS('Cancel','data-a="mpx"')}${btnP('Withdraw and refund '+aed(refundN),'data-a="mwdgo"',!S.how)}</div></div>`;
-    action=S.mp?'':`${btnS('Choose a new manager for them','data-a="mpick"')}${btnS('Withdraw for them','data-a="mwd"')}`; }
-  else if(nx){ title=nx[0]; detail=nx[1](); action=nx[2]==='docs'?btnP(nx[3],'data-tab="documents"'):btnP(nx[3],`data-task="${nx[2]}"`);
-    if(nx[2]==='name'){ detail=S.editing==='Name in Arabic'?`${hdrName()} · <input data-ein class="ar rounded-md border border-brand bg-background px-2 py-0.5 text-sm" value="${esc(hdrAr())}"> ${tl('Save','data-a="esave"')}`:`${hdrName()} · <span class="ar">${hdrAr()}</span> ${tag('Transliterated')} ${tl('Edit Arabic','data-edit="Name in Arabic"')}`; }
-    if(nx[2]==='letter'){ action=`${btnS('Review for ICP','data-a="icpreview"')}${btnS('Open the letter')}<input data-icpno class="h-9 w-40 rounded-md border border-border bg-background px-2 text-sm" aria-label="ICP request number" value="${esc(S.icpNo)}">${btnP('Record as sent','data-task="letter"',!S.icpNo)}`; }
-    if(nx[2]==='ecapply'){ detail='Copy the form below into ICP, submit, then record the request number.'; action=''; below=`<label class="mt-4 block"><span class="block text-xs text-muted-foreground">ICP request number</span><span class="mt-1.5 flex flex-wrap gap-2"><input data-ecno class="h-9 w-56 rounded-md border border-border bg-background px-2.5 text-sm" value="${esc(S.ecNo||'')}"><button type="button" data-task="ecapply" ${S.ecNo?'':'disabled'} class="h-9 rounded-md px-4 text-sm font-medium ${S.ecNo?'bg-foreground text-background':'border border-border text-muted-foreground'}">Mark as applied</button></span></label>`; }
-    if(nx[2]==='eccard'){ label='Waiting on ICP'; title='Waiting on ICP for the establishment card'; action=`${btnP('Upload the establishment card','data-task="eccard"')}${btnS("That wasn't sent",'data-a="ecunsend"')}`; }
-    if(nx[2]==='prenames'){ action=''; const N=[['Harbour Interiors','Available',1],['Harbour Interior Design','Available',1],['Harbour Fitout','Close to an existing company',0]];
-      below=`<div class="mt-4 overflow-hidden rounded-md border border-border">${N.map(([n,st,ok],i)=>`<div class="flex items-center justify-between gap-3 border-t border-border px-4 py-2.5 first:border-t-0"><span class="text-[15px]">${i+1}. ${n} Limited</span><span class="text-sm ${ok?'text-ok':'text-warn'}">${st}</span></div>`).join('')}</div><div class="mt-3">${btnP('Confirm Harbour Interiors Limited','data-task="prenames"')}</div>`; }
-    if(nx[2]==='prescreen'){ action=btnP('Run screening','data-task="prescreen"'); }
-    if(nx[2]==='presend'){ action=''; below=`<label class="mt-4 block"><span class="block text-xs text-muted-foreground">ICP request number</span><span class="mt-1.5 flex flex-wrap gap-2"><input data-preno class="h-9 w-56 rounded-md border border-border bg-background px-2.5 text-sm" value="${esc(S.preNo||'')}"><button type="button" data-task="presend" ${S.preNo?'':'disabled'} class="h-9 rounded-md px-4 text-sm font-medium ${S.preNo?'bg-foreground text-background':'border border-border text-muted-foreground'}">Record as sent</button></span></label>`; }
-    if(nx[2]==='precert'){ label='Waiting on ICP'; title='Waiting on ICP for the manager’s security check'; action=`${btnP('Upload the cleared certificate','data-task="precert"')}${btnS("That wasn't sent",'data-a="preunsend"')}`; }
-    if(nx[2]==='predecide'){ action=''; title=S.preRej?'Waiting for a new manager':'Approve or reject'; detail=S.preRej?`Rejected · ${esc(S.preRej)}. The applicant has been told and asked for a different manager (AED 500).`:'Names checked, manager screened and cleared by ICP.';
-      const why=['ICP did not clear the manager','Name refused by ICP','Other'];
-      below=S.preRej?`<div class="mt-4 flex flex-wrap gap-2">${btnS('Applicant submitted a new manager · AED 500 paid','data-a="prenewmgr"')}</div>`:`<div class="mt-4 flex flex-wrap gap-2">${btnP('Approve and issue the certificate','data-a="preapprove"')}${btnS(S.preRejOpen?'Cancel':'Reject','data-a="prerejopen"')}</div>${S.preRejOpen?`<div class="mt-3 rounded-md border border-border bg-panel2 p-3"><div class="text-xs text-muted-foreground">Reason, sent to the applicant</div><div class="mt-2 flex flex-wrap gap-1.5">${why.map(w=>`<button data-prewhy="${w}" class="rounded-full border px-2.5 py-1 text-xs ${S.preWhy===w?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${w}</button>`).join('')}</div><div class="mt-3 flex justify-end">${S.preWhy?btnP('Reject','data-a="prereject"'):'<span class="text-xs text-muted-foreground">Give a reason</span>'}</div></div>`:''}`; }
-    if(nx[2]==='echsend'){ action=''; below=`<div class="mt-4 grid items-baseline gap-4 rounded-md border border-border px-4 py-2.5" style="grid-template-columns:13rem 1fr" data-copy="2/1/1306201" title="Click to copy"><span class="text-sm text-muted-foreground">Establishment card number</span><span class="cursor-copy font-mono text-[15px]">2/1/1306201</span></div>
-      <label class="mt-4 block"><span class="block text-xs text-muted-foreground">ICP request number</span><span class="mt-1.5 flex flex-wrap gap-2"><input data-echno class="h-9 w-56 rounded-md border border-border bg-background px-2.5 text-sm" value="${esc(S.echNo||'')}"><button type="button" data-task="echsend" ${S.echNo?'':'disabled'} class="h-9 rounded-md px-4 text-sm font-medium ${S.echNo?'bg-foreground text-background':'border border-border text-muted-foreground'}">Record as sent</button></span></label>`; }
-    if(nx[2]==='echreg'){ label='Waiting on ICP'; title='Waiting on ICP for the e-Channel registration'; detail=`Sent to ICP · ${esc(S.echNo||'')}`; action=btnS("That wasn't sent",'data-a="echunsend"');
-      below=`<div class="mt-4 flex flex-wrap items-end gap-3"><label class="block"><span class="block text-xs text-muted-foreground">Registration number</span><input data-echreg class="mt-1.5 h-9 w-56 rounded-md border border-border bg-background px-2.5 text-sm" value=""></label><label class="block"><span class="block text-xs text-muted-foreground">Expires</span><input data-echexp class="mt-1.5 h-9 w-40 rounded-md border border-border bg-background px-2.5 text-sm" value="2027-09-30"></label><button type="button" data-a="echregister" class="h-9 rounded-md bg-foreground px-4 text-sm font-medium text-background">Register</button></div>`; }
-    if(nx[2]==='eccheck'){ label='Do this next'; title='Establishment card doesn’t match'; detail='The name on the card is a different company. Upload the right file, or release this one with a reason.';
-      const R=[['Establishment name',S.ecWrong?'Harbour Interiors Limited':`${hdrName()} - Masdar City Free Zone`,!S.ecWrong,`Expected ${hdrName()} - Masdar City Free Zone`,0],['Card number','2/1/1306201',1,'',1],['Authorised signatories',hdrName(),1,'',1],['Issue date','2026-10-02',1,'',1],['Expiry date','2027-09-30',1,'',1],['Licence number','MC 13062',1,'',0]];
-      const why=['Card is correct, name differs in format','Senior instruction','Other'];
-      below=`<div class="mt-4 overflow-hidden rounded-md border border-border">${R.map(([k,v,ok,exp,edit])=>`<div class="grid items-center gap-4 border-t border-border px-4 py-2 first:border-t-0 ${ok?'':'bg-warn-wash'}" style="grid-template-columns:11rem 1fr"><span class="text-sm text-muted-foreground">${k}</span><span class="text-[15px]">${edit?`<input data-ecrec="${k}" class="h-9 w-full max-w-[320px] rounded-md border border-border bg-background px-2.5 text-sm" value="${esc(v)}">`:esc(v)}${ok?'':`<div class="mt-0.5 text-sm text-warn">${esc(exp)}</div>`}</span></div>`).join('')}</div>
-        ${S.ecWrong?`<div class="mt-4 text-xs text-muted-foreground">Reason to release</div><div class="mt-1.5 flex flex-wrap gap-1.5">${why.map(w=>`<button data-ecwhy="${w}" class="rounded-full border px-2.5 py-1 text-xs ${S.ecWhy===w?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${w}</button>`).join('')}</div>`:''}
-        <div class="mt-4 flex flex-wrap gap-2"><button type="button" data-a="ecrelease" ${S.ecWhy||!S.ecWrong?'':'disabled'} class="h-9 rounded-md px-4 text-sm font-medium ${S.ecWhy||!S.ecWrong?'bg-foreground text-background':'border border-border text-muted-foreground'}">${!S.ecWrong?'Record':S.ecWhy?'Release and record':'Give a reason'}</button>${btnS('Upload another file','data-a="ecreupload"')}</div>`;
-      action=''; }
-    if(nx[2]==='cert'){ label='Waiting on ICP'; title='Waiting on ICP for the security check'; detail=S.cs==='co'?`${esc(mgrNow())} · manager check ${S.checks||1}`:detail; action=`${btnP('Upload the cleared certificate','data-task="cert"')}${S.cs==='co'?btnS('Record: ICP did not clear','data-a="mgrrej"'):''}${btnS("That wasn't sent",'data-a="unsend"')}`; } }
-  else if(!last){ title=`Move to ${L[cur+1][0]}${!V&&cur===2&&C().risk[0]==='Medium'?' · Release Queue':''}`; if(!V&&cur===2&&C().risk[0]==='Medium') title='Move to Release Queue'; detail=!V&&cur===2&&C().risk[0]==='Medium'?`Compliance and approval are skipped: ${C().risk.join(' · ')}, under 21`:''; action=btnP('Approve','data-a="approve"'); }
-  else { title=S.sr==='pre'?'Pre-approved':S.sr==='ech'?'e-Channel registered':S.sr==='ec'?'Establishment card issued':'Released'; detail=S.sr==='pre'?'Name Reservation Certificate released · Harbour Interiors Limited · valid until 1 December 2026':S.sr==='ech'?`${esc(S.echReg||'')} · to ${esc(S.echExp||'')}`:S.sr==='ec'?'2/1/1306201 · to 30 Sep 2027 · e-Channel started (SR-87022)':''; action=''; }
-  if(!V&&cur===2&&S.t[S.cs+':reg:cert']&&!nx) warn=`<div class="mt-3 rounded-md border border-warn/40 bg-warn-wash px-3 py-2 text-xs text-warn">ICP number on the certificate does not match ${esc(S.icpNo)}</div>`;
-  const rest=tasks.filter(x=>x!==nx);
-  return `<div class="mt-5 rounded-lg border border-border bg-panel p-4"><div class="flex flex-wrap items-start justify-between gap-4"><div class="min-w-0"><div class="label-cap text-muted-foreground">${label}</div><h2 class="mt-1.5 text-lg font-semibold">${title}</h2>${detail?`<p class="mt-1 text-sm text-muted-foreground">${detail}</p>`:''}${below}</div><div class="flex shrink-0 flex-wrap items-start gap-2">${action}${last&&!nx?'':more}</div></div>${warn}${dialogs()}
-    ${rest.length&&!['ec','ech'].includes(S.sr)?`<div class="mt-4 border-t border-border pt-2.5"><button data-a="rest" class="flex items-center gap-1.5 py-1 text-sm font-medium"><span class="text-muted-foreground">${S.showRest?'▾':'▸'}</span>${L[cur][0]} · ${tasks.filter(x=>isDone(x[2])).length} of ${tasks.length} done</button>
-      ${S.showRest?`<ol class="list-none">${rest.map(([t,d,k,b])=>`<li class="flex items-center gap-3 py-2">${mark(isDone(k))}<div class="min-w-0 flex-1"><div class="text-sm ${isDone(k)?'text-muted-foreground':''}">${t}</div>${d()?`<div class="mt-0.5 text-xs text-muted-foreground">${d()}</div>`:''}</div>${isDone(k)?'':k==='docs'?tl(b,'data-tab="documents"'):tl(b,`data-task="${k}"`)}</li>`).join('')}</ol>`:''}</div>`:''}</div>`;
-}
-function failedAccepted(){return docs().some(d=>(DR[S.cs+':'+d.k]||{rows:[]}).rows.some(x=>x[2]==='warn')&&S.docs[dkey(d)]==='ok')}
-function dialogs(){
-  if(S.dlg==='approve'){const R=['All checks passed','Passed on review, with an override','Approved on senior instruction','Other']; const pick=S.why??(failedAccepted()||S.t[S.cs+':reg:cert']?R[1]:R[0]);
-    return `<div class="mt-4 rounded-md border border-border bg-panel2 p-3"><div class="text-sm font-semibold">Approve this case?</div><div class="mt-2 flex flex-wrap gap-1.5">${R.map(x=>`<button data-why="${x}" class="rounded-full border px-2.5 py-1 text-xs ${pick===x?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${x}</button>`).join('')}</div>${failedAccepted()?`<div class="mt-2 text-xs text-warn">Accepted with resolved warnings: ${docs().filter(d=>(DR[S.cs+':'+d.k]||{rows:[]}).rows.some(x=>x[2]==='warn')&&S.docs[dkey(d)]==='ok').map(d=>d.t).join(', ')}</div>`:''}<div class="mt-3 flex justify-end gap-2">${btnS('Cancel','data-a="dlgx"')}${btnP('Approve','data-a="advance"')}</div></div>`}
-  if(S.dlg==='icp'){const rows=[['Company name (Arabic)',`<span class="ar">${hdrAr()}</span>`],['MCFZ SR number',C().sr],['Name (Arabic)',`<span class="ar">${hdrAr()}</span>`],['Nationality (Arabic)','الهند'],['Passport number','P5531207'],['Company name (English)',hdrName()],['Name (English)',hdrName()],['Nationality','IN'],['Unified number','104477218']];
-    return `<div class="mt-4 rounded-md border border-border bg-panel2 p-3"><div class="flex items-center justify-between"><div class="text-sm font-semibold">Review for ICP · initial approval request</div><button data-a="dlgx" class="text-muted-foreground">✕</button></div><div class="mt-2 grid gap-1.5">${rows.map(([k,v])=>row(k,v)).join('')}</div><div class="mt-3 flex justify-end gap-2">${btnS('Regenerate the letter')}${btnS('Edit details','data-tab="application"')}${btnB('Send to ICP')}</div></div>`}
-  return ''}
-const ECTABS=[['icpform','ICP form'],['mdocs','Internal Documents'],['icpdocs','ICP Documents'],['activity','Activity']];
-const VTABS=[['application','Application'],['documents','Applicant Documents'],['mdocs','Internal Documents'],['icpdocs','ICP Documents'],['activity','Activity']];
-const TABS=[['application','Application'],['documents','Applicant Documents'],['mdocs','Internal Documents'],['icpdocs','ICP Documents'],['ownership','Ownership'],['compliance','Compliance'],['payments','Payments'],['activity','Activity']];
 
-/* ---------- Documents: document left, review right ---------- */
-const ECF=()=>[
- ['Establishment',[['Full name (English)',`${hdrName()} - Masdar City Free Zone`],['Full name (Arabic)',`${hdrAr()} - مدينة مصدر المنطقة الحرة`],['Establishment type','2','Emirate government'],['Work sector','3','Government establishments'],['Establishment department','101','ICP, Abu Dhabi'],['Commercial activity','400','Free zones'],['Class','1','A'],['Establishment nationality','United Arab Emirates']]],
- ['Licence',[['Licence number','MC 13062'],['Licence issue date','2026-10-01'],['Licence end date','2027-09-30'],['Licence place','Abu Dhabi'],['Licence type','Commercial']]],
- ['Address and contact',[['Emirate','Abu Dhabi'],['City','Abu Dhabi'],['Detailed address','Abu Dhabi'],['Building','Masdar City'],['Shop number','1'],['Telephone','+971 50 000 4417'],['Fax','0097122222222'],['P.O. box','']]],
- ['Investor',[['Investor unified number','104477218'],['Investor phone','+971 50 000 4417']]],
- ['Term',[['Number of years','1']]]];
-function ecForm(){const atts=[['Covering Letter, Immigration Card','letter'],['Licence','doc-freelancer-permit.jpg'],['Security clearance certificate','doc-icp-certificate.jpg'],['Passport, personal details page','mock:pp']];
-  const all=S.ecAll;
-  const rowE=([k,v,meaning,warn])=>{const key='ec:'+k, cur=val(key,v), ed=ek(key) in S.edits, code=!!meaning;
-    const shown=code?`<span class="tnum font-mono">${esc(cur)}</span>${cur===v?`<span class="ml-2 text-muted-foreground">${esc(meaning)}</span>`:''}`:cur?`<span ${isAr(cur)?'dir="rtl"':''}>${esc(cur)}</span>`:'<span class="text-muted-foreground">Blank</span>';
-    const field=all?`<input data-ecall="${esc(key)}" class="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-[15px] ${code?'font-mono':''}" ${isAr(cur)?'dir="rtl"':''} value="${esc(cur)}">`:shown;
-    return `<div ${all||!cur?'':`data-copy="${esc(cur)}" title="Click to copy"`} class="grid items-baseline gap-4 border-t border-border px-5 py-3 ${all||!cur?'':'cursor-copy hover:bg-panel2'}" style="grid-template-columns:13rem minmax(0,1fr)"><span class="text-sm text-muted-foreground">${k}${ed?' <span class="text-xs text-warn">· edited</span>':''}</span><span class="min-w-0 text-[15px]">${field}${warn?`<div class="mt-1 text-sm text-warn">${warn}</div>`:''}</span></div>`};
-  return `<div class="overflow-hidden rounded-lg border border-border bg-panel"><div class="flex items-center gap-3 px-5 py-3.5"><div><div class="text-base font-semibold">ICP form</div><div class="text-sm text-muted-foreground">Click a value to copy it</div></div><span class="ml-auto flex gap-2">${all?`${btnS('Cancel','data-a="ecallx"')}${btnP('Save all','data-a="ecallsave"')}`:btnS('Edit','data-a="ecall"')}</span></div>
-    ${ECF().map(([h,rows])=>`<div class="border-t border-border bg-panel2 px-5 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">${h}</div>${rows.map(rowE).join('')}`).join('')}</div>
-  <div class="mt-2"><div class="mb-3 mt-6 text-base font-semibold">Attachments <span class="text-sm font-normal text-muted-foreground">4 of 4</span></div><div class="grid gap-3" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">${atts.map(([t,src])=>`<button data-view-doc="${src}" class="flex flex-col overflow-hidden rounded-lg border border-border bg-panel text-left"><div class="flex h-36 items-center justify-center overflow-hidden bg-panel2 p-2">${src==='letter'?`<div style="width:119px;height:168px;overflow:hidden"><div style="transform:scale(.2);transform-origin:top left">${letterHTML()}</div></div>`:src.startsWith('mock:')?`<div style="transform:scale(.7)">${mockPrev(docs().find(x=>x.k==='pp')||{k:'pp',t:'Passport',who:'p1'})}</div>`:`<img src="assets/${src}" style="height:128px" alt="">`}</div><div class="p-3 text-sm">${t}</div></button>`).join('')}</div></div>`}
-function ecStatus(){const a=!!S.t['fl:ec:ecapply'], d=!!S.t['fl:ec:eccard'], cur=d?2:a?1:0;
-  return `<div class="flex items-center gap-4 px-5 py-4 text-sm">${['Apply','Waiting on ICP','Issued'].map((t,i)=>`<span class="flex shrink-0 items-center gap-2.5 ${i===cur?'font-semibold text-foreground':i<cur?'text-ok':'text-muted-foreground'}"><span class="flex size-6 items-center justify-center rounded-full border text-xs ${i<cur?'border-ok/50 bg-ok-wash text-ok':i===cur?'border-brand text-link':'border-border'}">${i<cur?'✓':i+1}</span>${t}</span>${i<2?`<span class="h-px flex-1 ${i<cur?'bg-ok/45':'bg-border'}"></span>`:''}`).join('')}</div>`}
-function echForm(){return `<div class="overflow-hidden rounded-lg border border-border bg-panel"><div class="px-5 py-3.5"><div class="text-base font-semibold">ICP form</div><div class="text-sm text-muted-foreground">e-Channel registration · ICP reads everything else from the card number</div></div>
-  <div data-copy="2/1/1306201" title="Click to copy" class="grid cursor-copy items-baseline gap-4 border-t border-border px-5 py-3 hover:bg-panel2" style="grid-template-columns:13rem minmax(0,1fr)"><span class="text-sm text-muted-foreground">Establishment card number</span><span class="font-mono text-[15px]">2/1/1306201</span></div></div>`}
-function srcBar(){const icp=S.t[S.cs+':reg:cert']?1:0, us=3+(S.err>10013?0:0);
-  return `<div class="mb-3 inline-flex rounded-md border border-border bg-panel p-0.5 text-xs">${[['app','From the applicant',docs().length],['icp','From ICP',icp],['mcfz','Issued by Masdar City',us]].map(([k,t,n])=>`<button data-src="${k}" class="rounded px-3 py-1.5 ${S.src===k?'bg-panel2 font-medium text-foreground':'text-muted-foreground'}">${t} <span class="tnum text-muted-foreground">${n}</span></button>`).join('')}</div>`}
-const LTR={full:()=>[['Date','02/10/2026'],['SR number',C().sr],['Company name (Arabic)',S.cs==='fl'?hdrAr():'هاربر انتيريورز ليمتد'],['Name (Arabic)',hdrAr()],['Nationality (Arabic)',S.cs==='fl'?'الهند':'كينيا'],['Passport number',S.cs==='fl'?'P5531207':'AK4471902'],['Signatory 1','أحمد خالد المنصوري'],['Unified number 1','1100234'],['Signatory 2','مريم سعيد الكعبي'],['Unified number 2','1100871']]};
-function letterHTML(){const g=l=>esc(lv(l,(LTR.full().find(x=>x[0]===l)||[])[1]));
-  return `<div dir="rtl" style="background:#fff;color:#111;font-family:'Geeza Pro','Noto Naskh Arabic',Tahoma,sans-serif;width:595px;min-height:842px;padding:28px 44px;box-sizing:border-box;font-size:12.5px;line-height:1.9;position:relative"><div style="text-align:center"><img src="assets/mcfz-letterhead.png" style="height:58px" alt=""></div><div style="margin-top:18px">التاريخ: <b>${g('Date')}</b></div><div style="margin-top:14px;display:flex;justify-content:space-between;font-weight:700"><span>السادة / الهيئة الاتحادية للهوية والجنسية - أبوظبي</span><span>المحترم</span></div><div style="text-align:left;font-weight:700">(${g('SR number')})</div><div>تحية طيبة وبعد،،</div><div style="text-align:center;font-weight:700;text-decoration:underline;margin:8px 0">الموضوع / استخراج موافقة مبدئية لإصدار رخصة – المنطقة الحرة</div><p style="margin:0">بالإشارة إلى الموضوع أعلاه، يرجى التكرم من سيادتكم بالموافقة على استخراج موافقة مبدئية للسادة شركة / <b>${g('Company name (Arabic)')}</b> - <b>مدينة مصدر المنطقة الحرة</b>، وذلك حتى يتسنى لنا إستكمال إجراءات تأسيس وإصدار رخصة المنطقة الحرة.</p><p style="margin:6px 0">كما نفيد سيادتكم علماً أنه تم تعيين المذكور بياناته أدناه مديراً للشركة المذكورة.</p><table style="width:100%;border-collapse:collapse;margin:6px 0">${[['الاســـم',g('Name (Arabic)')],['الجنسيـــة',g('Nationality (Arabic)')],['رقم الجواز',g('Passport number')]].map(([k,v])=>`<tr><td style="border:1px solid #333;padding:2px 8px">${k}: <b>${v}</b></td></tr>`).join('')}</table><div style="font-weight:700;text-decoration:underline;margin-top:8px">بيانات المخولين بالتوقيع:-</div><table style="width:100%;border-collapse:collapse;margin:4px 0"><tr><td style="border:1px solid #333;padding:2px 8px">أسماء المخول بالتوقيع</td><td style="border:1px solid #333;padding:2px 8px">رقم الموحد</td></tr>${[1,2].map(i=>`<tr><td style="border:1px solid #333;padding:2px 8px">${g('Signatory '+i)}</td><td style="border:1px solid #333;padding:2px 8px">${g('Unified number '+i)}</td></tr>`).join('')}</table><div style="margin-top:8px">شاكرين لكم حسن تعاونكم ....</div><div style="text-align:center;margin-top:6px">وتفضلوا بقبول فائق التقدير والاحترام،</div><div style="margin:18px auto 0;width:150px;height:46px;border-bottom:1px solid #999"></div><div style="text-align:center;color:#666;font-size:11px">التوقيع</div><img src="assets/mcfz-letter-footer.png" style="position:absolute;left:0;right:0;bottom:0;width:100%" alt=""></div>`}
-const lv=(l,d)=>(S.lt||{})[S.cs+':'+l]??d;
-function page(title,lines,ar){return `<div class="mx-auto flex aspect-[3/4] w-full max-w-[210px] flex-col gap-1.5 rounded-sm  p-3 text-left text-[6px] leading-tight text-neutral-800 shadow" style="background:#fff"><div class="text-[7px] font-bold">${esc(title)}</div>${(lines||[]).map(x=>`<div class="truncate">${x}</div>`).join('')}<div class="mt-auto h-1 w-1/2 rounded bg-neutral-200"></div></div>`}
-const img=f=>`<img src="assets/${f}" alt="" style="width:178px;box-shadow:0 1px 3px rgba(0,0,0,.4)">`;
-function fileCard(f){return `<div class="flex flex-col overflow-hidden rounded-lg border border-border bg-panel">
-  <div class="flex items-center justify-center bg-panel2 p-4 ${f.dim?'opacity-50':''}" style="min-height:190px">${f.prev}</div>
-  <div class="flex flex-1 flex-col gap-2 p-3"><div><div class="text-sm font-medium">${f.t}</div><div class="text-xs text-muted-foreground">${f.meta}</div>${f.warn?`<div class="mt-1 text-xs text-warn">${f.warn}</div>`:''}</div><div class="mt-auto flex flex-wrap gap-1.5">${f.acts}</div></div></div>`}
-function otherFiles(which){
-  if(S.editDoc) return letterEditor();
-  let files;
-  if(which==='icp'&&S.sr==='pre') return `<div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${fileCard(S.t['co:pre:precert']?{t:'Security clearance certificate',meta:'From ICP · GS Officer',prev:img('doc-icp-certificate.jpg'),acts:btnB('Open','data-view-doc="doc-icp-certificate.jpg"')+btnS('Replace')}:{t:'Security clearance certificate',meta:'Not received',prev:`<div class="flex aspect-[3/4] w-full max-w-[210px] items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">Drop the file here</div>`,acts:btnB('Upload','data-task="precert"')})}</div>`;
-  if(which==='mcfz'&&S.sr==='pre') return `<div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${fileCard({t:'Covering Letter, security approval',meta:'For name reservation · staff only',prev:`<div style="width:178px;height:252px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.4)"><div style="transform:scale(.3);transform-origin:top left">${letterHTML()}</div></div>`,acts:btnB('Open','data-view-doc="letter"')+btnS('Edit','data-editdoc="letter"')})}${fileCard(S.t['co:pre:predecide']?{t:'Name Reservation Certificate',meta:'Released · valid until 1 December 2026',prev:page('Name Reservation Certificate',['Harbour Interiors Limited','Valid until 1 December 2026']),acts:btnB('Open')}:{t:'Name Reservation Certificate',meta:'Issued on approval',dim:1,prev:page('Name Reservation Certificate',['Issued on approval']),acts:''})}</div>`;
-  if(which==='icp'&&S.sr==='ech') return `<div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${fileCard(S.echReg?{t:'e-Channel registration',meta:`${esc(S.echReg)} · to ${esc(S.echExp)}`,prev:page('e-Channel registration',['Establishment card 2/1/1306201','Registration '+esc(S.echReg)]),acts:btnB('Open')}:{t:'e-Channel registration',meta:'Not registered yet',prev:`<div class="flex aspect-[3/4] w-full max-w-[210px] items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">Nothing yet</div>`,acts:''})}</div>`;
-  if(which==='icp'&&S.sr==='ec'){const has=S.t['fl:ec:eccard']; return `<div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${fileCard(has?{t:'Establishment card',meta:S.t['fl:ec:eccheck']?'2/1/1306201 · to 30 Sep 2027 · released':'Uploaded · being checked',warn:S.t['fl:ec:eccheck']?'':(S.ecWrong?'Name doesn’t match':''),prev:mockPrev({k:'eid',t:'Establishment card',who:'p1'}),acts:btnB('Open')+btnS('Replace')}:{t:'Establishment card',meta:'Not received',prev:`<div class="flex aspect-[3/4] w-full max-w-[210px] items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">Drop the file here</div>`,acts:btnB('Upload','data-task="eccard"')})}</div>`}
-  if(which==='mcfz'&&S.sr==='ec') return `<div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${fileCard({t:'Covering Letter, Immigration Card',meta:'2 Oct · staff only',prev:`<div style="width:178px;height:252px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.4)"><div style="transform:scale(.3);transform-origin:top left">${letterHTML()}</div></div>`,acts:btnB('Open','data-view-doc="letter"')+btnS('Edit','data-editdoc="letter"')})}</div>`;
-  if(which==='icp'){const has=S.t[S.cs+':reg:cert'];
-    files=[has?{t:'Security clearance certificate',meta:'security-check-cleared.pdf · 2 Oct · GS Officer',warn:`ICP number does not match ${esc(S.icpNo)}`,prev:img('doc-icp-certificate.jpg'),acts:btnB('Open','data-view-doc="doc-icp-certificate.jpg"')+btnS('Replace')}
-      :{t:'Security clearance certificate',meta:'Not received',prev:`<div class="flex aspect-[3/4] w-full max-w-[210px] items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">Drop the file here</div>`,acts:btnB('Upload','data-task="cert"')},
-      {t:'Entry permit',meta:'Visa SR',dim:1,prev:page('Entry Permit',['Issued by ICP']),acts:''}];
-  } else {
-    const ver=(S.ver||{})[S.cs]||1;
-    files=[{t:'Covering Letter to ICP',meta:`v${ver} · ${ver>1?'edited '+((S.verAt||{})[S.cs]||''):'2 Oct 01:04'} · staff only`,prev:`<div style="width:178px;height:252px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.4)"><div style="transform:scale(.3);transform-origin:top left">${letterHTML()}</div></div>`,acts:btnB('Open','data-view-doc="letter"')+btnS('Edit','data-editdoc="letter"')},
-      {t:'Provisional Approval',meta:'At Release · goes to the applicant',prev:img('doc-provisional-approval.jpg'),acts:btnB('Open','data-view-doc="doc-provisional-approval.jpg"')},
-      {t:'Declaration & Acceptance Form',meta:'Signed by the applicant',prev:img('doc-declaration-form.jpg'),acts:btnB('Open','data-view-doc="doc-declaration-form.jpg"')},
-      {t:`ERR-${S.err}`,meta:`${S.err>10013?'Regenerated '+now():'1 Oct'} · staff only`,prev:page('Entity Risk Rating',[`Final: ${C().risk.join(' · ')}`,'Jurisdiction 19.5','Entity 6.5','Initiation 10','Property 10']),acts:btnB('Open')+btnS('Edit','data-tab="compliance"')},
-      {t:'Establishment card letter',meta:'After the licence',dim:1,prev:page('Covering Letter, Immigration Card',['Written from the issued licence']),acts:btnS('Generate','disabled')},
-      {t:S.cs==='fl'?'Freelancer Permit':'Licence pack',meta:'At Release · goes to the applicant',prev:img('doc-freelancer-permit.jpg'),acts:btnB('Open','data-view-doc="doc-freelancer-permit.jpg"')}];
+function stepper(){
+  const st=[['Payment','13m','done'],['Registration','8m','done'],['Security Check','2d 4h','now'],['Compliance','compliance'],['Manager/Senior Approval','director'],['Release Queue','director']];
+  const closed=S.s===7;
+  return `<div class="grid gap-x-3" style="grid-template-columns:repeat(6,minmax(0,1fr))"><span class="label-cap col-start-1 text-muted-foreground">Licensing</span></div><div class="mt-2 grid gap-x-3" style="grid-template-columns:repeat(6,minmax(0,1fr))">${st.map(([t,sub,k],i)=>{const done=k==='done', now=k==='now';
+    const dot=done?'border-ok/50 bg-ok-wash text-ok':now&&!closed?'border-warn bg-warn-wash text-warn ring-2 ring-warn/30':'border-border bg-panel2 text-muted-foreground';
+    return `<div class="min-w-0 rounded pr-3"><div class="relative mb-2 h-[22px]">${i<5?`<span class="absolute left-[11px] right-[-12px] top-1/2 h-px -translate-y-1/2 ${done?'bg-ok/45':'bg-border'}"></span>`:''}<span class="relative z-10 flex size-[22px] items-center justify-center rounded-full border text-[10px] font-mono tnum ${dot}">${done?'✓':i+1}</span></div><div class="truncate text-[12.5px] leading-tight ${now?'font-semibold text-foreground':done?'text-foreground':'text-muted-foreground'}">${t}</div><div class="mt-0.5 truncate text-[10.5px] text-muted-foreground">${sub}</div></div>`}).join('')}</div>`;
+}
+
+const mgr=()=>S.pick==='Someone new'?'Omar Khalil':S.pick;
+function next(){
+  const box=(label,h,p,acts,below='')=>`<div class="rounded-lg border border-border bg-panel p-4"><div class="flex items-start justify-between gap-4"><div class="min-w-0"><div class="label-cap text-muted-foreground">${label}</div><h2 class="mt-1.5 text-lg font-semibold text-foreground">${h}</h2>${p?`<p class="mt-1 max-w-[70ch] text-sm text-muted-foreground">${p}</p>`:''}</div><div class="flex shrink-0 flex-wrap items-start justify-end gap-2">${acts}</div></div>${below}</div>`;
+  const how=`<div class="mt-3 text-xs text-muted-foreground">Asked by</div><div class="mt-1.5 flex flex-wrap gap-1.5">${['Chat','Call','Email'].map(w=>`<button data-how="${w}" class="rounded-full border px-2.5 py-1 text-xs ${S.how===w?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${w}</button>`).join('')}</div>`;
+  const panel=(title,body,foot)=>`<div class="mt-4 rounded-md border border-border bg-panel2 p-3"><div class="text-sm font-semibold">${title}</div>${body}<div class="mt-3 flex justify-end gap-2">${foot}</div></div>`;
+  const row=(k,v,b)=>`<div class="flex items-center justify-between gap-3 py-1.5 text-sm ${b?'border-t border-border font-semibold':''}"><span class="${b?'':'text-muted-foreground'}">${k}</span><span class="tnum">${v}</span></div>`;
+  if(S.s===1) return box('Do this next','Upload the security clearance certificate ICP returned','Upload the certificate ICP returned. The establishment card cannot be filed without it.',btn('Upload certificate')+btn('Not cleared','data-go="2"')+more);
+  if(S.s===2) return box('Waiting on the applicant','New manager or withdrawal','',btn('Choose manager','data-go="3"')+btn('Withdraw','data-go="6"')+more);
+  if(S.s===3){ const C=[['Marco Bellini','Shareholder'],['James Whitfield','Director'],['Someone new','']];
+    const list=`<div class="mt-2 overflow-hidden rounded-md border border-border">${C.map(([n,r])=>`<button data-pick="${n}" class="flex w-full items-center gap-3 border-t border-border px-3 py-2 text-left first:border-t-0"><span class="flex size-4 items-center justify-center rounded-full border ${S.pick===n?'border-brand':'border-border'}">${S.pick===n?'<span class="size-2 rounded-full bg-brand"></span>':''}</span><span class="text-sm">${n}</span>${r?`<span class="ml-auto text-xs text-muted-foreground">${r}</span>`:''}</button>`).join('')}</div>`;
+    const fresh=S.pick==='Someone new'?`<div class="mt-2 grid gap-2">${[['Name','Omar Khalil'],['Email','omar@harbour-interiors.example']].map(([k,v])=>`<div class="flex items-center gap-3 text-sm"><span class="shrink-0 text-muted-foreground" style="width:4rem">${k}</span><input class="h-8 flex-1 rounded-md border border-border bg-background px-2 text-sm" value="${v}"></div>`).join('')}<div class="flex items-center gap-3 text-sm"><span class="shrink-0 text-muted-foreground" style="width:4rem">Passport</span><span>omar-khalil-passport.pdf</span></div></div>`:'';
+    return box('Waiting on the applicant','New manager or withdrawal','',more,panel('Choose manager',list+fresh+how,btn('Cancel','data-go="2"')+btnP('Send AED 500 payment link','data-go="4"')));
   }
-  return `<div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${files.map(fileCard).join('')}</div>`;
-}
-function letterEditor(){const F=LTR.full(), ver=(S.ver||{})[S.cs]||1;
-  return `<div class="mb-3 flex items-center gap-3"><button data-a="closeedit" class="text-xs text-link hover:underline">‹ Internal Documents</button><span class="text-sm font-medium">Covering Letter to ICP</span><span class="text-xs text-muted-foreground">v${ver}</span></div>
-  <div class="split"><div class="sticky-v overflow-auto rounded-lg border border-border bg-panel2 p-4"><div style="width:476px;height:674px;overflow:hidden;margin:0 auto;box-shadow:0 1px 3px rgba(0,0,0,.4)"><div style="transform:scale(.8);transform-origin:top left">${letterHTML()}</div></div></div>
-  <div class="rounded-lg border border-border bg-panel p-4"><div class="text-sm font-medium">Fields on the letter</div>
-    <div class="mt-3 grid gap-3">${F.map(([k,v])=>`<label class="block"><span class="text-[11px] text-muted-foreground">${k}</span><input data-lf="${esc(k)}" class="mt-1 w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm" ${isAr(lv(k,v))?'dir="rtl"':''} value="${esc(lv(k,v))}"></label>`).join('')}</div>
-    <div class="mt-4 flex justify-end gap-2 border-t border-border pt-3">${btnS('Cancel','data-a="closeedit"')}${btnP('Save as v'+(ver+1),'data-a="savever"')}</div>
-    <div class="mt-4"><div class="label-cap text-muted-foreground">Versions</div>${[...Array(ver)].map((_,i)=>`<div class="mt-1.5 flex justify-between text-xs"><span>v${ver-i}</span><span class="text-muted-foreground">${ver-i===1?'2 Oct 01:04 · system':((S.verLog||{})[S.cs+':'+(ver-i)]||'')}</span></div>`).join('')}</div></div></div>`;
-}
-const pending=()=>docs().filter(x=>x.f&&!x.from&&!S.docs[dkey(x)]);
-function mockPrev(d){const nm=WHO[d.who]||'', k=d.k.replace(/\d+$/,'');
-  const ln=(w,c='#d4d4d4')=>`<div style="height:4px;width:${w}%;background:${c};border-radius:2px;margin:4px 0"></div>`;
-  if(k==='pp') return `<div style="width:178px;height:124px;background:#eef2f6;border-radius:6px;padding:10px;display:flex;gap:10px;box-shadow:0 1px 3px rgba(0,0,0,.4)"><div style="width:44px;height:56px;background:#c8d1db;border-radius:3px"></div><div style="flex:1;font:700 7px/1.2 system-ui;color:#334">PASSPORT<div style="font-weight:400">${esc(nm.toUpperCase())}</div>${ln(80)}${ln(60)}${ln(70)}</div></div>`;
-  if(k==='eid') return `<div style="width:178px;height:112px;background:linear-gradient(135deg,#e7efe9,#dfe8f1);border-radius:8px;padding:10px;box-shadow:0 1px 3px rgba(0,0,0,.4);font:700 7px/1.2 system-ui;color:#334">EMIRATES ID<div style="display:flex;gap:8px;margin-top:6px"><div style="width:34px;height:42px;background:#c8d1db;border-radius:3px"></div><div style="flex:1;font-weight:400">${esc(nm)}${ln(70)}${ln(50)}</div></div></div>`;
-  if(k==='photo') return `<div style="width:120px;height:150px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4);display:flex;align-items:flex-end;justify-content:center"><div style="width:70px;height:110px;background:#c8d1db;border-radius:35px 35px 0 0"></div></div>`;
-  return `<div style="width:150px;height:200px;background:#fff;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.4);font:700 7px/1.2 system-ui;color:#333">${esc(d.t)}<div style="font-weight:400;margin-top:4px">${esc(nm)}</div>${ln(90)}${ln(75)}${ln(85)}${ln(60)}${ln(80)}${ln(70)}</div>`}
-function docsTab(){
-  const all=docs(), pend=pending();
-  const recCard=d=>{const st=dstate(d), a=(S.acc||{})[dkey(d)]||{}, nres=((DR[S.cs+':'+d.k]||{}).rows||[]).filter(x=>x[2]==='warn'&&(S.res||{})[rk2(d,x[0])]).length;
-    const corner=st==='ok'?`<span style="position:absolute;top:8px;right:8px" class="flex size-6 items-center justify-center rounded-full bg-ok-wash text-ok" title="Accepted">✓</span>`:st==='back'?`<span style="position:absolute;top:8px;right:8px" class="rounded-full bg-warn-wash px-2 py-0.5 text-[11px] text-warn">Sent back</span>`:'';
-    const meta=d.from?`${WHO[d.who]} · accepted on ${d.from}`:st==='ok'?`${WHO[d.who]} · Accepted ${a.at||''} · ${a.who||''}`:st==='back'?`${WHO[d.who]} · ${esc(a.reason||'')} · waiting for a new upload`:WHO[d.who];
-    return `<div class="flex flex-col overflow-hidden rounded-lg border border-border bg-panel"><div class="relative flex items-center justify-center bg-panel2 p-4" style="min-height:190px">${corner}${mockPrev(d)}</div>
-      <div class="flex flex-1 flex-col gap-2 p-3"><div><div class="text-sm font-medium">${d.t}</div><div class="text-xs text-muted-foreground">${meta}</div>${nres?`<div class="mt-1 text-xs text-muted-foreground">${nres} warning resolved</div>`:''}</div>
-      <div class="mt-auto flex flex-wrap gap-1.5">${btnB('Open',`data-reopen="${d.k}"`)}${d.from?'':btnS('Review again',`data-again="${d.k}"`)}</div></div></div>`};
-  const missCard=d=>`<div class="flex flex-col overflow-hidden rounded-lg border border-dashed border-border bg-panel"><div class="flex items-center justify-center p-4 text-xs text-muted-foreground" style="min-height:190px">Not uploaded</div><div class="flex flex-1 flex-col gap-2 p-3"><div><div class="text-sm font-medium">${d.t}</div><div class="text-xs text-warn">${WHO[d.who]} · missing</div></div><div class="mt-auto">${btnS('Ask the applicant')}</div></div></div>`;
-  const done=all.filter(x=>x.f&&(x.from||S.docs[dkey(x)])), miss=all.filter(x=>!x.f);
-  const grid=(done.length||miss.length)?`<div class="${pend.length?'mt-8':''}"><div class="mb-3 flex items-baseline gap-2"><span class="text-sm font-medium">Reviewed</span><span class="text-xs text-muted-foreground">${done.length}${miss.length?` · ${miss.length} missing`:''}</span></div><div class="grid gap-4" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">${done.map(recCard).join('')}${miss.map(missCard).join('')}</div></div>`:'';
-  return (pend.length?reviewView():'')+grid;
-}
-function reviewView(){
-  const all=docs(), pend=pending(); if(!S.sel||!pend.find(x=>x.k===S.sel)) S.sel=pend[0].k;
-  const d=all.find(x=>x.k===S.sel), st=dstate(d);
-  const have=pend, missing=[], groups=[...new Set(have.map(x=>x.who))], multi=groups.length>1;
-  const dotc=x=>{const st=dstate(x); return st==='ok'?'hsl(var(--ok))':st==='back'?'hsl(var(--warn))':'hsl(var(--muted-foreground))'};
-  const done=0, toDo=have.length;
-  const tab=x=>`<button data-sel="${x.k}" class="relative inline-flex shrink-0 items-center gap-1.5 px-2.5 py-2 text-sm ${x.k===S.sel?'text-foreground':'text-muted-foreground hover:text-foreground'}"><i class="dot" style="background:${dotc(x)}"></i>${x.t}${x.from?' <span class="text-[11px] text-muted-foreground">· '+x.from+'</span>':''}${x.k===S.sel?'<span class="absolute inset-x-2 -bottom-px h-0.5 rounded bg-brand"></span>':''}</button>`;
-  const strip=`<div class="rounded-lg border border-border bg-panel"><div class="flex items-center gap-2 border-b border-border px-2">
-    <div class="flex min-w-0 flex-1 items-center overflow-x-auto">${groups.map((g,i)=>`${multi?`<span class="shrink-0 px-2 text-[11px] font-medium text-muted-foreground ${i?'border-l border-border ml-1':''}">${WHO[g]}</span>`:''}${have.filter(x=>x.who===g).map(tab).join('')}`).join('')}</div>
-    <span class="shrink-0 px-2 text-xs text-muted-foreground"><span class="tnum text-foreground">${toDo}</span> to review</span></div>
-    ${missing.length?`<div class="flex flex-wrap items-center gap-2 px-4 py-2 text-xs"><span class="text-warn">Missing</span><span class="text-muted-foreground">${missing.map(x=>x.t+(multi?' · '+WHO[x.who]:'')).join(' · ')}</span><span class="ml-auto">${tl('Ask the applicant','')}</span></div>`:''}</div>`;
-  if(d.from) return `${strip}<div class="mt-4 rounded-lg border border-border bg-panel p-4"><div class="flex flex-wrap items-center justify-between gap-3"><div><div class="text-base font-medium">${d.t}</div><div class="text-xs text-muted-foreground">${WHO[d.who]} · reviewed on ${d.from}</div></div><span class="flex items-center gap-2">${dpill(d)}${btnS('Open '+d.from,'data-sr="reg"')}</span></div></div>`;
-  if(!d.f) return `${strip}<div class="mt-4 rounded-lg border border-border bg-panel p-4"><div class="flex items-center justify-between gap-3"><div><div class="text-base font-medium">${d.t}</div><div class="text-xs text-muted-foreground">${WHO[d.who]}</div></div><span class="flex items-center gap-2">${dpill(d)}${btnS('Ask the applicant')}</span></div></div>`;
-  const isPP=d.k==='pp'&&S.cs==='fl'||d.k==='pp'&&S.cs==='co';
-  const rec=REC[S.cs], bad=rec.filter(r=>!r[3]), good=rec.filter(r=>r[3]);
-  const viewer=`<div class="sticky-v rounded-lg border border-border bg-panel p-3"><div class="flex items-center gap-1.5"><span class="shrink-0 rounded border border-border px-1.5 py-0.5 font-mono text-[10px] font-semibold uppercase text-muted-foreground">PDF</span><span class="min-w-0 flex-1 truncate font-mono text-[11px] text-muted-foreground">${d.f}</span><span class="shrink-0 font-mono text-[11px] text-muted-foreground">${d.sz}</span>${btnS('Full size')}</div>
-    <div class="mt-2 overflow-hidden rounded-md border border-border bg-panel2" style="height:min(70vh,560px)"><div class="pv"><div class="pg"></div>${d.t} · page 1 of 1</div></div>
-    ${isPP?`<div class="mt-3 flex items-center gap-3 rounded-md border border-border p-2.5"><div class="h-14 w-11 shrink-0 overflow-hidden rounded border border-border"><div class="thumb"></div></div><div class="min-w-0 flex-1"><div class="text-sm font-medium">ICP copy</div><div class="tnum text-xs text-muted-foreground">2000 × 1500 · 223 KB</div></div>${btnB('Open')}${btnS('Make again')}</div>`:''}</div>`;
-  const dr=DR[S.cs+':'+d.k]||{rows:[],more:[]}, FRP=S.cs==='fl'?FR_FL:FR_CO;
-  const AR=v=>isAr(v)?`<span dir="rtl" class="inline-block">${esc(v)}</span>`:esc(v);
-  const row=([l,v0,stt,note])=>{const v=val(d.k+':'+l,v0), edited=ek(d.k+':'+l) in S.edits, key=rk2(d,l), res=(S.res||{})[key], on=S.editing===d.k+':'+l;
-    if(on) return `<div class="border-t border-border px-3 py-2.5"><div class="text-[11px] text-muted-foreground">${l}</div><input data-ein class="mt-1 w-full rounded-md border border-brand bg-background px-2.5 py-1.5 text-sm" ${isAr(v)?'dir="rtl"':''} value="${esc(v)}"><div class="mt-2 flex justify-end gap-2">${btnS('Cancel','data-a="ecancel"')}${btnB('Save','data-a="esave"')}</div></div>`;
-    const warn=stt==='warn'&&!res;
-    const mark2=warn?'<span class="text-warn">!</span>':'';
-    let sub='';
-    if(warn) sub=`<div class="mt-1 text-xs text-warn">${note}</div>${S.resolving===key?`<div class="mt-2 rounded-md border border-border bg-panel2 p-2.5"><div class="flex flex-wrap gap-1.5">${RESOLVE.map(x=>`<button data-rpick="${x}" class="rounded-full border px-2 py-0.5 text-xs ${S.rpick2===x?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${x}</button>`).join('')}</div><input data-rnote class="mt-2 w-full rounded-md border border-border bg-background px-2 py-1 text-xs" aria-label="Note"><div class="mt-2 flex justify-end gap-2">${btnS('Cancel','data-a="rescancel"')}${btnB('Resolve','data-a="ressave"')}</div></div>`:`<div class="mt-1.5">${tl('Resolve',`data-resolve="${esc(key)}"`)}</div>`}`;
-    else if(res) sub=`<div class="mt-1 text-xs text-muted-foreground">${note} · <span class="text-ok">Resolved</span> · ${esc(res.reason)}${res.note?' · '+esc(res.note):''} · ${res.who}</div>`;
-    else if(note) sub=`<div class="mt-1 text-xs text-muted-foreground">${isAr(note.split(': ')[1]||'')?note.split(': ')[0]+': '+AR(note.split(': ')[1]):note}</div>`;
-    return `<div class="flex items-start gap-3 border-t border-border px-3 py-2.5 ${warn?'bg-warn-wash':''}"><div class="min-w-0 flex-1"><div class="text-[11px] text-muted-foreground">${l}${edited?' · corrected by staff':''}</div><div class="text-sm ${stt==='info'||!v?'text-muted-foreground':''}">${v?AR(v):'Not given'}</div>${sub}</div><span class="mt-3 w-4 text-center">${mark2}</span>${stt==='info'?'<span class="w-3"></span>':`<button data-edit="${esc(d.k+':'+l)}" title="Correct" class="mt-2.5 text-xs text-muted-foreground hover:text-foreground">✎</button>`}</div>`};
-  const sorted=[...dr.rows].sort((x,y)=>(x[2]==='warn'?0:1)-(y[2]==='warn'?0:1));
-  const extra=S.allRec?dr.more.map(l=>{const f=FRP.find(x=>x[0]===l); return [l,(f&&f[1])||'','ok']}):[];
-  const nw=openWarn(d);
-  const checks=`<div><div class="flex flex-wrap items-baseline gap-2"><div class="text-sm font-medium">What the ${d.t} says</div><span class="text-xs ${nw?'text-warn':'text-muted-foreground'}">${nw?nw+' to resolve':'All checked'}</span></div>
-    <div class="mt-2 overflow-hidden rounded-md border border-border bg-panel rows">${sorted.map(row).join('')}${extra.map(row).join('')}</div>
-    ${dr.more.length?`<button data-a="allrec" class="mt-2 text-xs text-link hover:underline">${S.allRec?'Hide visa fields':'Visa fields ('+dr.more.length+')'}</button>`:''}</div>`;
-  const record='';
-  const decision=S.docs[dkey(d)]?`<div class="flex justify-end border-t border-border pt-3">${btnS('Undo','data-a="undo"')}</div>`:
-    S.back?`<div class="rounded-md border border-border bg-panel2 p-3"><div class="label-cap text-muted-foreground">Send back</div><div class="mt-2 flex flex-wrap gap-1.5">${['Unreadable','Expired','Wrong document','Name does not match','Page missing'].map(r=>`<button data-reason="${r}" class="rounded-full border px-2.5 py-1 text-xs ${S.reason===r?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${r}</button>`).join('')}</div><div class="mt-3 flex justify-end gap-2">${btnS('Cancel','data-a="cancelback"')}${btnP('Send back','data-a="back"',!S.reason)}</div></div>`:
-    S.confirmFail?`<div class="rounded-md border border-warn/40 bg-panel2 p-3"><div class="text-sm">Accept with a failed check?</div><div class="mt-3 flex justify-end gap-2">${btnS('Cancel','data-a="cfx"')}${btnP('Accept anyway','data-a="acceptany"')}</div></div>`:
-    `<div class="flex items-center justify-end gap-2 border-t border-border pt-3">${openWarn(d)?`<span class="mr-auto text-xs text-warn">${openWarn(d)} warning${openWarn(d)>1?'s':''} to resolve</span>`:''}${btnS('Send back','data-a="startback" title="R"')}${btnP('Accept','data-a="accept" title="A"',openWarn(d))}</div>`;
-
-  const review=`<div class="rounded-lg border border-border bg-panel"><div class="flex items-center justify-between gap-2 border-b border-border px-4 py-3"><div class="min-w-0"><div class="truncate text-base font-medium">${d.t}</div><div class="text-xs text-muted-foreground">${WHO[d.who]}</div></div>${dpill(d)}</div>
-    <div class="space-y-4 p-4">${checks}${record}${decision}</div></div>`;
-  return `${strip}<div class="split mt-4">${viewer}${review}</div>`;
-}
-const FR_FL=[['Full name','Rohan Mehta'],['First name','Rohan'],['Last name','Mehta'],['Name in Arabic','روهان ميهتا'],['First name in Arabic','روهان'],['Last name in Arabic','ميهتا'],['Date of birth','1996-07-14'],['Gender','Male'],['Nationality','India'],['Place of birth','Pune, Maharashtra'],['Country of birth',''],['Father’s name','Suresh Mehta'],['Mother’s name',''],['Passport number','P5531207'],['Passport expiry','2034-05-02'],['Passport issue date','2024-05-03'],['Passport issued by','India'],['Place of issue','MUMBAI'],['Passport type','Ordinary passport'],['Permanent address',''],['Permanent country','']];
-const FR_CO=[['Full name','Layla Haddad'],['First name','Layla'],['Last name','Haddad'],['Name in Arabic','ليلى حداد'],['First name in Arabic','ليلى'],['Last name in Arabic','حداد'],['Date of birth','1988-03-14'],['Gender','Female'],['Nationality','Kenya'],['Place of birth','Nairobi'],['Country of birth','Kenya'],['Father’s name','Samir Haddad'],['Mother’s name',''],['Passport number','AK4471902'],['Passport expiry','2031-06-01'],['Passport issue date','2021-06-02'],['Passport issued by','Kenya'],['Place of issue','NAIROBI'],['Passport type','Ordinary passport'],['Permanent address','Apt 1204, Marina Gate 2, Dubai'],['Permanent country','UAE']];
-const pick=(R,labels)=>labels.map(l=>R.find(x=>x[0]===l)||[l,'']);
-// Rows are what the document says: [label, value, state, note]. state ok | warn | info.
-const DR={
- 'fl:pp':{rows:[['Full name','ROHAN MEHTA','ok'],['Name in Arabic','Not on the passport','info','On record from the Emirates ID: روهان ميهتا'],['Nationality','India','ok'],['Date of birth','1996-07-14','ok'],['Passport number','P5531207','ok'],['Passport expiry','2034-05-02','ok']],
-   more:['Gender','Place of birth','Passport type','Passport issue date','Place of issue','Passport issued by','Father’s name']},
- 'fl:eid':{rows:[['Emirates ID expiry','2026-07-02','warn','Expired'],['Emirates ID number','784-1996-4417202-3','ok'],['Full name','Rohan Mehta','ok'],['Name in Arabic','روهان ميهتا','ok']],more:[]},
- 'fl:poa':{rows:[['Name on bill','Meera Mehta, Suresh Mehta','warn','Not the applicant · applicant says a relative'],['Address','Villa 12, Street 4, Al Safa 2, Dubai','ok'],['Bill date','2026-08-14','ok']],more:[]},
- 'co:pp':{rows:[['Full name','LAYLA HADDAD','ok'],['Name in Arabic','Not on the passport','info','On record from the Emirates ID: ليلى حداد'],['Nationality','Kenya','ok'],['Date of birth','1988-03-14','ok'],['Passport number','AK4471902','ok'],['Passport expiry','2031-06-01','ok']],
-   more:['Gender','Place of birth','Passport type','Passport issue date','Place of issue','Passport issued by','Father’s name']},
- 'co:eid':{rows:[['Emirates ID number','784-1988-3301457-2','ok'],['Emirates ID expiry','2028-11-30','ok'],['Full name','Layla Haddad','ok'],['Name in Arabic','ليلى حداد','ok']],more:[]},
- 'co:poa':{rows:[['Name on bill','Layla Haddad','ok'],['Address','Apt 1204, Marina Gate 2, Dubai Marina, Dubai','ok'],['Bill date','2026-09-03','ok']],more:[]},
- 'co:pp2':{rows:[['Full name','MARCO BELLINI','ok'],['Nationality','Italy','ok'],['Date of birth','1979-07-03','ok'],['Passport number','YB1182240','ok'],['Passport expiry','2032-01-10','ok']],more:[]},
- 'co:pp3':{rows:[['Full name','JAMES WHITFIELD','ok'],['Nationality','Australia','ok'],['Date of birth','1975-09-22','ok'],['Passport number','PA9920114','ok'],['Passport expiry','2030-04-18','ok']],more:[]},
- 'co:tl':{rows:[['Company name','Cedar Fitout Contracting L.L.C.','ok'],['Licence number','CN-4471029','ok'],['Licence expiry','2026-12-31','ok']],more:[]},
- 'co:sd':{rows:[['Northgate Holdings Limited','80%','ok'],['Bluefin Ventures Limited','20%','ok'],['Total','100%','ok']],more:[]},
- 'co:photo':{rows:[['Background','White','ok'],['Size','600 × 600','ok']],more:[]},
- 'co:deg':{rows:[['Name','Layla Haddad','ok'],['Qualification','Bachelor of Arts','ok'],['Attestation','UAE embassy, Nairobi','ok']],more:[]}};
-DR['co:ppp']=DR['co:pp']; DR['co:peid']=DR['co:eid']; DR['co:prv']={rows:[['Full name','Layla Haddad','ok'],['Residence visa number','201/2021/1234567','ok'],['Expires','2028-11-30','ok']],more:[]};
-const RESOLVE=['Relationship confirmed','Renewal in progress','Accepted on review','Senior instruction','Other'];
-const rk2=(d,l)=>S.cs+':'+d.k+':'+l;
-const openWarn=d=>((DR[S.cs+':'+d.k]||{}).rows||[]).filter(x=>x[2]==='warn'&&!(S.res||{})[rk2(d,x[0])]).length;
-function FULLREC(){const R=S.cs==='fl'?FR_FL:FR_CO;
-  return R.map(([k,v])=>erow(k,v,'rec'))}
-
-/* ---------- Ownership: the client-side view, read-only ---------- */
-const PAL=['#4a7c7a','#c9a24d','#7f9cb8','#c48b6e','#8fb39a'];
-const dot=c=>`<i class="dot" style="background:${c}"></i>`;
-function ownershipTab(){
-  if(S.cs==='fl') return `<div class="space-y-4">${recBox('Holder',recRow(`${dot(PAL[0])} <span class="ml-1.5">Rohan Mehta</span>`,'<span class="tnum">100%</span>',tag('Beneficial owner')))}
-    <div class="rounded-lg border border-border bg-panel p-4"><div class="org"><ul><li><div class="nd root"><b>Freelancer permit</b></div><ul><li><div class="nd bo" style="--c:${PAL[0]}"><span class="pp">100%</span><b>Rohan Mehta</b><small>Beneficial owner</small></div></li></ul></li></ul></div></div></div>`;
-  const col={cf:PAL[0],lay:PAL[1],mar:PAL[2],nh:PAL[0],bv:PAL[0],jam:PAL[0]};
-  const tbl=(head,rows)=>`<div class="mt-2 overflow-hidden rounded-md border border-border"><div class="grid grid-cols-[1fr_auto_auto] gap-px bg-border text-xs">${head.map(h=>`<div class="bg-panel2 px-3 py-1.5 label-cap text-muted-foreground">${h}</div>`).join('')}${rows.map(([n,a,b,low])=>`<div class="bg-panel px-3 py-2 text-sm ${low?'text-muted-foreground':''}">${n}</div><div class="bg-panel px-3 py-2 text-right tnum text-sm">${a}</div><div class="bg-panel px-3 py-2 text-right text-xs ${low?'text-muted-foreground':''}">${b}</div>`).join('')}</div></div>`;
-  return `<div class="space-y-4">
-   <div><div class="flex items-center gap-2"><div class="label-cap text-muted-foreground">Shareholders</div><span class="text-xs text-muted-foreground">100 shares at AED 1,000 · AED 100,000</span></div>
-     ${tbl(['Owner','Shares','Owns'],[[`${dot(col.cf)} <span class="ml-1.5">Cedar Fitout Contracting</span> <span class="text-xs text-muted-foreground">Company</span>`,'70','70%'],[`${dot(col.lay)} <span class="ml-1.5">Layla Haddad</span>`,'25','25%'],[`${dot(col.mar)} <span class="ml-1.5">Marco Bellini</span>`,'5','5%']])}</div>
-   <div><div class="flex items-center gap-2"><div class="label-cap text-muted-foreground">Who owns Cedar Fitout Contracting</div><span class="text-xs text-muted-foreground">70% · from cedar-fitout-share-distribution.pdf</span></div>
-     ${tbl(['Owner','Owns','Effective'],[[`${dot(col.nh)} <span class="ml-1.5">Northgate Holdings Limited</span>`,'80%','56%'],[`${dot(col.bv)} <span class="ml-1.5">Bluefin Ventures Limited</span>`,'20%','14% · under 25%',1]])}</div>
-   <div><div class="flex items-center gap-2"><div class="label-cap text-muted-foreground">Who owns Northgate Holdings Limited</div><span class="text-xs text-muted-foreground">56% · from northgate-incumbency-letter.pdf</span></div>
-     ${tbl(['Owner','Owns','Effective'],[[`${dot(col.jam)} <span class="ml-1.5">James Whitfield</span>`,'100%','56%']])}</div>
-   ${recBox('Beneficial owners',recRow(`${dot(col.jam)} <span class="ml-1.5">James Whitfield</span>`,'<span class="tnum">56%</span>',tag('through Cedar Fitout · Northgate'))+recRow(`${dot(col.lay)} <span class="ml-1.5">Layla Haddad</span>`,'<span class="tnum">25%</span>',tag('direct')))}
-   <div class="rounded-lg border border-border bg-panel p-4"><div class="org"><ul><li><div class="nd root"><b>Harbour Interiors Limited</b></div><ul>
-     <li><div class="nd" style="--c:${col.cf}"><span class="pp">70%</span><b>Cedar Fitout Contracting</b><small>Company</small></div><ul>
-       <li><div class="nd" style="--c:${col.nh}"><span class="pp">80%</span><b>Northgate Holdings Limited</b><small>56% overall</small></div><ul><li><div class="nd bo" style="--c:${col.jam}"><span class="pp">100%</span><b>James Whitfield</b><small>Beneficial owner · 56%</small></div></li></ul></li>
-       <li><div class="nd dim" style="--c:${col.bv}"><span class="pp">20%</span><b>Bluefin Ventures Limited</b><small>Under 25% · not traced</small></div></li></ul></li>
-     <li><div class="nd bo" style="--c:${col.lay}"><span class="pp">25%</span><b>Layla Haddad</b><small>Beneficial owner</small></div></li>
-     <li><div class="nd dim" style="--c:${col.mar}"><span class="pp">5%</span><b>Marco Bellini</b></div></li></ul></li></ul></div>
-     <div class="mt-3 flex gap-3 border-t border-border pt-3 text-xs"><span class="w-40 shrink-0 text-muted-foreground">Signs the resolution</span><span>Layla Haddad · Marco Bellini · Omar Khalil for Cedar Fitout Contracting</span></div></div></div>`;
+  if(S.s===4) return box('Waiting on the applicant','AED 500 payment link sent',`${mgr()} · asked by ${S.how.toLowerCase()}`,btn('Resend')+btn('Copy link')+more);
+  if(S.s===5) return box('Do this next','Send the manager security check letter to ICP',`${mgr()} · AED 500 paid`,btn('Review for ICP')+btn('Record as sent')+more);
+  if(S.s===6) return box('Waiting on the applicant','New manager or withdrawal','',more,panel('Withdraw',`<div class="mt-2">${row('Paid',aed(PAID))}${row('Manager check','−'+aed(CHECK))}${row('Refund',aed(PAID-CHECK),1)}</div>`+how,btn('Cancel','data-go="2"')+btnP('Withdraw and refund','data-go="7"')));
+  if(S.s===7) return box('Closed','Withdrawn',`${aed(PAID-CHECK)} refunded to the card · asked by ${S.how.toLowerCase()}`,'');
 }
 
-function tabBody(){const c=C();
-  switch(S.tab){
-  case 'application': { const PS=new Set(['Layla Haddad','Marco Bellini','James Whitfield']); return `<div class="masonry">${(SRD()?SRD().app:c.app).map(([h,r])=>card(h,r.map(([k,v])=>erow(k,v,undefined,PS.has(h)?h+'|'+k:k)).join(''))).join('')}</div>`; }
-  case 'icpform': return S.sr==='ech'?echForm():ecForm();
-  case 'documents': return docsTab();
-  case 'mdocs': return otherFiles('mcfz');
-  case 'icpdocs': return otherFiles('icp');
-  case 'ownership': return ownershipTab();
-  case 'generated': return `<div class="space-y-4">${recBox('To the applicant',recRow('Licence pack','<span class="text-muted-foreground">At Release</span>'))}
-    ${recBox('Internal',recRow('Covering Letter to ICP','<span class="text-xs text-muted-foreground">2 Oct 01:04</span>',btnB('Open'))+recRow(`ERR-${S.err}`,`<span class="text-xs text-muted-foreground">${S.err>10013?'Regenerated '+now():'1 Oct'}</span>`,btnB('Open'))+recRow('Establishment card letter','<span class="text-xs text-muted-foreground">After the licence</span>',btnS('Generate','disabled'))+recRow('Security check certificate','<span class="text-xs text-muted-foreground">From ICP</span>',btnS('Upload')))}</div>`;
-  case 'compliance': { const nat=S.cs==='fl'?'India':'Kenya';
-    return `<div class="masonry">
-    ${riskCard(nat,c)}
-    ${card('Screening',C().people.map(p=>`<div class="flex flex-wrap items-center gap-2 text-xs"><span class="w-40 shrink-0">${p.name}</span><span class="text-warn">Not run</span><span class="ml-auto">${tl('Run','')}</span></div>`).join(''))}
-    ${card('Release gate',[['Activity approvals',1],['Application complete',1],['Name recorded',1],['Licence pack',1],['ICP file found',1],['Screening',0],['Escalations closed',1]].map(([k,ok])=>`<div class="flex items-center gap-3 text-xs">${mark(ok)}<span class="${ok?'text-muted-foreground':''}">${k}</span></div>`).join(''))}</div>`; }
-  case 'payments': return `<div class="space-y-4"><div class="grid gap-3 sm:grid-cols-3">${[['Received',c.paid],['Refunded','AED 0'],['Refundable',c.paid]].map(([k,v])=>`<div class="rounded-lg border border-border bg-panel px-4 py-3"><div class="label-cap text-muted-foreground">${k}</div><div class="tnum mt-1 text-xl font-semibold">${v}</div></div>`).join('')}</div>
-    ${recBox('Receipts',recRow('Card · 2 Oct 00:51','<span class="tnum font-mono text-xs">pi_3Q00000000000000000000</span>',btnS('Receipt')))}</div>`;
-  case 'activity': { const ev=[...S.log.filter(x=>x[3]===S.cs).map(x=>x.slice(0,3)),['2 Oct 01:04','AI verification skipped','System'],['2 Oct 01:04','Covering Letter to ICP generated','System'],['2 Oct 01:04','Screening did not run','System'],['2 Oct 01:04','ERR generated','System'],['2 Oct 01:04','Moved to Registration','Applicant'],['2 Oct 01:04','Submitted, declaration signed','Applicant'],['2 Oct 01:04','Person added ×5','Applicant'],['2 Oct 00:55','Unified number found','System'],['2 Oct 00:53','Person added ×6 · removed ×1','Applicant'],['2 Oct 00:51','Paid','System'],['2 Oct 00:50','Application created','System']];
-    const show=ev.filter(x=>S.af==='All'||x[2]===S.af);
-    return `<div class="space-y-4">${recBox('Notes',`<div class="flex gap-2 px-3 py-2"><input class="flex-1 rounded-md border border-border bg-background px-2 py-1 text-sm">${btnS('Add note')}</div>`)}
-    <div><div class="flex flex-wrap items-center gap-2"><span class="label-cap text-muted-foreground">Audit trail</span><span style="flex:1"></span>${['All','Applicant','System','Staff'].map(f=>`<button data-af="${f}" class="rounded-full border px-2 py-0.5 text-xs ${S.af===f?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${f}</button>`).join('')}</div>
-    <div class="mt-2 divide-y divide-border overflow-hidden rounded-md border border-border bg-panel">${show.length?show.map(([t,e,w])=>`<div class="grid grid-cols-[7rem_1fr_auto] items-center gap-3 px-3 py-2 text-sm"><span class="tnum font-mono text-xs text-muted-foreground">${t}</span><span>${e}</span><span class="text-xs text-muted-foreground">${w}</span></div>`).join(''):`<div class="px-3 py-2 text-sm text-muted-foreground">None</div>`}</div></div></div>`; }
-  }
+function authority(){
+  const li=(name,tag,tone,line,num)=>`<li class="flex items-start justify-between gap-4"><div class="min-w-0"><div class="flex items-center gap-2"><span class="text-sm font-medium text-foreground">${name}</span>${chip(tag,tone)}</div><div class="mt-0.5 text-xs text-muted-foreground">${line}</div><div class="mt-1.5 inline-flex items-center gap-2 rounded border border-border bg-panel2 px-2 py-1"><span class="font-mono text-[9px] uppercase tracking-wide text-muted-foreground">ICP request number</span><span class="font-mono text-xs font-semibold text-foreground">${num}</span></div></div></li>`;
+  const first=S.s===1?li('Manager security check · Layla Haddad','waiting','bg-panel2 text-muted-foreground','Sent to ICP on 1 October.','55120'):li('Manager security check · Layla Haddad','not cleared','bg-danger-wash text-danger','ICP replied on 3 October.','55120');
+  const second=S.s===5?li(`Manager security check · ${mgr()}`,'to send','bg-panel2 text-muted-foreground','AED 500 paid on 3 October.','None yet'):'';
+  return `<div class="rounded-lg border border-border bg-panel p-4"><div class="label-cap text-muted-foreground">With the authority</div><ul class="mt-3 list-none space-y-3">${second}${first}</ul></div>`;
 }
-function portal(){ if(S.viewDoc) return `<div data-closeview style="position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:60;overflow:auto;padding:30px 16px;text-align:center"><div style="display:inline-block;text-align:left">${S.viewDoc.startsWith('mock:')?`<div style="transform:scale(2.4);transform-origin:top center;margin-top:20px">${mockPrev(docs().find(x=>x.k===S.viewDoc.slice(5))||docs()[0])}</div>`:S.viewDoc==='letter'?letterHTML():`<img src="assets/${S.viewDoc}" style="max-width:min(827px,100%)" alt="">`}</div></div>`; if(!S.portal) return '';
-  const c=C(), changed=S.log.filter(x=>x[3]===S.cs);
-  const appLabels=new Set(c.app.flatMap(([,r])=>r.map(x=>x[0])));
-  const secs=[...c.app.filter(([h])=>h!=='Declaration').map(([h,rows])=>[h,rows.map(([k,v])=>[k,val(k,v)])]),['From the passport',(S.cs==='fl'?FR_FL:FR_CO).filter(([k])=>!appLabels.has(k)&&!/in Arabic/.test(k)).map(([k,v])=>[k,val(k,v)||'Not given'])]];
-  const body=secs.map(([h,rows])=>`<div style="margin-top:18px"><div style="font:700 15px/1.3 system-ui;margin-bottom:8px">${h}</div><div style="border:1px solid #e3e6e8;border-radius:10px;overflow:hidden">${rows.map(([k,v])=>{const ed=ek(k) in S.edits;
-     return `<div style="display:grid;grid-template-columns:150px 1fr;gap:12px;padding:10px 14px;border-top:1px solid #eef0f1;font:14px/1.4 system-ui;${ed?'background:#fff8e6':''}"><span style="color:#6b7478">${k}</span><span><b style="${isAr(v)?'direction:rtl;display:inline-block':''}">${esc(v)}</b>${ed?`<span style="display:block;font-size:12px;color:#8a6100;margin-top:2px">Updated by Masdar City · ${S.log.find(x=>x[4]===k&&x[3]===S.cs)?.[0]||''}</span>`:''}</span></div>`}).join('')}</div></div>`).join('');
-  return `<div data-closeportal style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:50"></div><aside style="position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:#f6f7f7;color:#16191b;z-index:51;overflow:auto;padding:20px 22px">
-    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font:700 11px/1 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#4a7c7a">Applicant’s portal</span><button data-closeportal style="border:0;background:none;font-size:20px;cursor:pointer">×</button></div>
-    <div style="font:700 22px/1.2 system-ui;margin-top:8px">${esc(S.cs==='fl'?val('Full name',c.name):val('Name',c.name))}</div>
-    ${changed.length?`<div style="margin-top:14px;border:1px solid #ecd9ad;background:#fff8e6;border-radius:10px;padding:10px 14px;font:14px/1.4 system-ui">Masdar City updated ${changed.length} detail${changed.length>1?'s':''} on your application.</div>`:''}
-    ${body}</aside>`;
+
+function page(){
+  const section=(h,rows)=>`<section class="overflow-hidden rounded-lg border border-border bg-panel"><header class="flex items-center justify-between gap-3 border-b border-border px-4 py-3"><h3 class="text-sm font-semibold text-foreground">${h}</h3></header><div class="divide-y divide-border">${rows.map(([k,v])=>`<div class="flex items-baseline gap-4 px-4 py-2.5 text-sm"><span class="w-40 shrink-0 text-muted-foreground">${k}</span><span class="min-w-0 flex-1 text-foreground">${v}</span></div>`).join('')}</div></section>`;
+  const tabs=['Application','Applicant Documents','Internal Documents','ICP Documents','Ownership','Compliance','Payments','Activity'];
+  return `<div class="mx-auto max-w-6xl px-4 pt-6 min-[820px]:px-8"><nav class="mb-2 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground"><span>Accounts</span><span>/</span><span>Harbour Interiors Limited</span><span>/</span><span class="text-foreground">SR-87031</span></nav></div>
+  <div class="mx-auto max-w-6xl px-6 py-6"><div class="overflow-hidden rounded-xl border border-border bg-panel"><div class="px-5 py-4"><div class="flex flex-wrap items-start justify-between gap-4"><div class="min-w-0"><div class="flex items-center gap-2"><span class="tnum font-mono text-xs text-muted-foreground">SR-87031</span><span dir="rtl" class="text-sm text-muted-foreground">هاربر انتيريورز ليمتد</span></div><h1 class="mt-1 text-2xl font-semibold tracking-tight">Harbour Interiors Limited</h1><div class="mt-2 flex flex-wrap items-center gap-2"><span class="inline-flex items-center gap-1.5 text-xs font-medium ${S.s===7?'text-muted-foreground':'text-ok'}">${S.s===7?'Withdrawn · refunded':'Paid'}</span></div></div><div class="flex shrink-0 items-start gap-7"><div class="text-right text-xs text-muted-foreground"><div>Created Wed, 01 Oct 2026</div><div class="mt-0.5">layla@harbour-interiors.example</div></div><div class="text-right"><div class="label-cap text-muted-foreground">Risk</div><div class="mt-0.5 text-[26px] leading-none tracking-tight text-warn font-semibold">Medium</div><div class="tnum mt-1 text-[11px] text-muted-foreground">Score 14.4</div></div></div></div></div><div class="h-px bg-border"></div><div class="px-5 pb-3.5 pt-4">${stepper()}</div></div>
+  <div class="space-y-3 mt-5">${next()}${authority()}</div>
+  <div class="mt-3 rounded-lg border border-border bg-panel px-4 py-3"><div class="flex w-full items-center gap-x-2"><div class="label-cap text-muted-foreground">Step record · Security Check</div><span class="ml-auto text-xs ${S.s===7?'text-muted-foreground':'text-warn'}">${S.s===7?'closed':'1 to do'}</span></div></div>
+  <div class="mt-5"><div class="flex items-center gap-1 border-b border-border">${tabs.map((t,i)=>`<span class="relative px-3 py-2 text-sm ${i?'text-muted-foreground':'font-medium text-foreground'}">${t}${i?'':'<span class="absolute inset-x-2 -bottom-px h-0.5 rounded bg-accent"></span>'}</span>`).join('')}</div>
+  <div class="py-4"><div class="grid items-start gap-4 lg:grid-cols-2"><div class="space-y-4">${section('Legal Structure',[['Type','Limited company (L.L.C-FZ)']])}${section('Stakeholders',[['Layla Haddad','Shareholder · Director · Manager · Legal representative'],['Marco Bellini','Shareholder'],['James Whitfield','Director']])}</div><div class="space-y-4">${section('Company Name',[['Name','Harbour Interiors Limited'],['Arabic','<span dir="rtl">هاربر انتيريورز ليمتد</span>']])}</div></div></div></div></div>`;
 }
-function queue(){
-  const rows=[['fl','reg','SR-87020','Freelancer permit','Rohan Mehta','2h'],['co','reg','SR-87031','Company registration','Harbour Interiors Limited','1d'],['co','visa','SR-87044','Employment visa','Layla Haddad · Harbour Interiors Limited','3h']];
-  const extra=[['SR-87052','Change of shareholders','Bluefin Trading Limited','2','2d'],['SR-87060','Visa renewal','Omar Khalil · Cedar Studio Limited','1','5h']];
-  const F=S.qf||'All', typ=t=>/visa/i.test(t)?'Visas':/registration|permit/i.test(t)?'Registrations':'Amendments';
-  const live=rows.map(([cs,sr,no,t,who,age])=>({cs,sr,no,t,who,age,n:toReview(cs,sr)})).filter(x=>x.n&&(F==='All'||typ(x.t)===F));
-  const ex=extra.filter(x=>F==='All'||typ(x[1])===F);
-  return `<h1 class="text-2xl font-semibold tracking-tight">Document review</h1>
-   <div class="mt-4 flex flex-wrap items-center gap-2">${['All','Registrations','Visas','Amendments'].map(f=>`<button data-qf="${f}" class="rounded-full border px-2.5 py-0.5 text-xs ${F===f?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${f}</button>`).join('')}</div>
-   <div class="mt-3 overflow-hidden rounded-md border border-border"><div class="grid gap-px bg-border text-sm" style="grid-template-columns:7rem 1fr 1fr auto auto auto">
-    ${['SR','Request','Applicant','To review','Oldest',''].map(h=>`<div class="bg-panel2 px-3 py-1.5 label-cap text-muted-foreground">${h}</div>`).join('')}
-    ${live.map(x=>`<div class="bg-panel px-3 py-2 tnum font-mono text-xs">${x.no}</div><div class="bg-panel px-3 py-2">${x.t}</div><div class="bg-panel px-3 py-2 text-muted-foreground">${x.who}</div><div class="bg-panel px-3 py-2 text-right">${x.n?pill(x.n):pill('Done','ok')}</div><div class="bg-panel px-3 py-2 text-xs text-muted-foreground">${x.age}</div><div class="bg-panel px-3 py-1.5">${btnB('Open',`data-openq="${x.cs}:${x.sr}"`)}</div>`).join('')}
-    ${ex.map(x=>`<div class="bg-panel px-3 py-2 tnum font-mono text-xs">${x[0]}</div><div class="bg-panel px-3 py-2">${x[1]}</div><div class="bg-panel px-3 py-2 text-muted-foreground">${x[2]}</div><div class="bg-panel px-3 py-2 text-right">${pill(x[3])}</div><div class="bg-panel px-3 py-2 text-xs text-muted-foreground">${x[4]}</div><div class="bg-panel px-3 py-1.5">${btnS('Open','disabled title="Not in this wireframe"')}</div>`).join('')}
-   </div></div>`;
-}
+
+const STRIP=[[1,'Waiting on ICP'],[2,'Not cleared'],[3,'Choose manager'],[4,'Link sent'],[5,'Paid, back to ICP'],[6,'Withdraw'],[7,'Withdrawn']];
 function render(){
-  const RN={reg:['Registration Officer','Registration'],gs:['GS Officer','GS Team'],comp:['Compliance Officer','Compliance'],mgr:['Director','Manager'],obs:['Observer','Read-only']};
-  document.getElementById('topbar').innerHTML=`<span class="text-sm font-medium">${S.screen==='queue'?'Document review':'Service request'}</span><span class="ml-auto hidden h-8 w-64 items-center rounded-md border border-border bg-panel px-2.5 text-xs text-muted-foreground md:flex">Account, company, person or SR</span><button data-a="theme" class="flex size-8 items-center justify-center rounded-md border border-border text-muted-foreground" title="Theme">◐</button><span class="relative"><button data-a="um" class="flex items-center gap-2 border-l border-border pl-3 text-right leading-tight"><span><span class="block text-xs font-medium">${RN[S.role][0]} (Demo)</span><span class="block font-mono text-[10px] text-muted-foreground">${RN[S.role][1]}</span></span><span class="text-xs text-muted-foreground">▾</span></button>${S.um?`<div class="absolute right-0 top-full z-30 mt-1 w-[240px] rounded-lg border border-border bg-panel p-1 shadow-lg"><div class="px-2.5 pb-1 pt-2 label-cap text-muted-foreground">Switch demo role</div>${Object.entries(RN).map(([k,[n,t]])=>`<button data-role="${k}" class="flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-sm hover:bg-panel2 ${S.role===k?'bg-wash':''}"><span>${n}</span><span class="text-xs text-muted-foreground">${t}</span></button>`).join('')}<div class="my-1 h-px bg-border"></div><button data-a="openportal" class="block w-full rounded-md px-2.5 py-1.5 text-left text-sm hover:bg-panel2">Applicant’s portal</button><button data-a="resetwf" class="block w-full rounded-md px-2.5 py-1.5 text-left text-sm text-muted-foreground hover:bg-panel2">Reset the wireframe</button></div>`:''}</span>`;
-  document.getElementById('nav').innerHTML=[['Dashboard'],['Work queue','case'],['Document review','queue'],['Accounts'],['Client follow-ups'],['With ICP'],['Payments'],['Closed cases']].map(([n,k])=>{const on=k===S.screen, cnt=k==='queue'?ACCT.fl.concat(ACCT.co).length&&(toReview('fl','reg')+toReview('co','reg')+toReview('co','visa')+3):0;
-    return `<a ${k?`data-nav="${k}"`:''} class="flex w-full cursor-pointer items-center border-l-2 py-2 pl-3 pr-2.5 text-[13px] font-medium ${on?'border-brand bg-white/[0.04] text-navactive':'border-transparent text-navfg'}">${n}${cnt?`<span class="ml-auto rounded-full bg-warn px-1.5 py-0.5 text-[10px] font-semibold text-white">${cnt}</span>`:''}</a>`}).join('');
-  document.getElementById('portal').innerHTML=portal();
-  if(S.screen==='queue'){document.getElementById('app').innerHTML=queue(); save(); return}
-  const tabs=S.sr==='pre'?[['application','Application'],['documents','Applicant Documents'],['mdocs','Internal Documents'],['icpdocs','ICP Documents'],['activity','Activity']]:S.sr==='ech'?[['icpdocs','ICP Documents'],['activity','Activity']]:S.sr==='ec'?ECTABS:SRD()?VTABS:TABS; if(!tabs.find(x=>x[0]===S.tab)) S.tab=tabs[0][0];
-  document.getElementById('app').innerHTML=header()+requests()+todo()+`<div class="mt-5"><div class="flex flex-wrap items-center gap-1 border-b border-border">${tabs.map(([k,t])=>`<button data-tab="${k}" class="relative px-3 py-2 text-sm transition-colors ${S.tab===k?'font-medium text-foreground':'text-muted-foreground hover:text-foreground'}">${t}${S.tab===k?'<span class="absolute inset-x-2 -bottom-px h-0.5 rounded bg-brand"></span>':''}</button>`).join('')}</div><div class="py-4">${tabBody()}</div></div>`;
-  save();
+  document.getElementById('wf').innerHTML='<b>WIREFRAME</b>'+STRIP.map(([n,t])=>`<button data-go="${n}" class="${S.s===n?'on':''}"><i>${n}</i>${t}</button>`).join('');
+  document.getElementById('nav').innerHTML=nav();
+  document.getElementById('main').innerHTML=page();
+  document.getElementById('app').style.top=document.getElementById('wf').offsetHeight+'px';
 }
-function currentDefault(l){ if(l.startsWith('ec:')){const lab=l.slice(3); for(const [,rows] of ECF()){const f=rows.find(x=>x[0]===lab); if(f) return f[1]}} if(l.includes('|')){const [h,k]=l.split('|'); const sec=C().app.find(x=>x[0]===h); const f=sec&&sec[1].find(x=>x[0]===k); if(f) return f[1]} if(l.includes(':')){const [dk,lab]=l.split(':'); const row=((DR[S.cs+':'+dk]||{}).rows||[]).find(x=>x[0]===lab); if(row) return row[1]} const c=C(); for(const [,rows] of c.app){const f=rows.find(x=>x[0]===l); if(f) return f[1]}
-  return ((S.cs==='fl'?FR_FL:FR_CO).find(x=>x[0]===l)||[])[1]||''}
-function nextDoc(){ const p=pending(); if(p.length){S.sel=p[0].k; return} const nx=received().find(d=>!S.docs[dkey(d)]); if(nx) S.sel=nx.k}
-function act(k){
-  if(k==='name') S.name=true;
-  if(k==='letter') S.letter=true;
-  if(k==='next') S.step=2;
-  if(k==='vnext') S.vstep=1;
-  if(k==='accept'&&openWarn(docs().find(x=>x.k===S.sel))) { render(); return }
-  if(k==='cfx') S.confirmFail=false;
-  if(k==='acceptany'){S.confirmFail=false; S.docs[dkey(docs().find(x=>x.k===S.sel))]='ok'; S.log.unshift([now(),docs().find(x=>x.k===S.sel).t+' accepted with a failed check','Staff',S.cs,'doc']); nextDoc()}
-  if(k==='accept'){const dd=docs().find(x=>x.k===S.sel); S.docs[dkey(dd)]='ok'; S.acc=S.acc||{}; S.acc[dkey(dd)]={at:now(),who:{reg:'Registration Officer',gs:'GS Officer',comp:'Compliance Officer',mgr:'Manager',obs:'Observer'}[S.role]}; S.log.unshift([now(),dd.t+' accepted','Staff',S.cs,'doc']); nextDoc()}
-  if(k==='startback'){S.back=true; S.reason=''}
-  if(k==='cancelback') S.back=false;
-  if(k==='back'&&S.reason){const dd=docs().find(x=>x.k===S.sel); S.docs[dkey(dd)]='back'; S.acc=S.acc||{}; S.acc[dkey(dd)]={reason:S.reason}; S.log.unshift([now(),dd.t+' sent back · '+S.reason,'Staff',S.cs,'doc']); S.back=false; nextDoc()}
-  if(k==='undo') delete S.docs[dkey(docs().find(x=>x.k===S.sel))];
-  if(k==='allrec') S.allRec=!S.allRec;
-  if(k==='dd') S.dd=!S.dd;
-  if(k==='um') S.um=!S.um;
-  if(k==='openportal'){S.portal=true; S.um=false}
-  if(k==='resetwf'){S=blank()}
-  if(k==='theme'){document.documentElement.classList.toggle('dark')}
-  if(k==='ecall'){S.ecAll=true; S.editing=null}
-  if(k==='ecallx'){S.ecAll=false}
-  if(k==='ecallsave'){document.querySelectorAll('[data-ecall]').forEach(i=>{const key=i.dataset.ecall, old=val(key,currentDefault(key)), nv=i.value.trim(); if(nv!==old){S.edits[ek(key)]=nv; S.log.unshift([now(),`ICP form · ${key.slice(3)}: ${old||'Blank'} → ${nv||'Blank'}`,'Staff',S.cs,key])}}); S.ecAll=false}
-  if(k==='ecrelease'&&(S.ecWhy||!S.ecWrong)){S.t['fl:ec:eccheck']=true; S.ecstep=3; S.log.unshift([now(),`Establishment card ${S.ecWrong?'released · '+S.ecWhy+' · ':''}recorded · ${(document.querySelector('[data-ecrec="Card number"]')||{}).value||'2/1/1306201'} · to ${(document.querySelector('[data-ecrec="Expiry date"]')||{}).value||'2027-09-30'} · e-Channel started`,'Staff',S.cs,'eccheck'])}
-  if(k==='ecreupload'){S.ecWrong=false; S.log.unshift([now(),'Establishment card replaced · name matches','Staff',S.cs,'eccheck'])}
-  if(k==='echregister'){const n=(document.querySelector('[data-echreg]')||{}).value?.trim(), ex=(document.querySelector('[data-echexp]')||{}).value?.trim(); if(!n){render(); return} S.echReg=n; S.echExp=ex; S.t['fl:ech:echreg']=true; S.echstep=2; S.log.unshift([now(),`e-Channel registered · ${n} · to ${ex}`,'Staff',S.cs,'echreg'])}
-  if(k==='echunsend'){delete S.t['fl:ech:echsend']; S.echNo=''; S.echstep=0}
-  if(k==='preunsend'){delete S.t['co:pre:presend']; S.preNo=''}
-  if(k==='prerejopen'){S.preRejOpen=!S.preRejOpen; S.preWhy=null}
-  if(k==='prereject'&&S.preWhy){S.preRej=S.preWhy; S.preRejOpen=false; S.log.unshift([now(),`Pre-approval rejected · ${S.preWhy} · applicant asked for a different manager`,'Staff',S.cs,'predecide'])}
-  if(k==='prenewmgr'){S.preRej=null; S.preWhy=null; ['prescreen','presend','precert'].forEach(x=>delete S.t['co:pre:'+x]); S.preNo=''; ['co:ppp','co:peid','co:prv'].forEach(x=>delete S.docs[x]); S.prestep=1; S.log.unshift([now(),'New manager submitted · AED 500 paid · back to Review','Applicant',S.cs,'premgr'])}
-  if(k==='preapprove'){S.t['co:pre:predecide']=true; S.prestep=4; S.log.unshift([now(),'Pre-approved · Name Reservation Certificate issued · valid until 1 December 2026','Staff',S.cs,'predecide'])}
-  if(k==='ecunsend'){delete S.t['fl:ec:ecapply']; S.ecNo=''; S.ecstep=0}
-  if(k==='closeedit'){S.editDoc=null}
-  if(k==='savever'){S.lt=S.lt||{}; const ch=[]; document.querySelectorAll('[data-lf]').forEach(i=>{const k2=i.dataset.lf, old=lv(k2,(LTR.full().find(x=>x[0]===k2)||[])[1]); if(i.value!==old){S.lt[S.cs+':'+k2]=i.value; ch.push(`${k2}: ${old} → ${i.value}`)}});
-    S.ver=S.ver||{}; S.verAt=S.verAt||{}; S.verLog=S.verLog||{}; const who={reg:'Registration Officer',gs:'GS Officer',comp:'Compliance Officer',mgr:'Manager',obs:'Observer'}[S.role];
-    S.ver[S.cs]=((S.ver[S.cs])||1)+1; S.verAt[S.cs]=now(); S.verLog[S.cs+':'+S.ver[S.cs]]=now()+' · '+who; S.log.unshift([now(),`Covering Letter to ICP v${S.ver[S.cs]}${ch.length?' · '+ch.join(' · '):''}`,'Staff',S.cs,'letter']); S.editDoc=null}
-  if(k==='rescancel') S.resolving=null;
-  if(k==='ressave'){ if(!S.rpick2){render(); return} const note=(document.querySelector('[data-rnote]')||{}).value?.trim()||''; S.res=S.res||{}; const who={reg:'Registration Officer',gs:'GS Officer',comp:'Compliance Officer',mgr:'Manager',obs:'Observer'}[S.role];
-    S.res[S.resolving]={reason:S.rpick2,note,who}; const [,dk,lab]=S.resolving.split(':'); S.log.unshift([now(),`${(docs().find(x=>x.k===dk)||{}).t} · ${lab}: resolved · ${S.rpick2}${note?' · '+note:''}`,'Staff',S.cs,lab]); S.resolving=null }
-  if(k==='more') S.more=!S.more;
-  if(k==='rest') S.showRest=!S.showRest;
-  if(k==='approve'){S.dlg='approve'; S.why=null}
-  if(k==='dlgx') S.dlg=null;
-  if(k==='icpreview') S.dlg='icp';
-  if(k==='unsend'){delete S.t[S.cs+':reg:letter']; S.icpNo=''}
-  if(k==='mgrrej'){S.mgrRej=true; S.log.unshift([now(),`ICP did not clear ${mgrNow()} as manager · applicant emailed`,'Staff',S.cs,'mgrrej'])}
-  if(k==='mpick'){S.mp='pick'; S.mpick=S.mpick||'Marco Bellini'; S.how=null}
-  if(k==='mwd'){S.mp='wd'; S.how=null}
-  if(k==='mpx'){S.mp=null}
-  if(k==='mlink'){const nm=S.mpick==='Someone new'?'Omar Khalil':S.mpick; S.mp=null; S.link=true; S.newMgr=nm; S.log.unshift([now(),`Chose ${nm} as manager for the applicant · asked by ${S.how.toLowerCase()} · AED 500 payment link sent`,'Staff',S.cs,'mlink'])}
-  if(k==='mwdgo'){const n=S.checks||1, paid=+String(C().paid).replace(/[^0-9]/g,'')+500*(n-1), r=paid-500*n; S.mp=null; S.mgrRej=false; S.wd=true; S.wdBy=`by staff for the applicant · asked by ${S.how.toLowerCase()}`; S.log.unshift([now(),`Withdrawn for the applicant · asked by ${S.how.toLowerCase()} · refund AED ${r.toLocaleString()} issued automatically`,'Staff',S.cs,'mwdgo'])}
-  if(k==='advance'){ S.dlg=null; if(S.sr==='pre') S.prestep=(S.prestep??1)+1; else if(SRD()) S.vstep++; else if(S.step===2&&C().risk[0]==='Medium'){S.step=5; S.skipped=true} else S.step++; S.view=null; S.more=false; S.log.unshift([now(),'Moved to '+SSTEPS()[SCUR()][0],'Staff',S.cs,'step'])}
-  if(k==='rcancel'){S.rk=null}
-  if(k==='rsave'){const f=S.rk, rs=(document.querySelector('[data-rreason]')||{}).value?.trim(), base=FACT.find(x=>x[0]===f)[2], prev=(S.ovr[S.cs+':'+f]||[base])[0];
-    if(!S.rpick||!rs){render(); return}
-    if(S.rpick!==prev){S.ovr[S.cs+':'+f]=[S.rpick,rs]; S.stale=true; S.log.unshift([now(),`${f} rating: ${prev} → ${S.rpick} · ${rs} · Compliance Officer`,'Staff',S.cs,f])}
-    S.rk=null}
-  if(k==='regen'){S.err++; S.stale=false; S.log.unshift([now(),`ERR-${S.err} generated`,'Staff',S.cs,'ERR'])}
-  if(k==='srdd') S.srdd=!S.srdd;
-  if(k==='prev'||k==='nextdoc'){const all=docs().filter(x=>x.f), i=all.findIndex(x=>x.k===S.sel); S.sel=all[(i+(k==='prev'?-1:1)+all.length)%all.length].k; S.back=false}
-  if(k==='ecancel') S.editing=null;
-  if(k==='esave'){const l=S.editing, i=document.querySelector('[data-ein]'), nv=i.value.trim(), old=S.cs+':'+l in S.edits?S.edits[S.cs+':'+l]:currentDefault(l);
-    if(nv&&nv!==old){S.edits[ek(l)]=nv; S.log.unshift([now(),`${l.startsWith('ec:')?'ICP form · '+l.slice(3):l.includes('|')?l.replace('|',' · '):l.includes(':')?((docs().find(x=>x.k===l.split(':')[0])||{}).t+' · '+l.split(':')[1]):l}: ${old||'Not given'} → ${nv} · corrected`,'Staff',S.cs,l])}
-    S.editing=null}
-  render();
-}
-document.addEventListener('click',e=>{const t=e.target;
-  const tb=t.closest('[data-tab]'); if(tb){S.editDoc=null; S.tab=tb.dataset.tab; render(); return}
-  const nv=t.closest('[data-nav]'); if(nv){S.screen=nv.dataset.nav; render(); scrollTo(0,0); return}
-  const qf=t.closest('[data-qf]'); if(qf){S.qf=qf.dataset.qf; render(); return}
-  const oq=t.closest('[data-openq]'); if(oq){const [cs,sr]=oq.dataset.openq.split(':'); S.cs=cs; S.sr=sr; S.screen='case'; S.tab='documents'; S.sel=null; render(); scrollTo(0,0); return}
-  const sv=t.closest('[data-sr]'); if(sv){S.srdd=false; S.sr=sv.dataset.sr; S.sel=null; S.back=false; render(); return}
-  const rk=t.closest('[data-rk]'); if(rk&&S.role==='comp'){S.rk=rk.dataset.rk; S.rpick=null; render(); return}
-  const rt=t.closest('[data-rate]'); if(rt){const keep=(document.querySelector('[data-rreason]')||{}).value; S.rpick=rt.dataset.rate; render(); const i=document.querySelector('[data-rreason]'); if(i){i.value=keep||''}; return}
-  const vw=t.closest('[data-view]'); if(vw){const i=+vw.dataset.view, cur=SCUR(); S.view=i===cur?null:i; render(); return}
-  const edd=t.closest('[data-editdoc]'); if(edd){S.editDoc=edd.dataset.editdoc; S.ldraft={}; render(); return}
-  const rv=t.closest('[data-resolve]'); if(rv){S.resolving=rv.dataset.resolve; S.rpick2=null; render(); return}
-  const rp=t.closest('[data-rpick]'); if(rp){const keep=(document.querySelector('[data-rnote]')||{}).value; S.rpick2=rp.dataset.rpick; render(); const i=document.querySelector('[data-rnote]'); if(i) i.value=keep||''; return}
-  const ws=t.closest('[data-why]'); if(ws){S.why=ws.dataset.why; render(); return}
-  const sc=t.closest('[data-src]'); if(sc){S.src=sc.dataset.src; render(); return}
-  const tk=t.closest('[data-task]'); if(tk&&!tk.disabled){const k=tk.dataset.task; if(S.sr==='pre'&&['prenames','prescreen','presend','precert'].includes(k)){ S.t['co:pre:'+k]=true; const L={prenames:'Name confirmed · Harbour Interiors Limited',prescreen:'Manager screened · no match',presend:`Security approval letter sent to ICP · ${S.preNo}`,precert:'Cleared certificate uploaded'}; S.log.unshift([now(),L[k],'Staff',S.cs,k]); if(k==='precert') S.prestep=3; render(); return } if(k==='echsend'){S.t['fl:ech:echsend']=true; S.echstep=1; S.log.unshift([now(),`e-Channel sent to ICP · ${S.echNo}`,'Staff',S.cs,k]); render(); return} if(S.sr==='ec'&&(k==='ecapply'||k==='eccard')){ S.t['fl:ec:'+k]=true; S.ecstep=k==='ecapply'?1:2; S.ecWrong=k==='eccard'; S.log.unshift([now(),k==='ecapply'?`Applied at ICP · ${S.ecNo}`:'Establishment card uploaded · name does not match','Staff',S.cs,k]); render(); return } if(k==='name') S.name=true; else S.t[S.cs+':'+S.sr+':'+k]=true; if(k==='letter') S.letter=true; S.log.unshift([now(),tk.closest('li')?.querySelector('.text-sm')?.innerText||document.querySelector('h2')?.innerText||k,'Staff',S.cs,k]); render(); return}
-  const pw=t.closest('[data-prewhy]'); if(pw){S.preWhy=pw.dataset.prewhy; render(); return}
-  const ew=t.closest('[data-ecwhy]'); if(ew){S.ecWhy=ew.dataset.ecwhy; render(); return}
-  const rl=t.closest('[data-role]'); if(rl){S.role=rl.dataset.role; S.um=false; render(); return}
-  const af=t.closest('[data-af]'); if(af){S.af=af.dataset.af; render(); return}
-  const sl=t.closest('[data-sel]'); if(sl){S.sel=sl.dataset.sel; S.back=false; S.dd=false; render(); return}
-  const rs=t.closest('[data-reason]'); if(rs){S.reason=rs.dataset.reason; render(); return}
-  const ag=t.closest('[data-again]'); if(ag){const dd=docs().find(x=>x.k===ag.dataset.again); delete S.docs[dkey(dd)]; S.sel=dd.k; S.log.unshift([now(),dd.t+' reopened for review','Staff',S.cs,'doc']); render(); return}
-  const ro=t.closest('[data-reopen]'); if(ro){S.viewDoc='mock:'+ro.dataset.reopen; render(); return}
-  const cp=t.closest('[data-copy]'); if(cp){ try{navigator.clipboard.writeText(cp.dataset.copy)}catch(_){} const v=cp.lastElementChild; const old=v.innerHTML; v.innerHTML='<span class="text-ok">Copied</span>'; setTimeout(()=>{v.innerHTML=old},700); return}
-  const vd=t.closest('[data-view-doc]'); if(vd){S.viewDoc=vd.dataset.viewDoc; render(); return}
-  if(t.closest('[data-closeview]')){S.viewDoc=null; render(); return}
-  if(t.closest('[data-closeportal]')){S.portal=false; render(); return}
-  const ed=t.closest('[data-edit]'); if(ed){S.editing=ed.dataset.edit; render(); const i=document.querySelector('[data-ein]'); if(i){i.focus(); i.select()} return}
-  const hw=t.closest('[data-how]'); if(hw){S.how=hw.dataset.how; render(); return}
-  const mk=t.closest('[data-mpick]'); if(mk){S.mpick=mk.dataset.mpick; render(); return}
-  const a=t.closest('[data-a]'); if(a&&!a.disabled) act(a.dataset.a);
-});
-document.addEventListener('input',e=>{ if(e.target.dataset.preno!==undefined){ S.preNo=e.target.value; const b=document.querySelector('[data-task="presend"]'); if(b){const on=!!S.preNo.trim(); b.disabled=!on; b.className='h-9 rounded-md px-4 text-sm font-medium '+(on?'bg-foreground text-background':'border border-border text-muted-foreground')} } if(e.target.dataset.echno!==undefined){ S.echNo=e.target.value; const b=document.querySelector('[data-task="echsend"]'); if(b){const on=!!S.echNo.trim(); b.disabled=!on; b.className='h-9 rounded-md px-4 text-sm font-medium '+(on?'bg-foreground text-background':'border border-border text-muted-foreground')} } if(e.target.dataset.ecno!==undefined){ S.ecNo=e.target.value; const b=document.querySelector('[data-task="ecapply"]'); if(b){ const on=!!S.ecNo.trim(); b.disabled=!on; b.className='h-9 rounded-md px-4 text-sm font-medium '+(on?'bg-foreground text-background':'border border-border text-muted-foreground') } } if(e.target.dataset.lf!==undefined){ S.lt=S.lt||{}; S.ldraft=S.ldraft||{}; S.ldraft[e.target.dataset.lf]=e.target.value; const box=document.querySelector('.sticky-v [style*="scale(.8)"]'); if(box){ const save=S.lt; S.lt={...S.lt}; Object.entries(S.ldraft).forEach(([k,v])=>S.lt[S.cs+':'+k]=v); box.innerHTML=letterHTML(); S.lt=save } } if(e.target.dataset.icpno!==undefined){ S.icpNo=e.target.value; const b=document.querySelector('[data-task="letter"]'); if(b) b.disabled=!S.icpNo.trim() } });
-document.addEventListener('keydown',e=>{ if(S.editing&&e.target.dataset&&e.target.dataset.ein!==undefined){ if(e.key==='Enter') act('esave'); if(e.key==='Escape') act('ecancel'); return } if(S.tab!=='documents'||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
-  const d=docs().find(x=>x.k===S.sel); if(!d||!d.f) { if(e.key==='j'){const i=docs().indexOf(d); S.sel=docs()[(i+1)%docs().length].k; render()} return }
-  if(e.key==='a'&&!S.docs[dkey(d)]) act('accept');
-  if(e.key==='r'&&!S.docs[dkey(d)]) act('startback');
-  if(e.key==='j') act('nextdoc');
-  if(e.key==='k') act('prev');
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g){S.s=+g.dataset.go; render(); return}
+  const p=e.target.closest('[data-pick]'); if(p){S.pick=p.dataset.pick; render(); return}
+  const h=e.target.closest('[data-how]'); if(h){S.how=h.dataset.how; render(); return}
 });
 render();
-
-if(window.FLOW){
-  const base=()=>{Object.assign(S,{cs:'co',sr:'reg',role:'gs',screen:'case',tab:'application',step:2,name:true,icpNo:'ICP-55120',mgrRej:false,wd:false,link:false,mp:null,how:null,mpick:null,newMgr:null,mgrName:null,wdBy:null,checks:1,dlg:null,more:false}); S.t['co:reg:name']=true; S.t['co:reg:docs']=true; S.t['co:reg:letter']=true; delete S.t['co:reg:cert']};
-  const FS=[['Waiting on ICP',()=>{base()}],['ICP did not clear',()=>{base(); S.mgrRej=true}],['New manager for them',()=>{base(); S.mgrRej=true; S.mp='pick'; S.mpick='Someone new'; S.how='Chat'}],['Payment link sent',()=>{base(); S.mgrRej=true; S.link=true; S.newMgr='Omar Khalil'; S.how='Chat'}],['Paid, back to ICP',()=>{base(); S.checks=2; S.mgrName='Omar Khalil'; delete S.t['co:reg:letter']; S.icpNo=''}],['Withdraw for them',()=>{base(); S.mgrRej=true; S.mp='wd'; S.how='Chat'}],['Withdrawn',()=>{base(); S.wd=true; S.wdBy='by staff for the applicant · asked by chat'}]];
-  const cur=()=>S.wd?6:S.mp==='wd'?5:S.link?3:S.mp==='pick'?2:S.mgrRej?1:(S.checks||1)>1?4:0;
-  const st=document.createElement('style'); st.textContent=`.fsbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:10px 16px;background:#16191b;color:#e9eeee;font-size:13px}.fsbar b{font-size:12px;letter-spacing:.06em;color:#9fb3b3}.fsbar button{display:inline-flex;align-items:center;gap:7px;border-radius:100px;padding:5px 12px 5px 6px;background:#24302f;color:#fff;border:1px solid #3a4a49;font:inherit;cursor:pointer}.fsbar button i{font-style:normal;display:inline-flex;width:20px;height:20px;border-radius:50%;align-items:center;justify-content:center;background:#3a4a49;font-size:11px;font-weight:700}.fsbar button.on{background:#e9eeee;color:#16191b;border-color:#e9eeee}.fsbar button.on i{background:#3f6f6d;color:#fff}nav.side{pointer-events:none}#topbar{pointer-events:none}`; document.head.appendChild(st);
-  const bar=document.createElement('div'); bar.className='fsbar'; document.body.prepend(bar);
-  const drawStrip=()=>{const c=cur(); bar.innerHTML='<b>WIREFRAME</b>'+FS.map(([t],i)=>`<button data-fs="${i}" class="${i===c?'on':''}"><i>${i+1}</i>${t}</button>`).join('')};
-  bar.addEventListener('click',e=>{const b=e.target.closest('[data-fs]'); if(b){FS[+b.dataset.fs][1](); render()}});
-  const r0=render; render=function(){r0(); drawStrip()};
-  base(); render();
-}
 </script>
 </body>
 </html>
