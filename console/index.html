@@ -58,7 +58,7 @@ kbd{font:10px ui-monospace,monospace;border:1px solid hsl(var(--border));border-
   <div id="portal"></div><main class="flex-1 min-w-0 bg-background"><header id="topbar" class="flex h-13 items-center gap-3 border-b border-border bg-card px-4"></header><div class="mx-auto max-w-6xl px-4 py-6 min-[820px]:px-8" id="app"></div></main>
 </div>
 <script>
-const SKEY='mcfz-console-case-wf-v9';
+const SKEY='mcfz-console-case-wf-v10';
 /* ---------- Cases (invented) ---------- */
 const CASES={
  fl:{sr:'SR-87020',type:'Freelancer permit',name:'Rohan Mehta',ar:'روهان ميهتا',risk:['Medium','12.1'],paid:'AED 11,010',
@@ -90,7 +90,7 @@ CASES.co.visa={sr:'SR-87044',type:'Employment visa',sub:'Layla Haddad',
   app:[['Visa',[['Job title','Marketing Manager · مدير تسويق'],['Qualification','Bachelor'],['Marital status','Married'],['Religion','Islam'],['Mother’s full name','Salma Haddad'],['Location','Inside the UAE, visit visa']]],['Pay',[['Basic monthly salary','AED 18,000'],['Transport allowance','AED 2,000'],['Probation','3 months'],['Contract','2 years']]]]};
 const ACCT0=null;
 const ACCT={fl:[['reg','SR-87020','Freelancer permit'],['ec','SR-87021','Establishment card'],['ech','SR-87022','e-Channel']],
-            co:[['pre','SR-87030','Pre-approval'],['reg','SR-87031','Company registration'],['visa','SR-87044','Employment visa · Layla Haddad'],[null,'SR-87032','Establishment card']]};
+            co:[['reg','SR-87031','Company registration'],['visa','SR-87044','Employment visa · Layla Haddad'],[null,'SR-87032','Establishment card']]};
 const WHO={p1:'Rohan Mehta',lay:'Layla Haddad',mar:'Marco Bellini',jam:'James Whitfield',cf:'Cedar Fitout Contracting'};
 const REC={fl:[['Full name','Rohan Mehta','ROHAN MEHTA',1],['Nationality','IN','IN',1],['Date of birth','1996-07-14','1996-07-14',1],['Passport number','P5531207','P5531207',1],['Passport expiry','2034-05-02','2034-05-02',1],['Name in Arabic','روهان ميهتا','Not read',0]],
            co:[['Full name','Layla Haddad','LAYLA HADDAD',1],['Nationality','KE','KE',1],['Date of birth','1988-03-14','1988-03-14',1],['Passport number','AK4471902','AK4471902',1],['Passport expiry','2031-06-01','2031-06-01',1],['Name in Arabic','ليلى حداد','Not read',0]]};
@@ -126,6 +126,7 @@ const mark=ok=>`<span aria-hidden="true" class="flex size-[18px] shrink-0 items-
 const tl=(t,a)=>`<button type="button" ${a} class="shrink-0 text-sm font-medium text-link hover:underline">${t}</button>`;
 
 CASES.fl.ec={sr:'SR-87021',type:'Establishment card',sub:'Rohan Mehta',docs:[],app:[]};
+const mgrNow=()=>['Layla Haddad','Omar Khalil','Nadia Farouk','Sami Aziz'][((S.checks||1)-1)%4];
 const SRD=()=>S.sr!=='reg'&&C()[S.sr]?C()[S.sr]:null;
 CASES.co.pre={sr:'SR-87030',type:'Pre-approval',sub:'Harbour Interiors Limited',
   docs:[{k:'ppp',t:'Passport',who:'lay',f:'layla-passport.pdf',sz:'1.2 MB'},{k:'peid',t:'Emirates ID',who:'lay',f:'layla-eid.pdf',sz:'0.6 MB'},{k:'prv',t:'Residence visa',who:'lay',f:'layla-residence-visa.pdf',sz:'0.4 MB'}],
@@ -173,7 +174,7 @@ function header(){const c0=C(), v=SRD(), c={...c0,sr:v?v.sr:c0.sr,type:v?(['ec',
     <div class="px-5 py-4"><div class="flex flex-wrap items-start justify-between gap-4"><div class="min-w-0">
       <div class="flex items-center gap-2">${srMenu(c.sr)}${v?'':`<span class="ar text-sm text-muted-foreground">${c.ar}</span>`}</div>
       <h1 class="mt-1 text-2xl font-semibold tracking-tight">${v?v.sub:c.name}</h1>
-      <div class="mt-2 flex flex-wrap items-center gap-2"><span class="text-xs font-medium text-ok">Paid</span><span class="inline-flex items-center rounded-md border border-border bg-panel2 px-2 py-0.5 text-[11px] font-semibold">${c.type}</span>${S.cs==='co'&&S.sr==='reg'&&S.t['co:pre:predecide']?'<span class="inline-flex items-center rounded-full border border-ok/40 bg-ok-wash px-2 py-0.5 text-xs font-medium text-ok">Pre-approved · SR-87030 · valid until 1 Dec 2026</span>':''}</div></div>
+      <div class="mt-2 flex flex-wrap items-center gap-2"><span class="text-xs font-medium text-ok">Paid</span><span class="inline-flex items-center rounded-md border border-border bg-panel2 px-2 py-0.5 text-[11px] font-semibold">${c.type}</span></div></div>
       ${['ec','ech','pre'].includes(S.sr)?'':`<div class="text-right"><div class="label-cap text-muted-foreground">Risk</div><div class="mt-0.5 text-[26px] font-semibold leading-none tracking-tight text-warn">${c.risk[0]}</div><div class="tnum mt-1 text-[11px] text-muted-foreground">${c.risk[1]}</div></div>`}</div></div>
     <div class="h-px bg-border"></div>
     ${`<div class="px-5 pb-3.5 pt-4"><div class="grid gap-x-3" style="grid-template-columns:repeat(${Math.max(SSTEPS().length,6)},minmax(0,1fr))">${SSTEPS().map(([n,t],i,A)=>{const cur=SCUR(),done=i<cur,on=i===cur;
@@ -186,7 +187,7 @@ function srMenu(sr){  const list=ACCT[S.cs].filter(x=>x[0]);
   if(list.length<2) return `<span class="tnum font-mono text-xs text-muted-foreground">${sr}</span>`;
   return `<span class="relative"><button data-a="srdd" class="tnum inline-flex items-center gap-1 font-mono text-xs text-muted-foreground hover:text-foreground">${sr} <span>▾</span></button>${S.srdd?`<div class="absolute left-0 top-full z-20 mt-1 w-[300px] rounded-lg border border-border bg-panel p-1 shadow-lg">${list.map(([k,no,t])=>{const n=toReview(S.cs,k), ec=k==='ec';return `<button data-sr="${k}" class="flex w-full items-center justify-between gap-3 rounded-md px-2.5 py-2 text-left text-sm hover:bg-panel2 ${k===S.sr?'bg-wash':''}"><span><span class="tnum block font-mono text-[11px] text-muted-foreground">${no}</span>${t}</span><span class="text-xs ${n?'text-foreground':'text-ok'}">${k==='pre'?(S.t['co:pre:predecide']?'Pre-approved':S.preRej?'Rejected':'<span class="text-foreground">Open</span>'):k==='ech'?(S.echReg?'Registered':'<span class="text-foreground">With GS</span>'):ec?(S.t['fl:ec:eccheck']?'Issued':'<span class="text-foreground">With GS</span>'):n?n+' to review':'✓'}</span></button>`}).join('')}</div>`:''}</span>`}
 const STEPT=[
-  [['Payment received',()=>`${C().paid} · card · approved by Stripe`,'auto']],
+  [['Payment received',()=>`${C().paid} · card · Network International`,'auto']],
   [['Confirm the name',()=>`${hdrName()} · <span class="ar">${hdrAr()}</span>`,'name','Confirm'],['Review the documents',()=>`${received().filter(d=>S.docs[dkey(d)]).length} of ${received().length} reviewed · ${docs().length-received().length} missing`,'docs','Review']],
   [['Get the unified number from ICP',()=>'104477218','auto'],['Generate the covering letter',()=>'Covering Letter to ICP','auto'],['Send the security check letter to ICP',()=>'Covering Letter to ICP is ready','letter','Record as sent'],['Upload the cleared certificate',()=>S.icpNo?`Sent to ICP · ${esc(S.icpNo)}`:'When ICP clears it','cert','Upload']],
   [['Screen every person',()=>`${C().people.length} not screened`,'screen','Run'],['Confirm the risk rating',()=>`ERR-${S.err} · ${C().risk.join(' · ')}`,'err','Confirm']],
@@ -215,7 +216,11 @@ function todo(){
   const nx=open[0];
   const more=`<span class="relative"><button data-a="more" class="inline-flex h-9 items-center gap-1.5 rounded-md border border-border px-3 text-sm text-muted-foreground hover:text-foreground">More ▾</button>${S.more?`<div class="absolute right-0 top-full z-20 mt-1 w-[220px] rounded-lg border border-border bg-panel p-1 shadow-lg">${['Request from customer','Move to another team','Reject the application'].map(x=>`<button class="block w-full rounded-md px-2.5 py-2 text-left text-sm hover:bg-panel2 ${/Reject/.test(x)?'text-danger':''}">${x}</button>`).join('')}</div>`:''}</span>`;
   let title, detail='', action, label='Do this next', warn='', below='';
-  if(nx){ title=nx[0]; detail=nx[1](); action=nx[2]==='docs'?btnP(nx[3],'data-tab="documents"'):btnP(nx[3],`data-task="${nx[2]}"`);
+  const mr=S.cs==='co'&&S.sr==='reg'&&(S.mgrRej||S.wd), n500=S.checks||1, paidN=+String(C().paid).replace(/[^0-9]/g,'')+500*(n500-1), refundN=paidN-500*n500, aed=x=>'AED '+x.toLocaleString();
+  if(mr&&S.wd){ label='Closed'; title='Withdrawn by the applicant'; detail=`Refund ${aed(refundN)} issued automatically · ${n500} × AED 500 kept for manager checks`; action=''; }
+  else if(mr){ label='Waiting on the applicant'; title=`ICP did not clear ${esc(mgrNow())} as manager`; detail='The applicant chooses a new manager (AED 500) or withdraws.';
+    below=`<div class="mt-4 overflow-hidden rounded-md border border-border">${[['Paid',aed(paidN)],[`Kept · ${n500} manager check${n500>1?'s':''} × AED 500`,'−'+aed(500*n500)],['Refund if they withdraw',aed(refundN)]].map(([k,v],i)=>`<div class="flex items-center justify-between gap-3 border-t border-border px-4 py-2 first:border-t-0 ${i===2?'font-semibold':''}"><span class="text-sm ${i===2?'':'text-muted-foreground'}">${k}</span><span class="tnum text-sm">${v}</span></div>`).join('')}</div><p class="mt-2 text-xs text-muted-foreground">Wireframe: what the applicant does next</p><div class="mt-1.5 flex flex-wrap gap-2">${btnS('Applicant chose a new manager · AED 500 paid','data-a="mgrnew"')}${btnS('Applicant withdrew','data-a="mgrwd"')}</div>`; action=''; }
+  else if(nx){ title=nx[0]; detail=nx[1](); action=nx[2]==='docs'?btnP(nx[3],'data-tab="documents"'):btnP(nx[3],`data-task="${nx[2]}"`);
     if(nx[2]==='name'){ detail=S.editing==='Name in Arabic'?`${hdrName()} · <input data-ein class="ar rounded-md border border-brand bg-background px-2 py-0.5 text-sm" value="${esc(hdrAr())}"> ${tl('Save','data-a="esave"')}`:`${hdrName()} · <span class="ar">${hdrAr()}</span> ${tag('Transliterated')} ${tl('Edit Arabic','data-edit="Name in Arabic"')}`; }
     if(nx[2]==='letter'){ action=`${btnS('Review for ICP','data-a="icpreview"')}${btnS('Open the letter')}<input data-icpno class="h-9 w-40 rounded-md border border-border bg-background px-2 text-sm" aria-label="ICP request number" value="${esc(S.icpNo)}">${btnP('Record as sent','data-task="letter"',!S.icpNo)}`; }
     if(nx[2]==='ecapply'){ detail='Copy the form below into ICP, submit, then record the request number.'; action=''; below=`<label class="mt-4 block"><span class="block text-xs text-muted-foreground">ICP request number</span><span class="mt-1.5 flex flex-wrap gap-2"><input data-ecno class="h-9 w-56 rounded-md border border-border bg-background px-2.5 text-sm" value="${esc(S.ecNo||'')}"><button type="button" data-task="ecapply" ${S.ecNo?'':'disabled'} class="h-9 rounded-md px-4 text-sm font-medium ${S.ecNo?'bg-foreground text-background':'border border-border text-muted-foreground'}">Mark as applied</button></span></label>`; }
@@ -239,7 +244,7 @@ function todo(){
         ${S.ecWrong?`<div class="mt-4 text-xs text-muted-foreground">Reason to release</div><div class="mt-1.5 flex flex-wrap gap-1.5">${why.map(w=>`<button data-ecwhy="${w}" class="rounded-full border px-2.5 py-1 text-xs ${S.ecWhy===w?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${w}</button>`).join('')}</div>`:''}
         <div class="mt-4 flex flex-wrap gap-2"><button type="button" data-a="ecrelease" ${S.ecWhy||!S.ecWrong?'':'disabled'} class="h-9 rounded-md px-4 text-sm font-medium ${S.ecWhy||!S.ecWrong?'bg-foreground text-background':'border border-border text-muted-foreground'}">${!S.ecWrong?'Record':S.ecWhy?'Release and record':'Give a reason'}</button>${btnS('Upload another file','data-a="ecreupload"')}</div>`;
       action=''; }
-    if(nx[2]==='cert'){ label='Waiting on ICP'; title='Waiting on ICP for the security check'; action=`${btnP('Upload the cleared certificate','data-task="cert"')}${btnS("That wasn't sent",'data-a="unsend"')}`; } }
+    if(nx[2]==='cert'){ label='Waiting on ICP'; title='Waiting on ICP for the security check'; detail=S.cs==='co'?`${esc(mgrNow())} · manager check ${S.checks||1}`:detail; action=`${btnP('Upload the cleared certificate','data-task="cert"')}${S.cs==='co'?btnS('ICP did not clear the manager','data-a="mgrrej"'):''}${btnS("That wasn't sent",'data-a="unsend"')}`; } }
   else if(!last){ title=`Move to ${L[cur+1][0]}${!V&&cur===2&&C().risk[0]==='Medium'?' · Release Queue':''}`; if(!V&&cur===2&&C().risk[0]==='Medium') title='Move to Release Queue'; detail=!V&&cur===2&&C().risk[0]==='Medium'?`Compliance and approval are skipped: ${C().risk.join(' · ')}, under 21`:''; action=btnP('Approve','data-a="approve"'); }
   else { title=S.sr==='pre'?'Pre-approved':S.sr==='ech'?'e-Channel registered':S.sr==='ec'?'Establishment card issued':'Released'; detail=S.sr==='pre'?'Name Reservation Certificate released · Harbour Interiors Limited · valid until 1 December 2026':S.sr==='ech'?`${esc(S.echReg||'')} · to ${esc(S.echExp||'')}`:S.sr==='ec'?'2/1/1306201 · to 30 Sep 2027 · e-Channel started (SR-87022)':''; action=''; }
   if(!V&&cur===2&&S.t[S.cs+':reg:cert']&&!nx) warn=`<div class="mt-3 rounded-md border border-warn/40 bg-warn-wash px-3 py-2 text-xs text-warn">ICP number on the certificate does not match ${esc(S.icpNo)}</div>`;
@@ -474,7 +479,7 @@ function portal(){ if(S.viewDoc) return `<div data-closeview style="position:fix
     ${body}</aside>`;
 }
 function queue(){
-  const rows=[['co','pre','SR-87030','Pre-approval','Layla Haddad · Harbour Interiors Limited','1h'],['fl','reg','SR-87020','Freelancer permit','Rohan Mehta','2h'],['co','reg','SR-87031','Company registration','Harbour Interiors Limited','1d'],['co','visa','SR-87044','Employment visa','Layla Haddad · Harbour Interiors Limited','3h']];
+  const rows=[['fl','reg','SR-87020','Freelancer permit','Rohan Mehta','2h'],['co','reg','SR-87031','Company registration','Harbour Interiors Limited','1d'],['co','visa','SR-87044','Employment visa','Layla Haddad · Harbour Interiors Limited','3h']];
   const extra=[['SR-87052','Change of shareholders','Bluefin Trading Limited','2','2d'],['SR-87060','Visa renewal','Omar Khalil · Cedar Studio Limited','1','5h']];
   const F=S.qf||'All', typ=t=>/visa/i.test(t)?'Visas':/registration|permit/i.test(t)?'Registrations':'Amendments';
   const live=rows.map(([cs,sr,no,t,who,age])=>({cs,sr,no,t,who,age,n:toReview(cs,sr)})).filter(x=>x.n&&(F==='All'||typ(x.t)===F));
@@ -546,6 +551,9 @@ function act(k){
   if(k==='dlgx') S.dlg=null;
   if(k==='icpreview') S.dlg='icp';
   if(k==='unsend'){delete S.t[S.cs+':reg:letter']; S.icpNo=''}
+  if(k==='mgrrej'){S.mgrRej=true; S.log.unshift([now(),`ICP did not clear ${mgrNow()} as manager · applicant asked to choose a new manager or withdraw`,'Staff',S.cs,'mgrrej'])}
+  if(k==='mgrnew'){S.mgrRej=false; S.checks=(S.checks||1)+1; delete S.t[S.cs+':reg:letter']; delete S.t[S.cs+':reg:cert']; S.icpNo=''; S.log.unshift([now(),`New manager submitted: ${mgrNow()} · AED 500 paid · manager check ${S.checks}`,'Applicant',S.cs,'mgrnew'])}
+  if(k==='mgrwd'){const n=S.checks||1, paid=+String(C().paid).replace(/[^0-9]/g,'')+500*(n-1), r=paid-500*n; S.mgrRej=false; S.wd=true; S.log.unshift([now(),`Applicant withdrew · refund AED ${r.toLocaleString()} issued automatically to the card · ${n} × AED 500 kept`,'Applicant',S.cs,'mgrwd'])}
   if(k==='advance'){ S.dlg=null; if(S.sr==='pre') S.prestep=(S.prestep??1)+1; else if(SRD()) S.vstep++; else if(S.step===2&&C().risk[0]==='Medium'){S.step=5; S.skipped=true} else S.step++; S.view=null; S.more=false; S.log.unshift([now(),'Moved to '+SSTEPS()[SCUR()][0],'Staff',S.cs,'step'])}
   if(k==='rcancel'){S.rk=null}
   if(k==='rsave'){const f=S.rk, rs=(document.querySelector('[data-rreason]')||{}).value?.trim(), base=FACT.find(x=>x[0]===f)[2], prev=(S.ovr[S.cs+':'+f]||[base])[0];
