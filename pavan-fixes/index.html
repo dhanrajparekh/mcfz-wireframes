@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fixes for Pavan</title>
+<style>
+:root{--ink:#16191b;--mute:#6b757b;--line:#e3e6e8;--bg:#fff}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}
+p.sub{margin:0 0 20px;color:var(--mute)}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;vertical-align:top;border-top:1px solid var(--line);padding:12px 10px}
+th{font-size:12px;color:var(--mute);font-weight:600;border-top:0}
+td.n{width:24px;color:var(--mute)}
+td.step{width:150px;font-weight:600}
+td.shot{width:360px}
+td.shot img{display:block;width:100%;border:1px solid var(--line);border-radius:6px;margin-bottom:8px}
+@media (max-width:760px){table,tbody,tr,td{display:block;width:auto!important}thead{display:none}tr{border-top:1px solid var(--line);padding:10px 0}td{border:0;padding:4px 0}}
+</style>
+</head>
+<body>
+<main>
+<h1>Fixes for Pavan</h1>
+<p class="sub">Registration flow on stageapp, 3 Oct 2026</p>
+<table>
+<thead><tr><th>#</th><th>Step</th><th>Issue</th><th>Fix</th><th>Screenshot</th></tr></thead>
+<tbody>
+<tr><td class="n">1</td><td class="step">Legal Structure</td><td>The drawings on the three cards are gone</td><td>Put them back</td><td class="shot"><a href="img/1.png"><img src="img/1.png" alt=""></a></td></tr>
+<tr><td class="n">2</td><td class="step">Company Name</td><td>“How it sounds” gave <span dir="rtl">الاصباغ كيميكالز سوليوشنز</span>: “Painting” translated, the rest spelled out</td><td>Remove the How it sounds / Meaning toggle and the line under it</td><td class="shot"><a href="img/2.webp"><img src="img/2.webp" alt=""></a></td></tr>
+<tr><td class="n">3</td><td class="step">Company Name</td><td>Name 2 and Name 3: spacing is off</td><td>Fix the spacing</td><td class="shot"><a href="img/3.webp"><img src="img/3.webp" alt=""></a></td></tr>
+<tr><td class="n">4</td><td class="step">Package</td><td>Business activities chips sit left under the label, or float mid-row, not right like the other rows</td><td>Align with the other rows’ controls</td><td class="shot"><a href="img/4.png"><img src="img/4.png" alt=""></a><a href="img/5.png"><img src="img/5.png" alt=""></a></td></tr>
+<tr><td class="n">5</td><td class="step">Package · Compare</td><td>“What it buys” text overlaps between the columns</td><td>Let the cells wrap</td><td class="shot"><a href="img/6.png"><img src="img/6.png" alt=""></a></td></tr>
+<tr><td class="n">6</td><td class="step">Package · Compare</td><td>Business One column is centred, Startup is right-aligned</td><td>Align both the same</td><td class="shot"><a href="img/7.png"><img src="img/7.png" alt=""></a></td></tr>
+<tr><td class="n">7</td><td class="step">Payment</td><td>Pay AED 33,220 and Continue returns “Something went wrong. Try again.”</td><td>Payment fails, fix it</td><td class="shot"><a href="img/8.png"><img src="img/8.png" alt=""></a></td></tr>
+</tbody>
+</table>
+</main>
+</body>
+</html>
