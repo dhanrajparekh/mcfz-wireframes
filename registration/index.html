@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en" class="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Company Registration Flow</title>
+<link rel="stylesheet" href="assets/app.css">
+<style>
+/* Wireframe-only pieces. Variables are prefixed so they never collide with stageapp's own. */
+:root{--w-ink:#16191b;--w-ink2:#3b4246;--w-mute:#6b757b;--w-line:#e3e6e8;--w-line2:#eef0f1;--w-teal:#3f6f6d;--w-tealbg:#eaf2f1;--w-amber:#8a6100;--w-amberbg:#fdf5e3;--w-red:#b3261e}
+body{background:var(--background)}
+.wbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:10px 16px;background:#16191b;color:#e9eeee;font-size:13px}
+.wbar b{font-size:12px;letter-spacing:.06em;color:#9fb3b3}
+.wbar select{background:#24302f;color:#fff;border:1px solid #3a4a49;border-radius:6px;padding:4px 8px;font:inherit}
+.wbar label{display:flex;gap:6px;align-items:center}
+.wbar button{background:#24302f;color:#fff;border:1px solid #3a4a49;border-radius:6px;padding:4px 10px;font:inherit;cursor:pointer}
+.fb{display:inline-flex;align-items:center;justify-content:center;height:18px;padding:0 6px;border-radius:100px;background:#c47a00;color:#fff;font-size:10.5px;font-weight:700;margin-left:6px;vertical-align:2px;letter-spacing:0;white-space:nowrap}
+body.nofb .fb{display:none}
+.shell{display:flex;min-height:calc(100dvh - 46px);width:100%}
+.wf-side{width:248px;flex:none}
+@media (max-width:1023px){.wf-side{display:none!important}}
+.err{color:var(--w-red);font-size:13px}
+.bad-in{border-color:var(--w-red)!important}
+/* Ownership step components */
+.fc{border:1px solid var(--w-line);border-radius:12px;padding:16px 18px;background:#fff}
+.fc h3{font-size:15px;margin:0;font-weight:700}
+.fc.warn{background:var(--w-amberbg);border-color:#efe0b8}
+.fs{font-size:13px;color:var(--w-mute);margin:3px 0 8px}
+.capline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--w-ink2);font-size:14px;margin:8px 0 6px;padding-bottom:10px;border-bottom:1px solid var(--w-line2)}
+.capline b{margin-left:auto;color:var(--w-ink);font-size:15px}
+.num{width:76px;border:1px solid var(--w-line);border-radius:8px;padding:6px 8px;font:inherit;text-align:right;font-variant-numeric:tabular-nums;background:#fff}
+.fr{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--w-line2)}
+.fr:last-of-type{border-bottom:0}
+.fr>span:first-child{display:flex;align-items:center;gap:9px;min-width:0;flex:1}
+.fr em{font-style:normal;font-size:11px;color:var(--w-mute);border:1px solid var(--w-line);border-radius:100px;padding:0 7px;white-space:nowrap}
+.fr.low>span:first-child{color:var(--w-mute)}
+.fv{display:flex;align-items:center;gap:12px;flex:none}
+.fe{min-width:64px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.fe small{display:block;font-size:11px;font-weight:400;color:var(--w-mute);white-space:nowrap}
+.fr.low .fe{color:var(--w-mute)}
+.fh{display:flex;justify-content:space-between;gap:12px;font-size:11.5px;color:var(--w-mute);font-weight:700;padding:6px 0 4px;border-bottom:1px solid var(--w-line2)}
+.fh .h1{width:70px;text-align:right}.fh .xs{width:22px}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+.x{border:0;background:none;width:26px;height:26px;border-radius:50%;font-size:17px;line-height:1;color:var(--w-mute);cursor:pointer;flex:none}
+.x:hover{background:var(--w-line2);color:var(--w-ink)}
+.pctin{display:inline-flex;align-items:center;border:1px solid var(--w-line);border-radius:8px;background:#fff}
+.pctin input{border:0;width:44px;text-align:right;padding:6px 2px 6px 8px;font:inherit;outline:0;background:transparent;font-variant-numeric:tabular-nums}
+.pctin span{padding-right:9px;color:var(--w-mute)}
+.nmin{border:1px solid transparent;background:transparent;font:inherit;color:inherit;padding:3px 6px;margin-left:-6px;border-radius:6px;min-width:0;max-width:100%}
+.nmin:hover{border-color:var(--w-line)}
+.nmin:focus{outline:0;border-color:var(--w-teal);background:#fff}
+.src{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13px;color:var(--w-mute);background:#f7f8f8;border-radius:8px;padding:8px 10px;margin:2px 0 8px}
+.src b{color:var(--w-ink2)}
+.up{border:1px solid var(--w-teal);color:var(--w-teal);background:#fff;border-radius:100px;padding:4px 12px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.up.ghost{border-color:var(--w-line);color:var(--w-ink2);font-weight:600}
+.fa{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.lnk{border:0;background:none;color:var(--w-teal);font-weight:700;font-size:13px;cursor:pointer;padding:4px 10px 4px 0}
+.nobody{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--w-mute);margin-left:8px;flex-wrap:wrap}
+.pill{border:1px solid var(--w-line);border-radius:100px;padding:4px 11px;font:inherit;font-size:12px;background:#fff;cursor:pointer;color:var(--w-ink2)}
+.pill.on{border-color:var(--w-teal);background:var(--w-tealbg);color:var(--w-teal);font-weight:700}
+.addwrap{position:relative;display:inline-block}
+.amenu{position:absolute;left:0;top:calc(100% + 4px);z-index:20;background:#fff;border:1px solid var(--w-line);border-radius:10px;box-shadow:0 8px 24px -12px rgba(16,24,32,.25);padding:4px;min-width:250px;display:flex;flex-direction:column}
+.amenu button{border:0;background:none;text-align:left;padding:8px 10px;border-radius:6px;font:inherit;font-size:13px;cursor:pointer}
+.amenu button:hover{background:var(--w-tealbg)}
+.amenu em{font-style:normal;font-size:11px;color:var(--w-mute);margin-left:8px}
+.amh{font-size:11px;color:var(--w-mute);padding:8px 10px 2px;border-top:1px solid var(--w-line2);margin-top:4px}
+.org{overflow-x:auto;padding:4px 0 6px}
+.org ul{display:flex;justify-content:center;margin:0;padding:22px 0 0;position:relative;list-style:none}
+.org>ul{padding-top:0;width:max-content;min-width:100%}
+.org li{list-style:none;position:relative;padding:22px 5px 0;display:flex;flex-direction:column;align-items:center}
+.org li::before,.org li::after{content:'';position:absolute;top:0;right:50%;width:50%;height:22px;border-top:1px solid #c9d0d4}
+.org li::after{right:auto;left:50%;border-left:1px solid #c9d0d4}
+.org li:only-child::before,.org li:only-child::after{display:none}
+.org li:only-child{padding-top:0}
+.org li:first-child::before,.org li:last-child::after{border:0}
+.org li:last-child::before{border-right:1px solid #c9d0d4;border-radius:0 6px 0 0}
+.org li:first-child::after{border-radius:6px 0 0 0}
+.org ul ul::before{content:'';position:absolute;top:0;left:50%;border-left:1px solid #c9d0d4;height:22px}
+.nd{position:relative;border:1px solid var(--w-line);border-top:3px solid var(--c);border-radius:9px;background:#fff;padding:9px 12px 8px;min-width:118px;max-width:168px;text-align:center}
+.nd b{display:block;font-size:12.5px;line-height:1.3}
+.nd small{display:block;font-size:11px;color:var(--w-mute);margin-top:2px;line-height:1.3}
+.nd .pp{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#fff;border:1px solid #c9d0d4;border-radius:100px;font-size:10.5px;font-weight:700;padding:0 7px;line-height:17px;white-space:nowrap}
+.nd.root{background:#16191b;border-color:#16191b;color:#fff;padding:10px 16px}
+.nd.bo{background:var(--w-amberbg)}
+.nd.bo small{color:var(--w-amber);font-weight:700}
+.nd.dim{border-style:dashed;background:#fafbfb}
+.nd.dim b{color:var(--w-mute);font-weight:600}
+.facts{margin:10px 0 0;display:grid;gap:4px}
+.facts div{display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px;padding:9px 0;border-top:1px solid var(--w-line2);font-size:14px}
+.facts dt{color:var(--w-mute)}.facts dd{margin:0;font-weight:700}
+.spin{width:16px;height:16px;border:2px solid #cfd8d8;border-top-color:var(--w-teal);border-radius:50%;animation:sp 1s linear infinite;display:inline-block}
+@keyframes sp{to{transform:rotate(360deg)}}
+.main-in{min-width:0}
+@media (max-width:860px){.pgrid{grid-template-columns:minmax(0,1fr)!important}.pgrid>div:first-child nav{flex-direction:row!important;overflow-x:auto;gap:4px}.pgrid>div:first-child nav a{white-space:nowrap}.arow{grid-template-columns:110px minmax(0,1fr)!important;gap:10px!important}.nmin{flex:1;width:100%!important}.facts div{grid-template-columns:1fr;gap:2px}.fr{flex-wrap:wrap;row-gap:6px}.fr>span:first-child{flex:1 1 100%}.fv{margin-left:auto;gap:8px}.fh .fv{margin-left:0}.fh>span:first-child{flex:none}.fr em{display:none}}
+</style>
+</head>
+<body>
+<div class="wbar">
+  <b>WIREFRAME</b>
+  <label>Case <select id="w-case"></select></label>
+  <label>Risk rating, staff only <select id="w-risk"><option>Low</option><option>Medium</option><option>Medium-high</option><option>High</option></select></label>
+  <label>Checks after Documents <select id="w-check"><option value="none">Nothing more needed</option><option value="uid">Immigration record not found</option><option value="hit">Screening match</option></select></label>
+  <label><input type="checkbox" id="w-fb" checked> Feedback numbers</label>
+  <button id="w-reset">Reset this case</button>
+</div>
+<div class="shell">
+  <aside class="wf-side flex-col">
+    <div class="flex h-14 shrink-0 items-center px-4 lg:mt-3 lg:pt-[9px]"><a class="block min-w-0 no-underline"><span class="block font-display text-xl leading-none font-bold uppercase text-foreground">Masdar City</span><span class="mt-[3px] block text-xs leading-none font-bold tracking-[0.14em] uppercase text-brand-text">Innovation Zone</span></a></div>
+    <div class="shrink-0 px-3 pt-3 pb-2"><div class="flex w-full items-center gap-2 rounded-md border border-border bg-muted px-3 py-2 text-left"><span class="min-w-0 flex-1"><span class="block text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">Application</span><span class="block truncate text-base font-bold text-foreground" id="side-co"></span></span></div></div>
+    <div class="px-3 py-3"><nav class="flex flex-col gap-6" id="nav"></nav></div>
+  </aside>
+  <div class="flex min-h-0 min-w-0 flex-1 flex-col bg-canvas shadow-card lg:my-3 lg:mr-3 lg:rounded-xl">
+    <header class="flex min-h-14 shrink-0 items-center gap-3 px-4 pt-5 pb-3 lg:px-6"><div class="min-w-0 flex-1"><h1 class="truncate text-xl leading-none" id="head-co"></h1></div><div class="relative" id="help"></div></header>
+    <main class="min-h-0 flex-1 px-4 pt-3 pb-6 lg:px-6"><div class="w-full max-w-[1440px] main-in" id="screen"></div></main>
+    <div class="shrink-0 bg-canvas px-4 lg:px-6"><div class="flex items-center justify-between gap-3 py-3.5">
+      <button class="inline-flex items-center justify-center gap-2 rounded-pill text-base font-bold border bg-background shadow-xs h-10 px-6 py-2" data-nav="-1">← Back</button>
+      <button class="inline-flex items-center justify-center gap-2 rounded-pill text-base font-bold bg-brand-strong text-brand-foreground h-10 px-6 py-2" data-nav="1" id="next">Next →</button></div></div>
+  </div>
+</div>
+<script>
+/* ---------- Cases (names invented) ---------- */
+const R=(sh,dir,mgr,lr)=>({sh:!!sh,dir:!!dir,mgr:!!mgr,lr:!!lr});
+const CASES={
+  one:{label:'One owner',type:'llc',company:'Cedar Studio Limited',arabic:'سيدار ستوديو ليمتد',activity:'Graphic Design',capital:{shares:100,value:1000},
+    P:{priya:{name:'Priya Raman',nat:'India',uae:true,roles:R(1,1,1,1)}},C:{},shares:{priya:100},owners:{}},
+  founders:{label:'Three founders',type:'llc',company:'Lumen Labs Limited',arabic:'لومن لابس ليمتد',activity:'Software Development',capital:{shares:100,value:1000},
+    P:{dan:{name:'Daniel Okafor',nat:'Nigeria',uae:true,roles:R(1,1,0,1)},sof:{name:'Sofia Marquez',nat:'Spain',uae:false,roles:R(1,1,0,0)},hir:{name:'Hiroshi Tanaka',nat:'Japan',uae:false,roles:R(1,0,0,0)},ais:{name:'Aisha Farouk',nat:'Egypt',uae:false,roles:R(0,0,1,0)}},
+    C:{},shares:{dan:40,sof:35,hir:25},owners:{}},
+  sub:{label:'Subsidiary',type:'llc',company:'Northgate Middle East Limited',arabic:'نورثغيت ميدل ايست ليمتد',activity:'Management Consultancy',capital:{shares:100,value:1000},
+    P:{rav:{name:'Ravi Menon',nat:'India',uae:true,roles:R(0,1,1,1)},hel:{name:'Helen Carter',nat:'United Kingdom',uae:false},mar:{name:'Mark Ellis',nat:'United Kingdom',uae:false}},
+    C:{ng:{name:'Northgate Holdings Ltd',reg:'Outside the UAE',signer:'hel',docs:{id:'northgate-certificate-of-incorporation.pdf',own:'northgate-share-register.pdf'}}},
+    shares:{ng:100},owners:{ng:[{id:'hel',pct:50},{id:'mar',pct:50}]}},
+  branch:{label:'Branch',type:'branch',company:'Alder & Finch GmbH - Branch',activity:'Engineering Consultancy',parent:'af',
+    P:{kar:{name:'Karim Mansour',nat:'Jordan',uae:true,roles:{mgr:true,lr:true}},ele:{name:'Elena Novak',nat:'Germany',uae:false},tom:{name:'Tomas Berg',nat:'Sweden',uae:false}},
+    C:{af:{name:'Alder & Finch GmbH',reg:'Outside the UAE',signer:'ele',docs:{id:'alder-finch-certificate-of-incorporation.pdf',moa:'alder-finch-articles.pdf',own:'alder-finch-registry-extract.pdf'}}},
+    shares:{},owners:{af:[{id:'ele',pct:60},{id:'tom',pct:40}]}},
+  multi:{label:'Two layers',type:'llc',company:'Harbour Interiors Limited',arabic:'هاربر انتيريورز ليمتد',activity:'Interior Design Consultancy',capital:{shares:100,value:1000},
+    P:{lay:{name:'Layla Haddad',nat:'Kenya',uae:true,roles:R(1,1,1,1)},mar:{name:'Marco Bellini',nat:'Italy',uae:false,roles:R(1,0,0,0)},oma:{name:'Omar Khalil',nat:'Syria',uae:true},jam:{name:'James Whitfield',nat:'Australia',uae:true}},
+    C:{cf:{name:'Cedar Fitout Contracting',reg:'Mainland',signer:'oma',docs:{id:'cedar-fitout-trade-licence.pdf',own:'cedar-fitout-share-distribution.pdf'}},nh:{name:'Northgate Holdings Limited',reg:'UAE free zone',docs:{ext:'northgate-incumbency-letter.pdf'}},bv:{name:'Bluefin Ventures Limited',reg:'UAE free zone'}},
+    shares:{lay:25,mar:5,cf:70},owners:{cf:[{id:'nh',pct:80},{id:'bv',pct:20}],nh:[{id:'jam',pct:100}]}},
+  listed:{label:'Listed shareholder',type:'llc',company:'Solace Energy Limited',arabic:'سولاس انرجي ليمتد',activity:'Renewable Energy Consultancy',capital:{shares:100,value:1000},
+    P:{nad:{name:'Nadia Rahman',nat:'Bangladesh',uae:true,roles:R(1,1,1,1)},pet:{name:'Peter Lindqvist',nat:'Sweden',uae:false},gra:{name:'Grace Mwangi',nat:'Kenya',uae:true}},
+    C:{gh:{name:'Gulf Horizon Energy PJSC',reg:'Mainland',signer:'pet',listed:'Publicly listed',exec:'gra',docs:{id:'gulf-horizon-trade-licence.pdf'}}},
+    shares:{gh:51,nad:49},owners:{}},
+  nobody:{label:'Nobody at 25%',type:'llc',company:'Five Oaks Consulting Limited',arabic:'فايف اوكس كونسلتينج ليمتد',activity:'Business Consultancy',capital:{shares:100,value:1000},
+    P:{omr:{name:'Omar Siddiqui',nat:'Pakistan',uae:true,roles:R(1,1,1,1)},len:{name:'Lena Fischer',nat:'Germany',uae:false,roles:R(1,1,0,0)},arj:{name:'Arjun Patel',nat:'India',uae:true,roles:R(1,0,0,0)},chl:{name:'Chloe Martin',nat:'France',uae:false,roles:R(1,0,0,0)},yus:{name:'Yusuf Demir',nat:'Turkey',uae:false,roles:R(1,0,0,0)}},
+    C:{},shares:{omr:20,len:20,arj:20,chl:20,yus:20},owners:{},controller:'omr'}
+};
+const ORDER=['one','founders','sub','branch','multi','listed','nobody'];
+const NATS=['Australia','Bangladesh','Egypt','France','Germany','India','Italy','Japan','Jordan','Kenya','Nigeria','Pakistan','Spain','Sweden','Syria','Turkey','United Arab Emirates','United Kingdom'];
+const ROLE={sh:'Shareholder',dir:'Director',mgr:'Manager',lr:'Legal representative'};
+const LIMIT={sh:99,dir:6,mgr:1,lr:1};
+const TH=25;
+const STEPS=[['legal','Legal Structure'],['activities','Business Activities'],['name','Company Name'],['package','Package'],['payment','Payment'],['stake','Stakeholders'],['own','Ownership'],['docs','Documents'],['addl','Additional Documents'],['review','Review']];
+const AFTER=[['overview','Overview'],['services','Services']];
+const D=JSON.parse(JSON.stringify(CASES));
+let K='multi', SCREEN='stake', OPEN={}, MENU=null, W={risk:'Low',check:'none',stage:0,visa:false};
+const c=()=>D[K];
+const fmt=x=>(Math.round(x*10)/10).toString()+'%';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+const isBranch=()=>c().type==='branch';
+const fb=n=>`<span class="fb">${n}</span>`;
+const nameOf=id=>(c().P[id]||c().C[id]).name;
+const roleText=p=>Object.entries(p.roles||{}).filter(([,v])=>v).map(([k])=>ROLE[k]).join(' · ');
+
+/* ---------- Ownership rules ---------- */
+function compute(){
+  const x=c(), eff={}, traced={}, execs={};
+  const sh=Object.keys(x.shares); if(!isBranch() && sh.length===1) x.shares[sh[0]]=x.capital.shares;
+  const total=Object.values(x.shares).reduce((a,b)=>a+(+b||0),0);
+  const add=(id,e)=>eff[id]=(eff[id]||0)+e;
+  function walk(cid,e){const co=x.C[cid];
+    if(co.listed){ if(co.exec) execs[co.exec]=cid; traced[cid]=e; return }
+    if(e<TH) return; traced[cid]=e;
+    (x.owners[cid]||[]).forEach(o=>{const e2=e*(+o.pct||0)/100; add(o.id,e2); if(x.C[o.id]) walk(o.id,e2)})}
+  const top=isBranch()?{[x.parent]:100}:Object.fromEntries(Object.entries(x.shares).map(([id,s])=>[id,(+s||0)/(x.capital.shares||1)*100]));
+  Object.entries(top).forEach(([id,e])=>{add(id,e); if(x.C[id]) walk(id,e)});
+  const bo={};
+  Object.entries(eff).forEach(([id,e])=>{ if(x.P[id] && e>=TH-1e-9) bo[id]='owns'});
+  Object.keys(execs).forEach(id=>{ if(!bo[id]) bo[id]='runs'});
+  const needController=!Object.keys(bo).length && (isBranch()||Object.keys(x.shares).length>0);
+  if(needController && x.controller && x.P[x.controller]) bo[x.controller]='controls';
+  return {eff,traced,execs,bo,needController,top,total};
+}
+const funds=()=>W.risk==='Medium-high'||W.risk==='High'||(!isBranch()&&c().capital.shares*c().capital.value>100000);
+function boWhy(id,m){const w=m.bo[id];
+  if(w==='runs') return `Beneficial owner · runs ${c().C[m.execs[id]].name}`;
+  if(w==='controls') return 'Beneficial owner · controls the company';
+  return `Beneficial owner · ${fmt(m.eff[id])}`}
+
+/* ---------- What a company uploads, from stageapp's own lists ---------- */
+const REG={'Mainland':'Mainland','UAE free zone':'A UAE free zone','Outside the UAE':'Outside the UAE'};
+function slotsFor(co,isParent){
+  if(isParent){
+    if(co.reg==='Outside the UAE') return [{key:'id',role:'id',label:'Certificate of Incorporation',hint:'The branch takes its name from it.'},{key:'moa',label:'Memorandum and Articles of Association',hint:'With the current directors.'},{key:'own',role:'owners',label:'Proof the company is currently registered and who owns it',hint:'Good standing, registry extract, incumbency certificate or share register, dated within the last year.'}];
+    if(co.reg==='UAE free zone') return [{key:'id',role:'id',label:'Trade Licence',hint:'The branch takes its name from it.'},{key:'coi',label:'Certificate of Incorporation',hint:'Issued by the free zone.'},{key:'moa',role:'owners',label:'Memorandum and Articles of Association',hint:'With the share schedule and the current directors.'}];
+    return [{key:'id',role:'id',label:'Trade Licence',hint:'The branch takes its name from it.'},{key:'cr',label:'Commercial Registration',hint:'Issued by the Department of Planning & Economy.'},{key:'moa',role:'owners',label:'Memorandum of Association',hint:'With the share schedule and the current directors.'}];
+  }
+  if(co.reg==='Outside the UAE') return [{key:'id',role:'id',label:'Certificate of Incorporation',hint:'Issued when the company was formed.'},{key:'own',role:'owners',label:'Shareholder Distribution Document',hint:'A share register or registry extract, dated within the last year.'}];
+  if(co.reg==='UAE free zone') return [{key:'id',role:'id',label:'Free Zone Licence',hint:'The company’s current licence from its free zone.'},{key:'own',role:'owners',label:'Shareholder Distribution Document',hint:'From the free zone, listing each shareholder and their share.'}];
+  return [{key:'id',role:'id',label:'Trade Licence',hint:'The current trade licence from the economic department.'},{key:'own',role:'owners',label:'Shareholder Distribution Document',hint:'From the economic department, listing each shareholder and their share.'}];
+}
+const EXT={key:'ext',role:'owners',label:'Business Extract or Incumbency Letter',hint:'Naming the company and its shareholders, dated within the last year.'};
+const isParentId=cid=>isBranch()&&cid===c().parent;
+const ownersSlot=cid=>c().shares[cid]!=null||isParentId(cid)?slotsFor(c().C[cid],isParentId(cid)).find(x=>x.role==='owners'):EXT;
+const idSlot=cid=>slotsFor(c().C[cid],isParentId(cid)).find(x=>x.role==='id');
+const fileOf=d=>typeof d==='string'?d:d?.file;
+
+/* ---------- stageapp-styled pieces ---------- */
+const card=(inner,cls='')=>`<div class="flex flex-col gap-4 rounded-card border bg-card p-6 text-card-foreground shadow-card ${cls}">${inner}</div>`;
+const yn=(on,key,dis)=>`<div class="inline-flex w-fit overflow-hidden rounded-pill border border-border"><button class="h-8 px-4 text-base font-bold ${on?'bg-brand-strong text-brand-foreground':'text-muted-foreground'}" ${dis?'disabled style="opacity:.45"':''} data-yn="${key}:1">Yes</button><button class="h-8 px-4 text-base font-bold ${on?'text-muted-foreground':'bg-brand-strong text-brand-foreground'}" data-yn="${key}:0">No</button></div>`;
+const row=(label,ctrl,sub='')=>`<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-2.5"><div class="min-w-0"><div class="text-md">${label}</div>${sub?`<div class="mt-0.5 text-sm text-muted-foreground">${sub}</div>`:''}</div><div class="shrink-0">${ctrl}</div></div>`;
+const box=rows=>`<div class="divide-y divide-border overflow-hidden rounded-card border border-border bg-card">${rows}</div>`;
+const lbl=t=>`<div class="mb-2 text-base font-bold text-muted-foreground">${t}</div>`;
+const inp=(v,attr='',cls='')=>`<input class="h-10 w-full min-w-0 rounded-card border border-input bg-transparent px-3 py-1 text-field shadow-xs md:text-md ${cls}" value="${esc(v)}" ${attr}>`;
+const sel=(attr,opts,cur)=>`<select class="h-9 rounded-pill border border-input bg-background px-3 text-base" ${attr}>${opts}</select>`;
+const natSel=id=>sel(`data-nat="${id}"`,`<option value="" ${c().P[id].nat?'':'selected'}>Choose</option>${NATS.map(n=>`<option ${c().P[id].nat===n?'selected':''}>${n}</option>`).join('')}`);
+const btn=(t,solid,attr='')=>`<button class="inline-flex items-center justify-center gap-2 rounded-pill text-base font-bold h-9 px-5 whitespace-nowrap ${solid?'bg-brand-strong text-brand-foreground':'border bg-background shadow-xs'}" ${attr}>${t}</button>`;
+const title=t=>`<header><h2 class="text-2xl">${t}</h2></header>`;
+const wrap=inner=>`<div class="flex w-full max-w-[54rem] flex-col gap-4 pb-6">${inner}</div>`;
+
+/* ---------- 1 to 5 ---------- */
+function legal(){
+  const opts=[['llc','Limited Liability Company (LLC)',['An LLC is a separate legal entity from its owners. A shareholder’s liability is limited to their share capital.','It must have at least one shareholder, one manager, one director and one legal representative. One person can hold all of these roles.','The manager, director and legal representative must be individuals. The shareholder can be an individual or a company.']],
+    ['branch','Branch of an Existing Company',['A branch is an extension of an existing company (the parent company), which can be registered in the UAE or overseas.','A branch is not a separate legal entity, so the parent company remains fully responsible for its obligations.','It has no shareholders or directors, is run by a manager, and operates under the parent company’s registered name.']],
+    ['free','Freelancer Permit',['A Freelancer Permit allows an individual to carry out approved activities under their own name.','It is issued to one person and is not a separate legal entity, so the permit holder is personally liable.','It does not include shareholders, partners, directors or a manager, and the holder cannot hire employees.']]];
+  return wrap(title('Choose a Legal Structure'+fb('D1'))+`<div class="flex flex-col gap-3">${opts.map(([k,t,lines])=>{const on=k===c().type;
+    return `<section class="overflow-hidden rounded-card border bg-card shadow-card ${on?'border-brand ring-1 ring-brand':'border-border'}"><div class="flex items-start gap-5 px-6 py-5"><span class="mt-0.5 size-[17px] flex-none rounded-full ${on?'border-[5px] border-brand':'border-[1.5px] border-input'}"></span><span class="min-w-0 flex-1"><span class="block text-lg font-bold">${t}</span><ul class="mt-2 flex flex-col gap-1.5 text-base text-muted-foreground" style="list-style:disc;padding-left:18px">${lines.map(l=>`<li>${l}</li>`).join('')}</ul></span></div></section>`}).join('')}</div><p class="text-sm text-muted-foreground">Switch between a company and a branch with the Case menu above.</p>`);
+}
+function activities(){
+  return wrap(title('Business Activities')+card(`<div class="text-base font-bold text-muted-foreground">Your activities</div><div class="flex items-center justify-between border-t border-border pt-3"><b>${c().activity}</b><span class="text-sm text-muted-foreground">Included in the package</span></div>`));
+}
+function nameStep(){
+  const x=c();
+  if(isBranch()) return wrap(title('Parent Company')+card(`<div class="text-base font-bold text-muted-foreground">The branch will be registered as</div><b class="text-lg">${esc(x.company)}</b><p class="text-sm text-muted-foreground">“- Branch” is added for you.</p>`));
+  return wrap(title('Company Name')+card(`<div class="grid gap-4 sm:grid-cols-2"><div>${lbl('Company name')}${inp(x.company.replace(/ Limited$/,''))}<p class="mt-2 text-sm text-muted-foreground">“Limited” is added for you.</p></div><div>${lbl('Arabic')}${inp(x.arabic,'dir="rtl"')}</div></div><div class="text-sm font-bold text-brand-text">✓ Available</div>`));
+}
+function pkg(){
+  return wrap(title('Choose a Package')+card(`<div class="flex items-center justify-between"><b class="text-lg">Licence length</b><b>2 years</b></div>`)+card(`<div class="grid gap-3" style="grid-template-columns:1fr 1fr 1fr"><span></span><span class="text-right"><b class="block text-brand-text">Business One</b><span class="text-sm text-muted-foreground">You are buying this</span></span><b class="text-right">Startup</b></div>
+    <div class="grid gap-3 border-t border-border pt-3" style="grid-template-columns:1fr 1fr 1fr"><span class="text-muted-foreground">What it buys</span><span class="text-right">${isBranch()?'3 activities included':'3 activities and any number of shareholders included'}</span><span class="text-right">${isBranch()?'2 activities included':'2 activities and 3 shareholders included'}</span></div>
+    <div class="grid gap-3 border-t border-border pt-3" style="grid-template-columns:1fr 1fr 1fr"><b>Total for 2 years${fb('D2')}</b><b class="text-right text-lg tabular">AED 17,520</b><b class="text-right text-lg tabular">AED 22,970</b></div>`));
+}
+function payment(){
+  return wrap(title('Payment')+card(`<div class="flex items-center justify-between"><b class="text-lg">Paid</b><span class="text-sm font-bold text-brand-text">✓ Payment confirmed</span></div><div class="flex justify-between border-t border-border pt-3"><span>Business One, 2 years</span><b class="tabular">AED 17,520</b></div>`));
+}
+
+/* ---------- 6 Stakeholders ---------- */
+function roleBlock(id){
+  const x=c(), p=x.P[id], keys=isBranch()?['mgr','lr']:['sh','dir','mgr','lr'];
+  return box(keys.map(r=>{
+    const holders=Object.keys(x.P).filter(k=>k!==id&&x.P[k].roles?.[r]);
+    const full=!p.roles[r]&&holders.length>=LIMIT[r];
+    const msg=full?(LIMIT[r]===1?`${esc(x.P[holders[0]].name)} is the ${ROLE[r].toLowerCase()}, and there can be only one.`:`There can be up to ${LIMIT[r]} ${ROLE[r].toLowerCase()}s.`):'';
+    return row(ROLE[r]+(r==='lr'||r==='dir'?fb('D8'):''),yn(p.roles[r],`role:${id}:${r}`,full),msg)}).join(''));
+}
+const rmRow=(t,tag)=>`<div class="flex items-center justify-between gap-3 px-4 py-2.5" style="outline:2px dashed #d9534f;outline-offset:-2px;border-radius:8px"><span class="text-md text-muted-foreground line-through">${t}</span><span class="rounded-pill px-2 py-0.5 text-[11px] font-bold text-white" style="background:#d9534f">${tag}</span></div>`;
+function personRow(id){
+  const x=c(), p=x.P[id], open=OPEN[id]??false, res=p.uae, mgr=p.roles?.mgr;
+  return `<div class="border-b border-border last:border-0"><div class="flex w-full cursor-pointer items-center gap-3 px-4 py-3 ${open?'border-b border-border':''} bg-surface-sunken" data-tog="${id}"><span class="text-muted-foreground">${open?'⌄':'›'}</span><div class="min-w-0 flex-1"><span class="font-bold">${esc(p.name)}</span><div class="mt-0.5 truncate text-base text-muted-foreground">${[p.nat,roleText(p)].filter(Boolean).join(' · ')||'No details yet'}</div></div><button class="x" data-del="P:${id}" aria-label="Remove ${esc(p.name)}">×</button></div>
+  ${open?`<div class="flex flex-col gap-4 bg-surface-sunken px-4 pt-4 pb-5">
+    <div>${lbl('Full name')}${inp(p.name,`data-name="P:${id}"`)}<p class="mt-2 text-base text-muted-foreground">Enter it exactly as the passport prints it.</p></div>
+    <div>${lbl('Roles')}${roleBlock(id)}</div>
+    <div>${lbl('Details')}${box(row('Nationality',natSel(id))+row('Do you have UAE residency?'+fb('D4'),yn(res,'uae:'+id))+(!res&&mgr?row('Have you entered the UAE before?'+fb('V1'),yn(p.been!==false,'been:'+id)):'')+rmRow('Needs a visa from this company','Removed · now in Services (D5)'))}</div>
+  </div>`:''}</div>`;
+}
+function slot(cid,s){const d=c().C[cid].docs?.[s.key];
+  return `<div class="flex items-center justify-between gap-3 px-4 py-2.5"><span class="min-w-0"><b class="block text-md">${s.label}</b><span class="text-sm text-muted-foreground">${d?(d.reading?'Reading…':'✓ '+esc(fileOf(d))):s.hint}</span></span><label class="up ${d?'ghost':''}">${d?'Replace':'Upload'}<input type="file" hidden data-up="${cid}:${s.key}"></label></div>`}
+function companyRow(cid){
+  const x=c(), co=x.C[cid], open=OPEN[cid]??false, s=co.signer?x.P[co.signer]:null, parent=isBranch();
+  const people=Object.entries(x.P).map(([id,p])=>`<option value="${id}" ${co.signer===id?'selected':''}>${esc(p.name)}</option>`).join('');
+  const idd=co.docs?.[idSlot(cid).key], renaming=EDIT==='C:'+cid;
+  return `<div class="border-b border-border last:border-0"><div class="flex w-full cursor-pointer items-center gap-3 px-4 py-3 ${open?'border-b border-border':''} bg-surface-sunken" data-tog="${cid}"><span class="text-muted-foreground">${open?'⌄':'›'}</span><div class="min-w-0 flex-1">${renaming?inp(co.name,`data-name="C:${cid}"`,'max-w-[340px]'):`<span class="font-bold">${esc(co.name)}</span> <button class="text-sm text-muted-foreground" data-rename="${cid}" aria-label="Rename">✎</button> <span class="inline-flex rounded-full border border-border px-2 text-xs font-bold uppercase">Company</span>`}<div class="mt-0.5 text-base text-muted-foreground">${parent?'Parent company':'Shareholder'}${idd&&!idd.reading?` · name read from the ${idSlot(cid).label}`:''}</div></div>${parent?'':`<button class="x" data-del="C:${cid}" aria-label="Remove ${esc(co.name)}">×</button>`}</div>
+  ${open?`<div class="flex flex-col gap-3 bg-surface-sunken px-4 pt-4 pb-5">
+    ${box(row('Where is this company registered?',sel(`data-regsel="${cid}"`,Object.entries(REG).map(([v,l])=>`<option value="${v}" ${co.reg===v?'selected':''}>${l}</option>`).join('')))
+      +slotsFor(co,parent).map(z=>slot(cid,z)).join('')
+      +row('Authorised signatory',sel(`data-signer="${cid}"`,`<option value="" disabled ${s?'':'selected'}>Choose</option>${people}<option value="__new">+ Add a new person</option>`)))}
+    ${s?box(row('Full name',inp(s.name,`data-name="P:${co.signer}"`,'max-w-[300px]'))+row('Nationality',natSel(co.signer))+row('Do you have UAE residency?',yn(s.uae,'uae:'+co.signer))):''}
+  </div>`:''}</div>`;
+}
+function stake(){
+  const x=c(); let rows='';
+  if(isBranch()) rows+=companyRow(x.parent);
+  Object.keys(x.P).forEach(id=>{ if(x.P[id].roles) rows+=personRow(id) });
+  if(!isBranch()) Object.keys(x.shares).forEach(id=>{ if(x.C[id]) rows+=companyRow(id) });
+  const sh=Object.keys(x.shares).length;
+  const you=Object.values(CASES[K].P)[0].name, hasPeople=Object.values(x.P).some(p=>p.roles);
+  const suggest=!hasPeople?`<div class="rounded-card border border-dashed border-border bg-card p-4"><p class="text-base text-muted-foreground">No stakeholders added yet.</p><div class="mt-2">${btn('Add '+esc(you)+', you',false,'data-addyou')}</div></div>`:'';
+  return wrap(title('Who Is Involved?'+fb('D5')+fb('D6'))+suggest+`<div class="overflow-hidden rounded-card border border-border bg-card" ${rows?'':'style="display:none"'}>${rows}</div>
+   <div class="flex flex-wrap items-center gap-2">${btn('Add Individual',true,'data-addp')}${isBranch()?'':btn('Add a Company',false,`data-addc ${sh>=99?'disabled style="opacity:.45"':''}`)}</div>`);
+}
+
+/* ---------- 7 Ownership ---------- */
+const cutoff=e=>Math.ceil(TH/e*1000-1e-9)/10;
+const PAL=['#4a7c7a','#c9a24d','#7f9cb8','#c48b6e','#8fb39a','#9d8fbf'];
+const dot=cl=>`<i class="dot" style="background:${cl}"></i>`;
+function colours(){const x=c(), col={};
+  const paint=(cid,cl)=>{(x.owners[cid]||[]).forEach(o=>{if(!col[o.id]) col[o.id]=cl; if(x.C[o.id]) paint(o.id,cl)}); if(x.C[cid]?.exec) col[x.C[cid].exec]=cl};
+  x.colors=x.colors||{};
+  (isBranch()?[x.parent]:Object.keys(x.shares)).forEach(id=>{
+    if(!x.colors[id]){const used=new Set(Object.values(x.colors)); x.colors[id]=PAL.find(p=>!used.has(p))||PAL[Object.keys(x.colors).length%PAL.length]}
+    col[id]=x.colors[id]; if(x.C[id]) paint(id,col[id])});
+  return col}
+function tracedList(m){const x=c(), out=[];
+  const visit=(cid,e)=>{const co=x.C[cid]; if(!(e>=TH||co.listed)) return; out.push([cid,e]); if(co.listed) return;
+    (x.owners[cid]||[]).forEach(o=>{ if(x.C[o.id]) visit(o.id,e*(+o.pct||0)/100) })};
+  Object.keys(m.top).filter(id=>x.C[id]).forEach(id=>visit(id,m.top[id]));
+  return out}
+function ancestors(cid,seen=new Set()){Object.entries(c().owners).forEach(([k,list])=>{ if(list.some(o=>o.id===cid) && !seen.has(k)){seen.add(k); ancestors(k,seen)} }); return seen}
+function addMenu(cid){const x=c(), anc=ancestors(cid), have=new Set((x.owners[cid]||[]).map(o=>o.id));
+  const ok=id=>id!==cid && !have.has(id) && !anc.has(id) && !(isBranch()&&id===x.parent);
+  const ppl=Object.keys(x.P).filter(ok), cos=Object.keys(x.C).filter(ok);
+  return `<div class="amenu"><button data-addo="${cid}:p">New person</button><button data-addo="${cid}:c">New company</button>${ppl.length+cos.length?`<div class="amh">Already added</div>${ppl.map(id=>`<button data-addx="${cid}:${id}">${esc(x.P[id].name)}</button>`).join('')}${cos.map(id=>`<button data-addx="${cid}:${id}">${esc(x.C[id].name)}<em>Company</em></button>`).join('')}`:''}</div>`}
+function ownersCard(cid,e,m,col){
+  const x=c(), co=x.C[cid], head=`<h3>Who owns ${esc(co.name)}?</h3>`;
+  const sub=isParentId(cid)?'The parent company.':`${fmt(e)} of ${esc(isBranch()?x.C[x.parent].name:x.company)}.`;
+  if(co.listed){
+    const people=Object.entries(x.P).map(([id,p])=>`<option value="${id}" ${co.exec===id?'selected':''}>${esc(p.name)}</option>`).join('');
+    return `<section class="fc">${head}<p class="fs">${sub}</p><div class="fa">${['Publicly listed','Government-owned','Privately owned'].map(v=>`<button class="pill ${(co.listed||'Privately owned')===v?'on':''}" data-listed="${cid}:${v==='Privately owned'?'':v}">${v}</button>`).join('')}</div>
+      <div class="fr"><span>Who runs it?</span>${sel(`data-exec="${cid}"`,`<option value="" disabled ${co.exec?'':'selected'}>Choose</option>${people}<option value="__new">+ Add a new person</option>`)}</div></section>`;
+  }
+  const list=x.owners[cid]||[], tot=list.reduce((a,o)=>a+(+o.pct||0),0), os=ownersSlot(cid), d=co.docs?.[os.key];
+  const src=d?(d.reading?`<div class="src"><span>Reading ${esc(fileOf(d))}…</span></div>`:`<div class="src"><span>Read from <b>${esc(fileOf(d))}</b>. Check the figures.</span></div>`)
+    :`<div class="src"><label class="up">Upload the ${os.label}<input type="file" hidden data-up="${cid}:${os.key}"></label><span>${list.length?`Not yet checked against the ${os.label}.`:'Or add the owners below.'}</span></div>`;
+  return `<section class="fc">${head}<p class="fs">${sub} Name anyone with ${cutoff(e)}% or more.</p>${src}
+    ${list.length?'<div class="fh"><span>Owner</span><span class="fv"><span class="h1">Owns</span><span class="fe">Effective</span><span class="xs"></span></span></div>':''}
+    ${list.map(o=>{const e2=e*(+o.pct||0)/100, isCo=!!x.C[o.id], low=e2<TH && !(isCo&&x.C[o.id].listed);
+      return `<div class="fr ${low?'low':''}"><span>${dot(col[cid]||col[o.id])}<input class="nmin" data-name="${isCo?'C':'P'}:${o.id}" value="${esc(nameOf(o.id))}" aria-label="Name">${isCo?'<em>Company</em>':''}</span>
+        <span class="fv"><span class="pctin"><input data-opct="${cid}:${o.id}" value="${o.pct}" inputmode="decimal"><span>%</span></span><span class="fe">${fmt(e2)}<small>${low?'Under 25%':`${fmt(+o.pct||0)} of ${fmt(e)}`}</small></span><button class="x" data-rm="${cid}:${o.id}" aria-label="Remove">×</button></span></div>`}).join('')}
+    <div class="fa"><span class="addwrap"><button class="lnk" data-addmenu="${cid}">+ Add an owner</button>${MENU===cid?addMenu(cid):''}</span><span class="nobody">Nobody to name?<button class="pill" data-listed="${cid}:Publicly listed">Publicly listed</button><button class="pill" data-listed="${cid}:Government-owned">Government-owned</button></span></div>
+    ${tot>100?`<p class="err">Adds up to ${fmt(tot)}. It cannot be more than 100%.</p>`:''}</section>`;
+}
+function node(id,pct,e,m,col,top){
+  const x=c(), isCo=!!x.C[id], co=x.C[id], bo=m.bo[id], traced=isCo&&(e>=TH||co.listed);
+  let kids=[]; if(isCo&&traced) kids=co.listed?(co.exec?[[co.exec,null,null]]:[]):(x.owners[id]||[]).map(o=>[o.id,o.pct,e*(+o.pct||0)/100]);
+  const cls=bo?'bo':(isCo?(traced?'':'dim'):(top?'':'dim'));
+  const line=bo?(bo==='runs'?'Runs it · Beneficial owner':bo==='controls'?'Controls it · Beneficial owner':(Math.abs((m.eff[id]||0)-e)>0.05?`Beneficial owner · ${fmt(m.eff[id])} in total`:`Beneficial owner${top?'':' · '+fmt(m.eff[id])}`))
+    :isCo?(traced?(co.listed?co.listed:(top?(isBranch()?'Parent company':'Company'):`${fmt(e)} overall`)):'Under 25% · not traced'):(top?'':`${fmt(e)} overall`);
+  return `<li><div class="nd ${cls}" style="--c:${col[id]||'#c5ccd0'}">${pct!=null?`<span class="pp">${fmt(+pct||0)}</span>`:''}<b>${esc(nameOf(id))}</b>${line?`<small>${line}</small>`:''}</div>${kids.length?`<ul>${kids.map(([k,p,e2])=>node(k,p,e2??0,m,col,false)).join('')}</ul>`:''}</li>`;
+}
+function ownErrors(m){const x=c(), e=[];
+  if(isBranch()) return e;
+  if(!Object.keys(x.shares).length) e.push('none');
+  if(x.capital.value<1000) e.push('value');
+  if(x.capital.shares*x.capital.value<50000) e.push('capital');
+  if(m.total!==x.capital.shares) e.push('alloc');
+  if(Object.keys(x.shares).some(id=>{const p=(+x.shares[id]||0)/(x.capital.shares||1)*100; return Math.abs(p-Math.round(p))>1e-9})) e.push('whole');
+  return e}
+function own(){
+  const x=c(), m=compute(), col=colours(), errs=ownErrors(m); let h='';
+  if(!isBranch()){
+    const ids=Object.keys(x.shares);
+    h+=`<section class="fc"><h3>Shareholders</h3>
+      <div class="capline"><input class="num" data-cap="shares" value="${x.capital.shares}" inputmode="numeric"> shares at AED <input class="num ${errs.includes('value')?'bad-in':''}" data-cap="value" value="${x.capital.value.toLocaleString()}" inputmode="numeric"> each${fb('D9')}<b>AED ${(x.capital.shares*x.capital.value).toLocaleString()}</b></div>
+      ${errs.includes('value')?'<p class="err">Minimum AED 1,000 per share.</p>':''}${errs.includes('capital')?'<p class="err">Share capital must be at least AED 50,000.</p>':''}
+      ${ids.length?'<div class="fh"><span>Owner</span><span class="fv"><span class="h1">Shares</span><span class="fe">Owns'+fb('D11')+'</span><span class="xs"></span></span></div>':`<p class="err">No shareholders yet. Answer Yes to Shareholder for someone on Stakeholders.</p>`}
+      ${ids.map(id=>{const p=(+x.shares[id]||0)/(x.capital.shares||1)*100, whole=Math.abs(p-Math.round(p))<1e-9;
+        return `<div class="fr"><span>${dot(col[id])}${esc(nameOf(id))}${x.C[id]?'<em>Company</em>':''}</span><span class="fv">${ids.length===1?`<span class="text-sm text-muted-foreground">All ${x.capital.shares} shares</span>`:`<input class="num ${whole?'':'bad-in'}" data-split="${id}" value="${x.shares[id]??''}" inputmode="numeric">`}<span class="fe" ${whole?'':'style="color:var(--w-red)"'}>${Math.round(p*100)/100}%</span><button class="x" data-rm=":${id}" aria-label="Remove">×</button></span></div>`}).join('')}
+      ${ids.length>1?`<p class="fs" style="text-align:right;margin-top:10px;${errs.includes('alloc')?'color:var(--w-red);font-weight:700':''}">${m.total===x.capital.shares?'All':m.total+' of'} ${x.capital.shares} shares allocated</p>`:''}
+      ${errs.includes('whole')?`<p class="err">Each shareholder must hold a whole percentage. Change the shares so every percentage is a whole number.${fb('D11')}</p>`:''}</section>`;
+  }
+  tracedList(m).forEach(([cid,e])=>h+=ownersCard(cid,e,m,col));
+  Object.keys(m.top).filter(id=>x.C[id]&&m.top[id]<TH&&!x.C[id].listed).forEach(id=>h+=`<p class="text-sm text-muted-foreground">${esc(x.C[id].name)} holds ${fmt(m.top[id])}, under 25%, so its owners are not needed.</p>`);
+  if(m.needController){
+    const people=Object.entries(x.P).filter(([,p])=>p.roles).map(([id,p])=>`<option value="${id}" ${x.controller===id?'selected':''}>${esc(p.name)}</option>`).join('');
+    h+=`<section class="fc warn"><h3>Nobody owns 25% or more</h3><div class="fr"><span>Who controls the company?</span>${sel('data-controller',`<option value="" disabled ${x.controller&&x.P[x.controller]?'':'selected'}>Choose</option>${people}`)}</div></section>`;
+  }
+  const tops=isBranch()?[[x.parent,100]]:Object.keys(x.shares).map(id=>[id,m.top[id]||0]);
+  const signs=isBranch()?[`${esc(x.P[x.C[x.parent].signer]?.name||'Not chosen yet')} for ${esc(x.C[x.parent].name)}`]:Object.keys(x.shares).map(id=>x.C[id]?`${esc(x.P[x.C[id].signer]?.name||'Not chosen yet')} for ${esc(x.C[id].name)}`:esc(x.P[id].name));
+  h+=`<section class="fc"><h3>Beneficial owners${fb('D10')}</h3>${Object.keys(m.bo).map(id=>`<div class="fr"><span>${dot(col[id]||'#c5ccd0')}<b>${esc(x.P[id].name)}</b></span><span class="fe">${m.bo[id]==='owns'?fmt(m.eff[id]):'<small>'+(m.bo[id]==='runs'?'Runs '+esc(x.C[m.execs[id]].name):'Controls the company')+'</small>'}</span></div>`).join('')||'<p class="fs">None yet</p>'}
+    <div class="org" style="margin-top:12px"><ul><li><div class="nd root"><b>${esc(x.company)}</b></div><ul>${tops.map(([id,p])=>node(id,p,p,m,col,true)).join('')}</ul></li></ul></div>
+    <dl class="facts"><div><dt>${isBranch()?'Signs the parent company’s resolution':'Signs the shareholder resolution'}</dt><dd>${signs.join(' · ')}</dd></div></dl></section>`;
+  return wrap(title('How Is It Owned?')+h);
+}
+
+/* ---------- 8 Documents ---------- */
+function docList(m){
+  const x=c(), out=[], seen=new Set();
+  const person=(id,why)=>{const p=x.P[id], d=[{k:'pp',label:'Passport',hint:'Front page, and last page if applicable',n:'V2'}]; seen.add(id);
+    if(p.uae) d.push({k:'eid',label:'Emirates ID',hint:'The front of the card. Add the back too if you have it.'});
+    if(m.bo[id]==='owns') d.push({k:'poa',label:'Proof of Address',hint:'Utility bill, bank statement, tenancy contract or title deed showing your address.',n:'D13'});
+    if(m.bo[id]&&funds()) d.push({k:'sof',label:'Source of Funds',hint:'Where the money for the share capital comes from.',n:'D12'});
+    if(p.roles?.mgr && !p.roles?.sh) d.push({k:'deg',label:'Attested Degree',hint:'The manager’s degree certificate, attested.'});
+    out.push({id,name:p.name,why:m.bo[id]&&!why.startsWith('Beneficial')?`${why} · ${boWhy(id,m)}`:why,d})};
+  Object.keys(x.P).filter(id=>roleText(x.P[id])).forEach(id=>person(id,roleText(x.P[id])));
+  Object.entries(x.C).forEach(([cid,co])=>{
+    if(m.top[cid]!=null) out.push({cid,name:co.name,why:isBranch()?'Parent company':`Shareholder · ${fmt(m.top[cid])}`,d:slotsFor(co,isParentId(cid)).filter(z=>!(co.listed&&z.role==='owners'&&!isParentId(cid)))});
+    else if(m.traced[cid]!=null && !co.listed) out.push({cid,name:co.name,why:`Owns ${fmt(m.traced[cid])} through the chain`,d:[EXT]});
+  });
+  Object.values(x.C).forEach(co=>{ if(co.signer && x.P[co.signer] && !seen.has(co.signer)) person(co.signer,`Signs for ${co.name}`) });
+  Object.keys(m.bo).forEach(id=>{ if(!seen.has(id)) person(id,boWhy(id,m)) });
+  return out;
+}
+x_up={};
+const upKey=(owner,k)=>K+':'+owner+':'+k;
+function docRow(owner,dd,isCo){
+  const got=isCo?c().C[owner].docs?.[dd.key]:x_up[upKey(owner,dd.k)];
+  return `<div class="grid items-start gap-3 border-t border-border px-4 py-3" style="grid-template-columns:22px 1fr auto"><span class="mt-0.5 flex size-[18px] items-center justify-center rounded-full ${got?'bg-brand-strong text-brand-foreground':'border-[1.5px] border-border'} text-xs">${got?'✓':''}</span><div class="min-w-0"><b>${dd.label}</b>${dd.n?fb(dd.n):''}<p class="mt-px text-sm text-muted-foreground">${got?'✓ '+esc(fileOf(got)):dd.hint}</p></div>${isCo?`<label class="text-sm font-bold text-brand-text underline cursor-pointer">${got?'Replace':'Upload'}<input type="file" hidden data-up="${owner}:${dd.key}"></label>`:`<button class="text-sm font-bold text-brand-text underline" data-pup="${owner}:${dd.k}">${got?'Replace':'Upload'}</button>`}</div>`}
+let EDIT=null;
+function about(id){const p=c().P[id], first=p.name.split(' ')[0], got=k=>x_up[upKey(id,k)], res=p.uae, f=p.f||{};
+  const fromPp=got('pp')?'Read from the passport':null;
+  const rows=[['name','Full name',p.name],['dob','Date of birth',f.dob||fromPp],['gender','Gender'+fb('V3'),f.gender||fromPp],['nat','Nationality',p.nat||null],['pob','Place of birth',f.pob||fromPp],
+    ['addr',(res?'Address in the UAE':'Home country address')+fb('D7'),f.addr||(got('poa')?'Read from the proof of address':null)],['email','Email'+fb('D15'),f.email||null],['phone',res?'UAE mobile number':'Home country phone number',f.phone||null]];
+  return `<div class="border-t border-border px-4 pt-3.5 pb-4"><div class="mb-2 flex items-center justify-between"><span class="text-base font-bold text-muted-foreground">About ${esc(first)}</span><button class="inline-flex items-center gap-1.5 text-sm font-bold text-brand-text" data-editall="${id}">${EDIT===id+':*'?'Done':'✎ Edit details'}${fb('V4')}</button></div>${box(rows.map(([key,k,v])=>{const on=EDIT===id+':'+key||EDIT===id+':*';
+    return `<div class="grid min-h-12 items-center gap-4 px-4 py-2.5 arow" style="grid-template-columns:170px 1fr"><div class="text-md text-muted-foreground">${k}</div><div class="flex items-center justify-between gap-4">${on?inp(key==='phone'&&!v?(res?'+971 ':''):(v||''),`data-field="${id}:${key}" autofocus`,'max-w-[340px]'):v?`<span class="text-md font-bold">${esc(v)}</span>`:`<button class="justify-self-start text-md font-bold text-brand-text underline underline-offset-2" data-edit="${id}:${key}">Add</button>`}</div></div>`}).join(''))}
+</div>`}
+function docs(){
+  const m=compute(), list=docList(m), stakeIds=new Set(Object.keys(c().P).filter(id=>roleText(c().P[id])));
+  let tot=0, done=0;
+  const secs=list.map(p=>{
+    const isCo=!!p.cid, owner=isCo?p.cid:p.id;
+    const n=p.d.length, got=p.d.filter(dd=>isCo?c().C[owner].docs?.[dd.key]:x_up[upKey(owner,dd.k)]).length; tot+=n; done+=got;
+    const ask=!isCo && !stakeIds.has(p.id) ? `<div class="flex flex-wrap items-center gap-3 border-t border-border px-4 py-3 text-base">${natSel(p.id)}<span>Do you have UAE residency?</span>${yn(c().P[p.id].uae,'uae:'+p.id)}</div>`:'';
+    return `<section class="overflow-hidden rounded-lg border border-border bg-card"><div class="grid w-full items-center gap-3 bg-surface-sunken px-4 py-3.5" style="grid-template-columns:1fr auto"><div><b class="block">${esc(p.name)}</b><small class="block text-sm text-muted-foreground">${esc(p.why)}</small></div><span class="flex items-center gap-3 text-sm text-muted-foreground tabular">${isCo?'':btn('Invite',false,'style="height:26px;padding:0 12px;font-size:12px"')}${got} of ${n}</span></div>${ask}${p.d.map(dd=>docRow(owner,dd,isCo)).join('')}${isCo?'':about(p.id)}</section>`}).join('');
+  return wrap(title('Documents')+`<p class="text-base text-muted-foreground">Upload for anyone, or send them a link. <b class="text-foreground">${done} of ${tot}</b></p>${secs}`);
+}
+
+/* ---------- 9 Additional Documents ---------- */
+x_add={};
+function addl(){
+  const m=compute(), x=c();
+  if(W.check==='none') return wrap(title('Additional Documents')+card(`<b class="text-lg">Nothing more is needed${fb('V12')}</b><p class="text-base text-muted-foreground">Go on to Review.</p>`));
+  const items=[];
+  if(W.check==='uid'){
+    const res=Object.keys(x.P).find(id=>x.P[id].uae&&roleText(x.P[id]));
+    const mgr=Object.keys(x.P).find(id=>x.P[id].roles?.mgr&&!x.P[id].uae);
+    if(res) items.push([res,{k:'rv',label:'UAE residence visa',hint:'Current or expired.'}]);
+    if(mgr) items.push([mgr,{k:'pl',label:'Passport you last entered the UAE on',hint:'The photo page. Expired is fine.'}]);
+  }
+  if(W.check==='hit'){
+    Object.keys(m.bo).forEach(b=>items.push([b,{k:'bs',label:'Bank statement',hint:'The last three months, or a letter from the bank.'}]));
+  }
+  return wrap(title('Additional Documents'+fb('V12'))+(items.length?items.map(([id,dd])=>`<section class="overflow-hidden rounded-lg border border-border bg-card"><div class="bg-surface-sunken px-4 py-3.5"><b class="block">${esc(x.P[id].name)}</b><small class="text-sm text-muted-foreground">${esc(roleText(x.P[id])||boWhy(id,m))}</small></div>${(()=>{const got=x_add[upKey(id,dd.k)]; return `<div class="grid items-start gap-3 border-t border-border px-4 py-3" style="grid-template-columns:1fr auto"><div><b>${dd.label}</b><p class="mt-px text-sm text-muted-foreground">${got?'✓ '+got:dd.hint}</p></div><button class="text-sm font-bold text-brand-text underline" data-aup="${id}:${dd.k}">${got?'Replace':'Upload'}</button></div>`})()}</section>`).join(''):card('<p>Nobody in this case matches. Try another case.</p>')));
+}
+
+/* ---------- 10 Review ---------- */
+function review(){
+  const x=c(), m=compute();
+  return wrap(title('Review and Submit')+card(`<div class="text-base font-bold text-muted-foreground">Company</div><div class="grid gap-2" style="grid-template-columns:160px 1fr"><span class="text-muted-foreground">Type</span><b>${isBranch()?'Branch':'Limited company'}</b><span class="text-muted-foreground">Name</span><b>${esc(x.company)}</b><span class="text-muted-foreground">Activities</span><b>${x.activity}</b><span class="text-muted-foreground">Package</span><b>Business One · 2 years</b><span class="text-muted-foreground">Beneficial owners</span><b>${Object.keys(m.bo).map(id=>esc(x.P[id].name)).join(', ')||'None yet'}</b></div>`)
+   +card(`<div class="text-base font-bold text-muted-foreground">Declaration${fb('D17')}${fb('V6')}</div><p>By signing, you confirm that:</p><ul class="flex flex-col gap-1.5 text-base" style="list-style:disc;padding-left:18px"><li>The information in this application is true and complete, and the company will follow Masdar City Free Zone’s rules.</li><li>Masdar City may issue the licence, certificate of incorporation, Memorandum of Association, Articles of Association and lease digitally, on its standard templates.</li><li>They need no physical signatures. Certified hard copies are a separate application with its own fee.</li></ul><a class="text-base font-bold text-brand-text underline underline-offset-2">Read the full declaration</a><div><div class="text-base font-bold text-muted-foreground">Signing as</div><b>${esc(x.P[Object.keys(x.P).find(id=>x.P[id].roles?.mgr)||Object.keys(x.P)[0]].name)}</b></div><div class="h-28 rounded-card border border-border"></div>`)
+);
+}
+
+/* ---------- After submitting ---------- */
+function portalNav(active){return `<nav class="flex flex-col gap-0.5">${[['Overview','overview'],['Company'],['People'],['Documents'],['Payments'],['Share access'],['Services','services']].map(([t,k])=>`<a ${k?`data-go="${k}"`:''} class="flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-2 text-base no-underline ${k===active?'bg-sidebar-accent text-sidebar-accent-foreground font-bold':'font-medium text-muted-foreground'}">${t}${t==='Services'?fb('V8'):''}</a>`).join('')}<div class="mt-3 rounded-md px-2 py-1.5" style="outline:2px dashed #d9534f;outline-offset:-2px"><div class="text-xs font-bold uppercase tracking-[0.08em] text-muted-foreground line-through">After your permit</div><div class="text-sm text-muted-foreground line-through">Residence Visas</div><span class="mt-1 inline-block rounded-pill px-2 py-0.5 text-[11px] font-bold text-white" style="background:#d9534f">Removed (V8)</span></div></nav>`}
+function overview(){
+  const stages=['Application checks','Licence issued','Establishment card and e-channel done'], ready=W.stage===2;
+  return `<div class="flex w-full max-w-[64rem] flex-col gap-4 pb-6"><div class="flex flex-wrap items-center gap-2 text-sm"><span class="text-muted-foreground">Show the case at:</span>${stages.map((t,i)=>`<button class="rounded-pill border px-3 h-8 ${W.stage===i?'bg-brand-strong text-brand-foreground':'bg-background'}" data-stage="${i}">${t}</button>`).join('')}</div>
+   <div class="grid gap-4 pgrid" style="grid-template-columns:180px minmax(0,1fr)"><div>${portalNav('overview')}</div><div class="flex flex-col gap-4">
+    ${ready?card(`<div class="flex flex-wrap items-center justify-between gap-4"><div><b class="text-lg">Your package includes 1 visa${fb('V7')}</b><p class="text-base text-muted-foreground">Already paid for.</p></div>${btn('Start now',true,'data-go="services"')}</div>`):`<div class="rounded-card border border-border bg-card p-4" style="outline:2px dashed #d9534f;outline-offset:-2px"><div class="flex items-start justify-between gap-3"><div><b class="text-lg line-through text-muted-foreground">Visa details you can fill in now</b><p class="text-sm text-muted-foreground line-through">10 answers left. Fill them in.</p></div><span class="rounded-pill px-2 py-0.5 text-[11px] font-bold text-white" style="background:#d9534f">Removed (V7)</span></div><p class="mt-2 text-sm text-muted-foreground">No visa card until the establishment card and e-channel are done.</p></div>`}
+    ${card(`<b class="text-lg">Need help?${fb('V9')}</b><div class="flex flex-wrap gap-2">${btn('Book a call')}${btn('Send a message')}</div>`)}
+    ${card(`<span class="text-sm font-bold text-brand-text">${['Intake','Issue','Immigration'][W.stage]}</span><b class="text-2xl">${stages[W.stage]}</b>`)}
+   </div></div></div>`;
+}
+function services(){
+  const cats=[['Visa services',['Apply for a new visa','Amend a visa','Renew a visa','Cancel a visa']],['Company services',['Change of activity','Change of shareholders','Change of company name']],['Value-added services',['Request a document copy']]];
+  const x=c(), people=Object.keys(x.P).filter(id=>roleText(x.P[id]));
+  return `<div class="flex w-full max-w-[64rem] flex-col gap-4 pb-6"><div class="grid gap-4 pgrid" style="grid-template-columns:180px minmax(0,1fr)"><div>${portalNav('services')}</div><div class="flex flex-col gap-4">${title('Services'+fb('V8'))}
+   ${cats.map(([ct,list])=>card(`<b class="text-lg">${ct}</b><div class="divide-y divide-border">${list.map(s=>`<div class="flex items-center justify-between py-2.5"><span>${s}</span>${s==='Apply for a new visa'?btn('Start',true,'data-visa'):'<span class="text-muted-foreground">›</span>'}</div>`).join('')}</div>`)).join('')}
+   ${W.visa?card(`<b class="text-lg">Apply for a new visa</b><div>${lbl('Who is it for?'+fb('V10'))}${sel('',people.map(id=>`<option>${esc(x.P[id].name)} · ${roleText(x.P[id]).toLowerCase()}</option>`).join('')+'<option>Someone new, such as an employee</option>')}</div><p class="text-base">1 visa already paid for in your package. Any visa beyond that is charged here.</p>`):''}
+  </div></div></div>`;
+}
+
+/* ---------- Shell ---------- */
+const SCR={legal,activities,name:nameStep,package:pkg,payment,stake,own,docs,addl,review,overview,services};
+const ALL=[...STEPS,...AFTER];
+function render(){
+  document.getElementById('side-co').textContent=c().company;
+  document.getElementById('head-co').textContent=c().company;
+  const idx=STEPS.findIndex(([k])=>k===SCREEN);
+  const navItem=([k,t],i,done)=>`<a data-go="${k}" class="flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-2 text-base no-underline ${k===SCREEN?'bg-sidebar-accent text-sidebar-accent-foreground font-bold':'font-medium text-muted-foreground'}"><span class="flex size-5 shrink-0 items-center justify-center rounded-full border text-xs ${done?'border-transparent bg-brand-subtle text-brand-text':'border-border text-muted-foreground'}">${done?'✓':i}</span><span class="min-w-0 flex-1 truncate">${t}</span></a>`;
+  document.getElementById('nav').innerHTML=`<div class="flex flex-col gap-0.5"><div class="px-2 pb-2 text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">Setting Up</div>${STEPS.map((s,i)=>navItem(s,i+1,i<5)).join('')}</div><div class="flex flex-col gap-0.5"><div class="px-2 pb-2 text-xs font-bold tracking-[0.08em] uppercase text-muted-foreground">After You Submit</div>${AFTER.map((s,i)=>navItem(s,'',false)).join('')}</div>`;
+  document.getElementById('screen').innerHTML=SCR[SCREEN]();
+  document.getElementById('help').innerHTML=`<button class="text-sm font-bold text-brand-text underline underline-offset-2" data-help>Need help?</button>${fb('V9')}${W.help?`<div class="absolute right-0 top-8 z-30 w-64 rounded-card border border-border bg-card p-4 shadow-card"><p class="text-base">Talk to the Masdar City team.</p><div class="mt-3 flex flex-wrap gap-2">${btn('Book a call',true)}${btn('Send a message')}</div></div>`:''}`;
+  document.getElementById('w-case').innerHTML=ORDER.map(k=>`<option value="${k}" ${k===K?'selected':''}>${CASES[k].label}</option>`).join('');
+  document.getElementById('w-risk').value=W.risk; document.getElementById('w-check').value=W.check;
+  const n=document.getElementById('next'); const m=compute();
+  const block=SCREEN==='own'&&ownErrors(m).length;
+  n.disabled=!!block; n.style.opacity=block?'.45':'';
+  n.textContent=SCREEN==='review'?'Sign and submit →':'Next →';
+  try{localStorage.setItem(SKEY,JSON.stringify({D,K,S:SCREEN,W,x_up,x_add}))}catch(_){}
+  const org=document.querySelector('.org'); if(org) org.scrollLeft=(org.scrollWidth-org.clientWidth)/2;
+  document.querySelectorAll('.nmin').forEach(fitName);
+}
+const MEASURE=document.createElement('canvas').getContext('2d');
+function fitName(el){MEASURE.font=getComputedStyle(el).font; el.style.width=Math.ceil(MEASURE.measureText(el.value||' ').width)+16+'px'}
+document.addEventListener('input',e=>{ if(e.target.classList.contains('nmin')) fitName(e.target) });
+const SKEY='mcfz-flow-wireframe-v1';
+try{const sv=JSON.parse(localStorage.getItem(SKEY)||'null'); if(sv&&sv.D){Object.keys(sv.D).forEach(k=>{if(D[k]) D[k]=sv.D[k]}); if(D[sv.K]) K=sv.K; if(SCR[sv.S]) SCREEN=sv.S; if(sv.W) W={...W,...sv.W}; x_up=sv.x_up||{}; x_add=sv.x_add||{}}}catch(_){}
+let NEW=0; const newId=pre=>pre+Date.now().toString(36)+(NEW++);
+const newPerson=()=>({name:'New person',nat:'',uae:false});
+const SAMPLE=['Daniel Brooks','Leila Mansour','Victor Huang','Amira Saeed','Tomasz Nowak','Grace Kim']; let SI=0;
+function nameFromFile(f){return f.replace(/\.[a-z0-9]+$/i,'').replace(/[-_]+/g,' ').replace(/\b(trade|free|zone|licen[cs]e|certificate|of|incorporation|registration|scan|copy|final)\b/gi,'').replace(/\s+/g,' ').trim().replace(/\b\w/g,ch=>ch.toUpperCase())}
+function readDoc(cid,key){const x=c(), co=x.C[cid];
+  if(key===idSlot(cid)?.key && /^New company/.test(co.name)) co.name=nameFromFile(fileOf(co.docs[key]))||'Northwind Trading LLC';
+  if(key===ownersSlot(cid)?.key && !(x.owners[cid]||[]).length){const a=newId('p'), b=newId('p'); x.P[a]={name:SAMPLE[SI++%6],nat:'',uae:false}; x.P[b]={name:SAMPLE[SI++%6],nat:'',uae:false}; x.owners[cid]=[{id:a,pct:60},{id:b,pct:40}]}}
+function go(k){SCREEN=k; MENU=null; render(); scrollTo(0,0)}
+function keep(sel,fn){const pos=document.activeElement?.selectionStart; fn(); const n=document.querySelector(sel); if(n){n.focus(); try{n.setSelectionRange(pos,pos)}catch(_){}}}
+document.addEventListener('click',e=>{
+  const t=e.target, x=c();
+  if(t.closest('input,select,.wbar')) return;
+  const g=t.closest('[data-go]'); if(g){go(g.dataset.go); return}
+  const nv=t.closest('[data-nav]'); if(nv){const i=ALL.findIndex(([k])=>k===SCREEN)+(+nv.dataset.nav); let k=ALL[i]?.[0]; if(k){ go(k) } return}
+  const am=t.closest('[data-addmenu]'); if(am){MENU=MENU===am.dataset.addmenu?null:am.dataset.addmenu; render(); return}
+  if(MENU && !t.closest('.amenu')){MENU=null; render()}
+  const ax=t.closest('[data-addx]'); if(ax){const [cid,id]=ax.dataset.addx.split(':'); (x.owners[cid]=x.owners[cid]||[]).push({id,pct:0}); if(x.C[id]&&!x.owners[id]) x.owners[id]=[]; MENU=null; render(); return}
+  const ao=t.closest('[data-addo]'); if(ao){MENU=null; const [cid,kind]=ao.dataset.addo.split(':'), id=newId(kind); if(kind==='p') x.P[id]=newPerson(); else {x.C[id]={name:'New company',reg:'UAE free zone'}; x.owners[id]=[]} (x.owners[cid]=x.owners[cid]||[]).push({id,pct:0}); render(); return}
+  if(t.closest('[data-addyou]')){const id=newId('p'); x.P[id]={...newPerson(),name:Object.values(CASES[K].P)[0].name,nat:Object.values(CASES[K].P)[0].nat,roles:isBranch()?{mgr:false,lr:false}:R(0,0,0,0)}; OPEN={[id]:true}; render(); return}
+  const ea=t.closest('[data-editall]'); if(ea){const k=ea.dataset.editall+':*'; EDIT=EDIT===k?null:k; render(); return}
+  const rn=t.closest('[data-rename]'); if(rn){EDIT='C:'+rn.dataset.rename; render(); const f=document.querySelector(`[data-name="C:${rn.dataset.rename}"]`); if(f){f.focus(); f.select()} return}
+  const ed=t.closest('[data-edit]'); if(ed){EDIT=ed.dataset.edit; render(); const f=document.querySelector('[data-field]'); if(f){f.focus(); f.select()} return}
+  if(t.closest('[data-help]')){W.help=!W.help; render(); return}
+  if(t.closest('[data-addp]')){const id=newId('p'); x.P[id]={...newPerson(),roles:isBranch()?{mgr:false,lr:false}:R(0,0,0,0)}; OPEN={[id]:true}; render(); return}
+  if(t.closest('[data-addc]')){const id=newId('c'); x.C[id]={name:'New company',reg:'Mainland',signer:null}; x.shares[id]=0; x.owners[id]=[]; OPEN={[id]:true}; render(); return}
+  const dl=t.closest('[data-del]'); if(dl){const [k,id]=dl.dataset.del.split(':'); delete x.shares[id]; Object.keys(x.owners).forEach(c2=>x.owners[c2]=x.owners[c2].filter(o=>o.id!==id)); Object.values(x.C).forEach(co=>{if(co.signer===id) co.signer=null; if(co.exec===id) co.exec=null}); if(x.controller===id) x.controller=null; if(k==='P') delete x.P[id]; else {delete x.C[id]; delete x.owners[id]} if(x.colors) delete x.colors[id]; render(); return}
+  const rm=t.closest('[data-rm]'); if(rm){const [cid,id]=rm.dataset.rm.split(':'); if(cid) x.owners[cid]=x.owners[cid].filter(o=>o.id!==id); else {delete x.shares[id]; if(x.P[id]?.roles) x.P[id].roles.sh=false} render(); return}
+  const ls=t.closest('[data-listed]'); if(ls){const [cid,v]=ls.dataset.listed.split(':'); x.C[cid].listed=v||undefined; render(); return}
+  const y=t.closest('[data-yn]'); if(y){const p=y.dataset.yn.split(':'), on=p[p.length-1]==='1', kind=p[0], id=p[1];
+    if(kind==='uae') x.P[id].uae=on; if(kind==='been') x.P[id].been=on;
+    if(kind==='role'){const r=p[2]; x.P[id].roles[r]=on; if(r==='sh'){ if(on) x.shares[id]=x.shares[id]??0; else delete x.shares[id]}}
+    render(); return}
+  const pu=t.closest('[data-pup]'); if(pu){const [id,k]=pu.dataset.pup.split(':'); x_up[upKey(id,k)]=`${k==='pp'?'passport':k==='eid'?'emirates-id':k==='poa'?'proof-of-address':k==='sof'?'source-of-funds':'degree'}.pdf`; render(); return}
+  const au=t.closest('[data-aup]'); if(au){const [id,k]=au.dataset.aup.split(':'); x_add[upKey(id,k)]=k==='bs'?'bank-statement-jul-sep.pdf':k==='rv'?'residence-visa.pdf':'old-passport.pdf'; render(); return}
+  const tg=t.closest('[data-tog]'); if(tg){const id=tg.dataset.tog; OPEN[id]=!(OPEN[id]??false); render(); return}
+  const sg=t.closest('[data-stage]'); if(sg){W.stage=+sg.dataset.stage; render(); return}
+  if(t.closest('[data-visa]')){W.visa=true; render(); return}
+});
+document.addEventListener('change',e=>{const d=e.target.dataset, x=c(), v=e.target.value;
+  if(e.target.id==='w-case'){K=v; OPEN={}; MENU=null; render(); return}
+  if(e.target.id==='w-risk'){W.risk=v; render(); return}
+  if(e.target.id==='w-check'){W.check=v; render(); return}
+  if(e.target.id==='w-fb'){document.body.classList.toggle('nofb',!e.target.checked); return}
+  if(d.up){const f=e.target.files?.[0]; if(!f) return; const [cid,key]=d.up.split(':'), co=x.C[cid], ck=K; co.docs=co.docs||{}; co.docs[key]={file:f.name,reading:true}; render();
+    setTimeout(()=>{const c2=D[ck].C[cid]; if(!c2) return; c2.docs[key]=f.name; const kk=K; K=ck; readDoc(cid,key); K=kk; render()},1100); return}
+  if(d.regsel){const cid=d.regsel, co=x.C[cid], before=Object.fromEntries(slotsFor(co,isParentId(cid)).map(z=>[z.key,z.label])); co.reg=v; const after=Object.fromEntries(slotsFor(co,isParentId(cid)).map(z=>[z.key,z.label])); Object.keys(co.docs||{}).forEach(k=>{ if(k!=='ext'&&before[k]!==after[k]) delete co.docs[k]}); render(); return}
+  if(d.name){const [k,id]=d.name.split(':'); (k==='P'?x.P:x.C)[id].name=v.trim()||(k==='P'?'New person':'New company'); if(EDIT==='C:'+id) EDIT=null; render(); return}
+  if(d.nat){x.P[d.nat].nat=v; render(); return}
+  if(d.field){const [id,key]=d.field.split(':'); const p=x.P[id]; if(key==='name') p.name=v.trim()||p.name; else if(key==='nat') p.nat=v; else {p.f=p.f||{}; p.f[key]=v.trim()} if(EDIT!==id+':*') EDIT=null; render(); return}
+  if(d.signer!==undefined){let id=v; if(id==='__new'){id=newId('p'); x.P[id]=newPerson()} x.C[d.signer].signer=id; render(); return}
+  if(d.exec!==undefined){let id=v; if(id==='__new'){id=newId('p'); x.P[id]=newPerson()} x.C[d.exec].exec=id; render(); return}
+  if(d.controller!==undefined){x.controller=v; render(); return}
+});
+document.addEventListener('input',e=>{const d=e.target.dataset, x=c(), v=e.target.value;
+  if(d.split) keep(`[data-split="${d.split}"]`,()=>{x.shares[d.split]=parseInt(v)||0; render()});
+  else if(d.opct){const [cid,id]=d.opct.split(':'); keep(`[data-opct="${d.opct}"]`,()=>{x.owners[cid].find(o=>o.id===id).pct=parseFloat(v)||0; render()})}
+  else if(d.cap) keep(`[data-cap="${d.cap}"]`,()=>{x.capital[d.cap]=parseInt(v.replace(/,/g,''))||0; render()});
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target.dataset.field) e.target.blur() });
+document.getElementById('w-reset').onclick=()=>{D[K]=JSON.parse(JSON.stringify(CASES[K])); OPEN={}; x_up={}; x_add={}; render()};
+render();
+</script>
+</body>
+</html>
