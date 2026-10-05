@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en" class="__variable_c8daab __variable_595324 __variable_b7e8f4 dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team</title>
+<link rel="stylesheet" href="assets/02deab34320570aa.css">
+<link rel="stylesheet" href="assets/4b7f1220c1ed02d1.css">
+</head>
+<body class="antialiased">
+<div class="fixed inset-0 flex h-svh flex-col overflow-hidden min-[820px]:grid min-[820px]:grid-cols-[212px_1fr] min-[820px]:grid-rows-[52px_1fr] min-[820px]:[grid-template-areas:'brand_top'_'nav_main']">
+  <div class="hidden items-center gap-2 bg-nav px-4 min-[820px]:flex min-[820px]:[grid-area:brand]"><span class="text-[13px] font-semibold tracking-tight text-navactive">Masdar City Console</span></div>
+  <header class="flex items-center gap-3 border-b border-border bg-card px-3 h-13 shrink-0 min-[820px]:[grid-area:top]"><div class="min-w-0 flex-1"><span class="block truncate text-sm font-medium">Team</span></div><div class="hidden items-center gap-2 border-l border-border pl-3 sm:flex"><div class="text-right leading-tight"><div class="text-xs font-medium">Layla Haddad</div><div class="font-mono text-[10px] text-muted-foreground">Manager</div></div></div></header>
+  <nav class="flex flex-row gap-1 overflow-x-auto bg-nav py-2 min-[820px]:flex-col min-[820px]:gap-0 min-[820px]:py-3 shrink-0 min-[820px]:[grid-area:nav]" id="nav"></nav>
+  <main class="flex-1 overflow-auto overscroll-contain bg-background min-[820px]:[grid-area:main]"><div class="mx-auto w-full max-w-4xl px-4 py-6 min-[820px]:px-8" id="main"></div></main>
+</div>
+<script>
+const TEAMS=['Manager','Registration and Licensing','GS Team','Accounts','Compliance','Customer Experience, read only','No team, read only'];
+let P=[
+ ['MCFZ Administrator','admin@getstarted.ae','Manager'],
+ ['Director (Demo)','demo.director@getstarted.ae','Manager'],
+ ['Layla Haddad','layla@getstarted.ae','Manager','active','you'],
+ ['Omar Khalil','omar@getstarted.ae','Manager'],
+ ['Sami Aziz','sami@outbox.example','Manager'],
+ ['Nadia Farouk','nadia@masdar.example','Manager'],
+ ['Registration Officer (Demo)','demo.registration@getstarted.ae','Registration and Licensing'],
+ ['Rahul Iyer','rahul@outbox.example','GS Team'],
+ ['GS Officer (Demo)','demo.gs@getstarted.ae','GS Team'],
+ ['Release Officer (Demo)','demo.release@getstarted.ae','GS Team'],
+ ['Delivery Officer (Demo)','demo.delivery@getstarted.ae','GS Team'],
+ ['Accounts Officer (Demo)','demo.accounts@getstarted.ae','Accounts'],
+ ['Compliance Officer (Demo)','demo.compliance@getstarted.ae','Compliance'],
+ ['Customer Experience Officer (Demo)','demo.readonly@getstarted.ae','No team, read only'],
+ ['Sara Malik','sara@masdar.example','Compliance','invited'],
+ ['James Whitfield','james@getstarted.ae','GS Team','deactivated'],
+].map(([name,email,team,status='active',you,ovr])=>({name,email,team,status,you:!!you,ovr:!!ovr||team==='Manager'}));
+let S={f:'All', q:'', open:null, menu:null, invite:false};
+
+const ini=n=>n.replace(/\(.*?\)/g,'').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const btn=(t,a='',cls='')=>`<button type="button" ${a} class="rounded-md border border-border px-2.5 py-1 text-xs font-medium transition-colors hover:bg-panel2 ${cls}">${t}</button>`;
+const btnP=(t,a='')=>`<button type="button" ${a} class="rounded-md border border-brand bg-wash px-3 py-1.5 text-sm font-medium text-link hover:bg-panel2">${t}</button>`;
+const sel=(cur,a)=>`<select ${a} class="h-8 rounded-md border border-border bg-background px-2 text-sm">${TEAMS.map(t=>`<option ${t===cur?'selected':''}>${t}</option>`).join('')}</select>`;
+const ovrBox=(on,dis)=>`<label class="flex items-center gap-2 text-sm ${dis?'opacity-60':''}"><input type="checkbox" ${on?'checked':''} ${dis?'disabled':''}><span>Can override, and manage staff</span>${dis?'<span class="text-xs text-muted-foreground">· every Manager</span>':''}</label>`;
+
+function nav(){
+  const L=[['Dashboard'],['@Work'],['Work queue',0,'50'],['Accounts'],['Document review',0,'94'],['Client follow-ups'],['With ICP'],['Payments'],['CSPs'],['Closed cases'],['@Insight'],['What to check'],['@Admin'],['Team',1]];
+  return L.map(([t,on,n])=>t[0]==='@'?`<div class="label-cap hidden px-3 pb-1.5 pt-4 text-navfg/60 min-[820px]:block">${t.slice(1)}</div>`:`<a class="flex w-full shrink-0 items-center gap-2.5 border-l-2 py-2 pl-3 pr-2.5 text-left text-[13px] font-medium ${on?'border-brand bg-white/[0.04] text-navactive':'border-transparent text-navfg'}"><span class="whitespace-nowrap">${t}</span>${n?`<span class="tnum ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${t==='Document review'?'bg-warn text-white':'bg-white/10 text-navfg'}">${n}</span>`:''}</a>`).join('');
+}
+
+function row(p,i){
+  const tag=p.status==='invited'?'<span class="rounded px-1.5 py-0.5 text-[10px] bg-warn-wash text-warn">Invited</span>':p.status==='deactivated'?'<span class="rounded px-1.5 py-0.5 text-[10px] bg-panel2 text-muted-foreground">Deactivated</span>':'';
+  const extra=[p.you?'<span class="text-[11px] text-muted-foreground">You</span>':'', p.ovr&&p.team!=='Manager'?'<span class="rounded px-1.5 py-0.5 text-[10px] bg-wash text-link">Override</span>':'', tag].filter(Boolean).join('');
+  const menu=S.menu===i?`<div class="absolute right-0 top-full z-20 mt-1 w-44 rounded-lg border border-border bg-panel p-1 shadow-lg">${[['Edit','data-edit'],p.status==='invited'?['Resend invitation','']:null,p.you?null:[p.status==='deactivated'?'Reactivate':'Deactivate',''],p.you?null:['Remove','',1]].filter(Boolean).map(([t,a,d])=>`<button ${a?`${a}="${i}"`:''} class="block w-full rounded-md px-2.5 py-1.5 text-left text-sm hover:bg-panel2 ${d?'text-danger':''}">${t}</button>`).join('')}</div>`:'';
+  const edit=S.open===i?`<div class="grid gap-3 border-t border-border bg-panel2 px-4 py-3 sm:grid-cols-2"><label class="grid gap-1 text-xs text-muted-foreground">Full name<input class="h-8 rounded-md border border-border bg-background px-2.5 text-sm text-foreground" value="${p.name}"></label><label class="grid gap-1 text-xs text-muted-foreground">Team${sel(p.team,`data-team="${i}"`)}</label><div class="sm:col-span-2 flex flex-wrap items-center justify-between gap-3">${ovrBox(p.ovr,p.team==='Manager')}<div class="flex gap-2">${btn('Cancel','data-close')}${btn('Save changes','data-close','border-brand text-link')}</div></div></div>`:'';
+  return `<li class="${p.status==='deactivated'?'opacity-60':''}"><div class="flex items-center gap-3 px-4 py-2.5 hover:bg-panel2"><span class="flex size-8 shrink-0 items-center justify-center rounded-full bg-panel2 text-[11px] font-semibold text-muted-foreground">${ini(p.name)}</span><div class="min-w-0 flex-1"><div class="flex flex-wrap items-center gap-2"><span class="truncate text-sm font-medium">${p.name}</span>${extra}</div><div class="truncate font-mono text-[11px] text-muted-foreground">${p.email}</div></div><div class="relative shrink-0"><button data-menu="${i}" class="flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-panel2 hover:text-foreground" aria-label="Actions">⋯</button>${menu}</div></div>${edit}</li>`;
+}
+
+function page(){
+  const q=S.q.toLowerCase();
+  const shown=P.map((p,i)=>[p,i]).filter(([p])=>(S.f==='All'||p.team===S.f)&&(!q||p.name.toLowerCase().includes(q)||p.email.includes(q)));
+  const counts=t=>P.filter(p=>p.team===t).length;
+  const chips=['All',...TEAMS.filter(t=>counts(t))].map(t=>`<button data-f="${t}" class="rounded-full border px-2.5 py-1 text-xs ${S.f===t?'border-brand/40 bg-wash text-link':'border-border text-muted-foreground'}">${t.replace(', read only','')} <span class="tnum opacity-70">${t==='All'?P.length:counts(t)}</span></button>`).join('');
+  const groups=TEAMS.map(t=>[t,shown.filter(([p])=>p.team===t)]).filter(([,l])=>l.length);
+  const invite=S.invite?`<div class="mb-4 rounded-lg border border-border bg-panel p-4"><div class="label-cap text-muted-foreground">Invite a colleague</div><div class="mt-3 grid gap-3 sm:grid-cols-2"><label class="grid gap-1 text-xs text-muted-foreground">Email address<input class="h-9 rounded-md border border-border bg-background px-2.5 text-sm text-foreground"></label><label class="grid gap-1 text-xs text-muted-foreground">Full name<input class="h-9 rounded-md border border-border bg-background px-2.5 text-sm text-foreground"></label><label class="grid gap-1 text-xs text-muted-foreground">Team${sel('No team, read only','')}</label></div><div class="mt-3">${ovrBox(false,false)}</div><div class="mt-3 flex gap-2">${btnP('Send invitation','data-inv')}${btn('Cancel','data-inv')}</div></div>`:'';
+  return `<header class="mb-4 flex flex-wrap items-center justify-between gap-3"><div><h1 class="text-2xl font-semibold tracking-tight">Team</h1><p class="mt-1 text-sm text-muted-foreground">Invited by email, signs in with an emailed code.</p></div>${S.invite?'':btnP('Invite','data-inv')}</header>${invite}
+  <div class="mb-3 flex flex-wrap items-center gap-2"><input data-q value="${S.q}" class="h-8 w-56 rounded-md border border-border bg-panel px-2.5 text-xs" aria-label="Search people"><div class="flex flex-wrap gap-1.5">${chips}</div></div>
+  <div class="overflow-hidden rounded-lg border border-border bg-card">${groups.map(([t,l])=>`<section><div class="label-cap flex items-center justify-between border-b border-border bg-panel px-4 py-2 text-muted-foreground"><span>${t}</span><span class="tnum">${l.length}</span></div><ul class="list-none divide-y divide-border border-b border-border">${l.map(([p,i])=>row(p,i)).join('')}</ul></section>`).join('')||'<p class="px-4 py-6 text-sm text-muted-foreground">Nobody matches.</p>'}</div>`;
+}
+
+function render(){document.getElementById('nav').innerHTML=nav(); document.getElementById('main').innerHTML=page()}
+document.addEventListener('click',e=>{const t=e.target;
+  const m=t.closest('[data-menu]'); if(m){const i=+m.dataset.menu; S.menu=S.menu===i?null:i; render(); return}
+  const ed=t.closest('[data-edit]'); if(ed){S.open=+ed.dataset.edit; S.menu=null; render(); return}
+  if(t.closest('[data-close]')){S.open=null; render(); return}
+  const f=t.closest('[data-f]'); if(f){S.f=f.dataset.f; render(); return}
+  if(t.closest('[data-inv]')){S.invite=!S.invite; render(); return}
+  if(S.menu!==null&&!t.closest('.relative')){S.menu=null; render()}
+});
+document.addEventListener('change',e=>{const d=e.target.dataset; if(d.team){const p=P[+d.team]; p.team=e.target.value; if(p.team==='Manager') p.ovr=true; render()}});
+document.addEventListener('input',e=>{if(e.target.dataset.q!==undefined){S.q=e.target.value; const pos=e.target.selectionStart; render(); const n=document.querySelector('[data-q]'); n.focus(); n.setSelectionRange(pos,pos)}});
+render();
+</script>
+</body>
+</html>
