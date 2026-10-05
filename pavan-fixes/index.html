@@ -23,18 +23,32 @@ td.shot img{display:block;width:100%;border:1px solid var(--line);border-radius:
 <body>
 <main>
 <h1>Fixes for Pavan</h1>
-<p class="sub">Registration flow on stageapp, 3 Oct 2026</p>
+<p class="sub">Registration flow on stageapp: Dhanraj’s walkthrough 3 Oct, and the call with Mazen 5 Oct</p>
 <table>
 <thead><tr><th>#</th><th>Step</th><th>Issue</th><th>Fix</th><th>Screenshot</th></tr></thead>
 <tbody>
 <tr><td class="n">1</td><td class="step">Legal Structure</td><td>The drawings on the three cards are gone</td><td>Put them back</td><td class="shot"><a href="img/1.png"><img src="img/1.png" alt=""></a></td></tr>
-<tr><td class="n">2</td><td class="step">Company Name</td><td>“How it sounds” gave <span dir="rtl">الاصباغ كيميكالز سوليوشنز</span>: “Painting” translated, the rest spelled out</td><td>Remove the How it sounds / Meaning toggle and the line under it</td><td class="shot"><a href="img/2.webp"><img src="img/2.webp" alt=""></a></td></tr>
+<tr><td class="n">2</td><td class="step">Company Name</td><td>“How it sounds” gave <span dir="rtl">الاصباغ كيميكالز سوليوشنز</span>: “Painting” translated, the rest spelled out</td><td><b>Done</b> (5 Oct call). Remove the How it sounds / Meaning toggle and the line under it</td><td class="shot"><a href="img/2.webp"><img src="img/2.webp" alt=""></a></td></tr>
 <tr><td class="n">3</td><td class="step">Company Name</td><td>Name 2 and Name 3: spacing is off</td><td>Fix the spacing</td><td class="shot"><a href="img/3.webp"><img src="img/3.webp" alt=""></a></td></tr>
 <tr><td class="n">4</td><td class="step">Package</td><td>Business activities chips sit left under the label, or float mid-row, not right like the other rows</td><td>Align with the other rows’ controls</td><td class="shot"><a href="img/4.png"><img src="img/4.png" alt=""></a><a href="img/5.png"><img src="img/5.png" alt=""></a></td></tr>
-<tr><td class="n">5</td><td class="step">Package · Compare</td><td>“What it buys” text overlaps between the columns</td><td>Let the cells wrap</td><td class="shot"><a href="img/6.png"><img src="img/6.png" alt=""></a></td></tr>
+<tr><td class="n">5</td><td class="step">Package · Compare</td><td>“What it buys” text overlaps between the columns</td><td><b>Done</b> (5 Oct call). Let the cells wrap</td><td class="shot"><a href="img/6.png"><img src="img/6.png" alt=""></a></td></tr>
 <tr><td class="n">6</td><td class="step">Package · Compare</td><td>Business One column is centred, Startup is right-aligned</td><td>Align both the same</td><td class="shot"><a href="img/7.png"><img src="img/7.png" alt=""></a></td></tr>
 <tr><td class="n">7</td><td class="step">Payment</td><td>Pay AED 33,220 and Continue returns “Something went wrong. Try again.”</td><td>Payment fails, fix it</td><td class="shot"><a href="img/8.png"><img src="img/8.png" alt=""></a></td></tr>
 <tr><td class="n">8</td><td class="step">Stakeholders</td><td>Once one person is the legal representative, everyone else’s Yes / No is greyed out with nothing selected, and No can’t be picked</td><td>Select No for them automatically</td><td class="shot"><a href="img/9.png"><img src="img/9.png" alt=""></a></td></tr>
+</tbody>
+</table>
+<h2 style="font-size:17px;margin:32px 0 8px">From the call with Mazen, 5 Oct</h2>
+<table>
+<thead><tr><th>#</th><th>Step</th><th>Now</th><th>Change</th><th></th></tr></thead>
+<tbody>
+<tr><td class="n">9</td><td class="step">Package</td><td>“Licence length”</td><td>Rename to “Licence duration”</td><td class="shot"></td></tr>
+<tr><td class="n">10</td><td class="step">Stakeholders</td><td>Choosing a person already on the application doesn’t expand their card</td><td>Expand it, as adding someone new does</td><td class="shot"></td></tr>
+<tr><td class="n">11</td><td class="step">Stakeholders</td><td>A corporate shareholder’s signatory name read from the trade licence / MOA picked the wrong name</td><td>Check the name extraction</td><td class="shot"></td></tr>
+<tr><td class="n">12</td><td class="step">Ownership</td><td>“Voting power differs from the share split”</td><td>Remove it</td><td class="shot"></td></tr>
+<tr><td class="n">13</td><td class="step">Ownership</td><td>Nobody at 25%: “On what basis” options</td><td>Use the definitions on Masdar City’s UBO form (wording to come from Mazen)</td><td class="shot"></td></tr>
+<tr><td class="n">14</td><td class="step">Documents</td><td>A person who is UBO by control doesn’t say so</td><td>Add “UBO by means of control” to their roles</td><td class="shot"></td></tr>
+<tr><td class="n">15</td><td class="step">Documents · corporate shareholder</td><td>Requirements change with where the company is registered; good standing only over 2 years; trade licence label shows as certificate of incorporation</td><td>Four required slots for every company, no “where is it registered” question:<br>1. Active status: licence, registry extract, certificate of good standing or certificate of incumbency<br>2. MOA<br>3. AOA. If they only have one of MOA / AOA, they upload it in both<br>4. Shareholding distribution: certificate of incumbency, registry extract, share certificate, or shareholder list issued by the registrar<br>No notarisation. Descriptions to come from Mazen</td><td class="shot"></td></tr>
+<tr><td class="n">16</td><td class="step">Business Activities</td><td>Activity descriptions are cut off (Excel limit)</td><td>Take descriptions from the CSV export of the live list, 1,167 activities</td><td class="shot"></td></tr>
 </tbody>
 </table>
 </main>
