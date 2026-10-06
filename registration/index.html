@@ -151,7 +151,7 @@ const NATS=['Australia','Bangladesh','Egypt','France','Germany','India','Italy',
 const ROLE={sh:'Shareholder',dir:'Director',mgr:'Manager',lr:'Legal representative'};
 const LIMIT={sh:99,dir:6,mgr:1,lr:1};
 const TH=25;
-const STEPS=[['legal','Legal Structure'],['activities','Business Activities'],['name','Company Name'],['package','Package'],['payment','Payment'],['stake','Stakeholders'],['own','Ownership'],['docs','Documents'],['addl','Additional Documents'],['sign','Signatures'],['review','Review']];
+const STEPS=[['legal','Legal Structure'],['activities','Business Activities'],['name','Company Name'],['package','Package'],['payment','Payment'],['stake','Stakeholders'],['own','Ownership'],['docs','Documents'],['addl','Additional Documents'],['review','Review']];
 const AFTER=[['overview','Overview'],['services','Services']];
 const SL=()=>W.struct==='free'?STEPS.filter(([k])=>k!=='manager'):STEPS;
 const ALLF=()=>[...SL(),...AFTER];
@@ -658,7 +658,7 @@ function render(){
   if(document.getElementById('w-case')){ document.getElementById('w-case').innerHTML=ORDER.map(k=>`<option value="${k}" ${k===K?'selected':''}>${CASES[k].label}</option>`).join('');
   document.getElementById('w-risk').value=W.risk; document.getElementById('w-check').value=W.check; }
   const n=document.getElementById('next'); const m=compute();
-  const block=(SCREEN==='own'&&ownErrors(m).length)||(SCREEN==='sign'&&!allSigned());
+  const block=(SCREEN==='own'&&ownErrors(m).length);
   const preBlock=(SCREEN==='manager'&&(mgrBlocked()||W.preRound>1))||(SCREEN==='payment'&&!(W.ref&&W.terms));
   n.disabled=!!(block||preBlock); n.style.opacity=(block||preBlock)?'.45':'';
   n.textContent=SCREEN==='review'?'Submit →':SCREEN==='payment'?'Pay '+aedN(pkTotal())+' and Continue →':'Next →';
