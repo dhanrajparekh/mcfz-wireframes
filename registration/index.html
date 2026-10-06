@@ -192,8 +192,8 @@ function boWhy(id,m){const w=m.bo[id];
 
 /* ---------- What a company uploads, from stageapp's own lists ---------- */
 const REG={'Mainland':'Mainland','UAE free zone':'A UAE free zone','Outside the UAE':'Outside the UAE'};
-const AS={key:'id',role:'id',label:'Trade licence or certificate of incorporation',hint:'Or a registry extract, certificate of good standing or certificate of incumbency, from the last 12 months. We read the company’s name from it.'};
-const SD={key:'own',role:'owners',label:'List of shareholders',hint:'A shareholder list from the official registrar (or notarised), a share certificate, a registry extract or a certificate of incumbency. We read its shareholders from it.'};
+const AS={key:'id',role:'id',label:'Active status',hint:'Your trade licence or certificate of incorporation. A registry extract, certificate of good standing or certificate of incumbency also works, from the last 12 months.'};
+const SD={key:'own',role:'owners',label:'Share distribution',hint:'Your list of shareholders, from the registrar or notarised. A share certificate, registry extract or certificate of incumbency also works.'};
 const MOA={key:'moa',label:'Memorandum of Association',hint:'Only have one of the two? Upload it in both.'};
 const AOA={key:'aoa',label:'Articles of Association',hint:'In the US, the bylaws.'};
 function slotsFor(co,isParent){return isParent?[AS,MOA,AOA,SD]:[AS,SD]}
