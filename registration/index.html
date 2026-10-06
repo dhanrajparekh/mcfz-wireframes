@@ -151,7 +151,7 @@ const NATS=['Australia','Bangladesh','Egypt','France','Germany','India','Italy',
 const ROLE={sh:'Shareholder',dir:'Director',mgr:'Manager',lr:'Legal representative'};
 const LIMIT={sh:99,dir:6,mgr:1,lr:1};
 const TH=25;
-const STEPS=[['legal','Legal Structure'],['activities','Business Activities'],['name','Company Name'],['package','Package'],['payment','Payment'],['stake','Stakeholders'],['own','Ownership'],['docs','Documents'],['addl','Additional Documents'],['review','Review']];
+const STEPS=[['legal','Legal Structure'],['activities','Business Activities'],['name','Company Name'],['package','Package'],['payment','Payment'],['stake','Stakeholders'],['own','Ownership'],['docs','Documents'],['addl','Additional Documents'],['sign','Signatures'],['review','Review']];
 const AFTER=[['overview','Overview'],['services','Services']];
 const SL=()=>W.struct==='free'?STEPS.filter(([k])=>k!=='manager'):STEPS;
 const ALLF=()=>[...SL(),...AFTER];
@@ -192,19 +192,15 @@ function boWhy(id,m){const w=m.bo[id];
 
 /* ---------- What a company uploads, from stageapp's own lists ---------- */
 const REG={'Mainland':'Mainland','UAE free zone':'A UAE free zone','Outside the UAE':'Outside the UAE'};
-function slotsFor(co,isParent){
-  if(isParent){
-    if(co.reg==='Outside the UAE') return [{key:'id',role:'id',label:'Certificate of Incorporation',hint:'The branch takes its name from it.'},{key:'moa',label:'Memorandum and Articles of Association',hint:'With the current directors.'},{key:'own',role:'owners',label:'Proof the company is currently registered and who owns it',hint:'Good standing, registry extract, incumbency certificate or share register, dated within the last year.'}];
-    if(co.reg==='UAE free zone') return [{key:'id',role:'id',label:'Trade Licence',hint:'The branch takes its name from it.'},{key:'coi',label:'Certificate of Incorporation',hint:'Issued by the free zone.'},{key:'moa',role:'owners',label:'Memorandum and Articles of Association',hint:'With the share schedule and the current directors.'}];
-    return [{key:'id',role:'id',label:'Trade Licence',hint:'The branch takes its name from it.'},{key:'cr',label:'Commercial Registration',hint:'Issued by the Department of Planning & Economy.'},{key:'moa',role:'owners',label:'Memorandum of Association',hint:'With the share schedule and the current directors.'}];
-  }
-  if(co.reg==='Outside the UAE') return [{key:'id',role:'id',label:'Certificate of Incorporation',hint:'Issued when the company was formed.'},{key:'own',role:'owners',label:'Shareholder Distribution Document',hint:'A share register or registry extract, dated within the last year.'}];
-  if(co.reg==='UAE free zone') return [{key:'id',role:'id',label:'Free Zone Licence',hint:'The company’s current licence from its free zone.'},{key:'own',role:'owners',label:'Shareholder Distribution Document',hint:'From the free zone, listing each shareholder and their share.'}];
-  return [{key:'id',role:'id',label:'Trade Licence',hint:'The current trade licence from the economic department.'},{key:'own',role:'owners',label:'Shareholder Distribution Document',hint:'From the economic department, listing each shareholder and their share.'}];
-}
-const EXT={key:'ext',role:'owners',label:'Business Extract or Incumbency Letter',hint:'Naming the company and its shareholders, dated within the last year.'};
+const AS={key:'id',role:'id',label:'Active status',hint:'Licence, registry extract, certificate of incorporation, good standing or incumbency, from the last 12 months. We read the company’s name from it.'};
+const SD={key:'own',role:'owners',label:'Share distribution',hint:'Shareholder list, share certificate, registry extract or incumbency certificate. We read its shareholders from it.'};
+const MOA={key:'moa',label:'Memorandum of Association',hint:'Only have one of the two? Upload it in both.'};
+const AOA={key:'aoa',label:'Articles of Association',hint:'In the US, the bylaws.'};
+function slotsFor(co,isParent){return isParent?[AS,MOA,AOA,SD]:[AS,SD]}
+function docSlotsFor(co,isParent){return [AS,MOA,AOA,SD]}
+const EXT=null;
 const isParentId=cid=>isBranch()&&cid===c().parent;
-const ownersSlot=cid=>c().shares[cid]!=null||isParentId(cid)?slotsFor(c().C[cid],isParentId(cid)).find(x=>x.role==='owners'):EXT;
+const ownersSlot=cid=>c().shares[cid]!=null||isParentId(cid)?slotsFor(c().C[cid],isParentId(cid)).find(x=>x.role==='owners'):SD;
 const idSlot=cid=>slotsFor(c().C[cid],isParentId(cid)).find(x=>x.role==='id');
 const fileOf=d=>typeof d==='string'?d:d?.file;
 
@@ -373,8 +369,7 @@ function companyRow(cid){
   const idd=co.docs?.[idSlot(cid).key], renaming=EDIT==='C:'+cid;
   return `<div class="border-b border-border last:border-0"><div class="flex w-full cursor-pointer items-center gap-3 px-4 py-3 ${open?'border-b border-border':''} bg-surface-sunken" data-tog="${cid}"><span class="text-muted-foreground">${open?'⌄':'›'}</span><div class="min-w-0 flex-1">${renaming?inp(co.name,`data-name="C:${cid}"`,'max-w-[340px]'):`<span class="font-bold">${esc(co.name)}</span> <button class="text-sm text-muted-foreground" data-rename="${cid}" aria-label="Rename">✎</button> <span class="inline-flex rounded-full border border-border px-2 text-xs font-bold uppercase">Company</span>`}<div class="mt-0.5 text-base text-muted-foreground">${parent?'Parent company':'Shareholder'}${idd&&!idd.reading?` · name read from the ${idSlot(cid).label}`:''}</div></div>${parent?'':`<button class="x" data-del="C:${cid}" aria-label="Remove ${esc(co.name)}">×</button>`}</div>
   ${open?`<div class="flex flex-col gap-3 bg-surface-sunken px-4 pt-4 pb-5">
-    ${box(row('Where is this company registered?',sel(`data-regsel="${cid}"`,Object.entries(REG).map(([v,l])=>`<option value="${v}" ${co.reg===v?'selected':''}>${l}</option>`).join('')))
-      +slotsFor(co,parent).map(z=>slot(cid,z)).join('')
+    ${box(slotsFor(co,parent).map(z=>slot(cid,z)).join('')
       +row('Authorised signatory',sel(`data-signer="${cid}"`,`<option value="" disabled ${s?'':'selected'}>Choose</option>${people}<option value="__new">+ Add a new person</option>`)))}
     ${s?box(row('Full name',inp(s.name,`data-name="P:${co.signer}"`,'max-w-[300px]'))+row('Nationality',natSel(co.signer))+row('Do you have UAE residency?',yn(s.uae,'uae:'+co.signer))):''}
   </div>`:''}</div>`;
@@ -485,8 +480,8 @@ function docList(m){
     out.push({id,name:p.name,why:m.bo[id]&&!why.startsWith('Beneficial')?`${why} · ${boWhy(id,m)}`:why,d})};
   Object.keys(x.P).filter(id=>roleText(x.P[id])).forEach(id=>person(id,roleText(x.P[id])));
   Object.entries(x.C).forEach(([cid,co])=>{
-    if(m.top[cid]!=null) out.push({cid,name:co.name,why:isBranch()?'Parent company':`Shareholder · ${fmt(m.top[cid])}`,d:slotsFor(co,isParentId(cid)).filter(z=>!(co.listed&&z.role==='owners'&&!isParentId(cid)))});
-    else if(m.traced[cid]!=null && !co.listed) out.push({cid,name:co.name,why:`Owns ${fmt(m.traced[cid])} through the chain`,d:[EXT]});
+    if(m.top[cid]!=null) out.push({cid,name:co.name,why:isBranch()?'Parent company':`Shareholder · ${fmt(m.top[cid])}`,d:docSlotsFor(co,isParentId(cid)).filter(z=>!(co.listed&&z.role==='owners'&&!isParentId(cid)))});
+    else if(m.traced[cid]!=null && !co.listed) out.push({cid,name:co.name,why:`Owns ${fmt(m.traced[cid])} through the chain`,d:[AS,SD]});
   });
   Object.values(x.C).forEach(co=>{ if(co.signer && x.P[co.signer] && !seen.has(co.signer)) person(co.signer,`Signs for ${co.name}`) });
   Object.keys(m.bo).forEach(id=>{ if(!seen.has(id)) person(id,boWhy(id,m)) });
@@ -534,11 +529,81 @@ function addl(){
   return wrap(title('Additional Documents'+fb('V12'))+(items.length?items.map(([id,dd])=>`<section class="overflow-hidden rounded-lg border border-border bg-card"><div class="bg-surface-sunken px-4 py-3.5"><b class="block">${esc(x.P[id].name)}</b><small class="text-sm text-muted-foreground">${esc(roleText(x.P[id])||boWhy(id,m))}</small></div>${(()=>{const got=x_add[upKey(id,dd.k)]; return `<div class="grid items-start gap-3 border-t border-border px-4 py-3" style="grid-template-columns:1fr auto"><div><b>${dd.label}</b><p class="mt-px text-sm text-muted-foreground">${got?'✓ '+got:dd.hint}</p></div><button class="text-sm font-bold text-brand-text underline" data-aup="${id}:${dd.k}">${got?'Replace':'Upload'}</button></div>`})()}</section>`).join(''):card('<p>Nobody in this case matches. Try another case.</p>')));
 }
 
-/* ---------- 10 Review ---------- */
+
+/* ---------- 10 Signatures ---------- */
+const DECL=`<p>By signing, you confirm that:</p><ul class="flex flex-col gap-1.5 text-base" style="list-style:disc;padding-left:18px"><li>The information in this application is true and complete, and the company will follow Masdar City Free Zone’s rules.</li><li>Masdar City may issue the licence, certificate of incorporation, Memorandum of Association, Articles of Association and lease digitally, on its standard templates.</li><li>They need no physical signatures. Certified hard copies are a separate application with its own fee.</li></ul>`;
+const YOU=()=>{const x=c(); return Object.keys(x.P).find(id=>x.P[id].roles?.mgr)||Object.keys(x.P)[0]};
+function signers(){const x=c(), out=[], add=(id,doc,why)=>{let s=out.find(o=>o.id===id); if(!s){s={id,docs:[],why:[]}; out.push(s)} if(!s.docs.includes(doc)) s.docs.push(doc); if(!s.why.includes(why)) s.why.push(why)};
+  if(isBranch()){const pc=x.C[x.parent]; if(pc) pc.signer?add(pc.signer,'Branch Board Resolution','Authorised signatory for '+pc.name):out.push({id:null,co:x.parent,docs:['Branch Board Resolution'],why:['Authorised signatory for '+pc.name]})}
+  else Object.keys(x.shares).forEach(id=>{ if(x.P[id]) add(id,'Shareholder Resolution','Shareholder'); else if(x.C[id]){const co=x.C[id], d='Corporate Shareholder Resolution ('+co.name+')'; co.signer?add(co.signer,d,'Authorised signatory for '+co.name):out.push({id:null,co:id,docs:[d],why:['Authorised signatory for '+co.name]})}});
+  const mgr=Object.keys(x.P).find(id=>x.P[id].roles?.mgr); if(mgr){add(mgr,'UBO Declaration','Manager'); add(mgr,'Licence to Occupy','Manager')}
+  const you=YOU(); out.sort((a,b)=>(b.id===you)-(a.id===you)); return out}
+const SIGD=()=>{W.sig=W.sig||{}; W.signed=W.signed||{}; return W};
+function sigSvg(id,h=48){const ty=(SIGD().typed||{})[K+':'+id]; if(ty) return `<svg viewBox="0 0 ${Math.max(120,ty.length*15)} 46" style="height:${h}px;width:auto;max-width:100%"><text x="4" y="34" font-family="'Segoe Script','Brush Script MT','Snell Roundhand',cursive" font-size="30" fill="#1d2a5a">${esc(ty)}</text></svg>`; const st=SIGD().sig[K+':'+id]; if(!st||!st.length) return '';
+  let a=1e9,b=1e9,cc=-1e9,d=-1e9; st.forEach(s=>s.forEach(([x,y])=>{a=Math.min(a,x);b=Math.min(b,y);cc=Math.max(cc,x);d=Math.max(d,y)}));
+  return `<svg viewBox="${a-4} ${b-4} ${cc-a+8} ${d-b+8}" style="height:${h}px;width:auto;max-width:100%"><path d="${st.map(s=>'M'+s.map(q=>q[0].toFixed(1)+' '+q[1].toFixed(1)).join(' L')).join(' ')}" fill="none" stroke="#1d2a5a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
+const signedOk=id=>!!SIGD().signed[K+':'+id];
+const allSigned=()=>signers().every(s=>s.id&&signedOk(s.id));
+const pad=(id,lab='Signature')=>`<div class="text-sm text-muted-foreground">${lab}</div><div class="relative w-full rounded-card border border-border bg-background" style="height:96px;max-width:320px"><canvas data-pad="${id}" style="width:100%;height:100%;display:block;touch-action:none;cursor:crosshair"></canvas><div class="pointer-events-none absolute border-b border-border" style="left:14px;right:14px;bottom:22px"></div></div><div class="w-full text-right" style="max-width:320px"><button class="text-sm font-bold text-brand-text underline" data-padclear="${id}">Clear</button></div>`;
+const docLinks=o=>o.docs.map(d=>`<button class="inline text-left font-bold text-brand-text underline underline-offset-2" data-prev="${esc(d)}">${esc(d)}</button>`).join(', ');
+function signBox(id){const mode=(W.smode||{})[id]||'draw', ty=(SIGD().typed||{})[K+':'+id]||'';
+  const tabs=`<div class="inline-flex w-fit overflow-hidden rounded-pill border border-border">${['draw','type'].map(m=>`<button class="h-8 px-4 text-sm font-bold ${m===mode?'bg-brand-strong text-brand-foreground':'text-muted-foreground'}" data-smode="${id}:${m}">${m==='draw'?'Draw':'Type'}</button>`).join('')}</div>`;
+  const area=mode==='draw'?pad(id,'Draw your signature')
+    :`<div class="text-sm text-muted-foreground">Type your full name</div>${inp(ty,`data-typed="${id}"`,'max-w-[320px]')}<div class="flex items-end rounded-card border border-border bg-background px-3" style="height:72px;max-width:320px">${ty?sigSvg(id,44):''}</div>`;
+  return `<div class="flex flex-col gap-2">${tabs}${area}</div>`}
+const faceOk=id=>!!((W.face||{})[K+':'+id]);
+const hasSig=id=>{const k=K+':'+id; return !!((SIGD().typed||{})[k]||(SIGD().sig[k]||[]).some(a=>a.length>3))};
+const PPNO={lay:'K4471209',mar:'YB2290471',oma:'N0991237'};
+const ppNo=id=>PPNO[id]||('P'+(1000000+id.length*731+id.charCodeAt(0)*97));
+const stepOf=id=>signedOk(id)?4:((W.flow||{})[K+':'+id]||1);
+const setStep=(id,n)=>{W.flow=W.flow||{}; W.flow[K+':'+id]=n};
+const ppSvg=(h=64)=>`<svg viewBox="0 0 100 64" style="height:${h}px;width:auto" aria-label="Passport photo page"><rect width="100" height="64" rx="4" fill="#efe9f3" stroke="#d3cad9"/><rect x="6" y="10" width="24" height="30" rx="2" fill="#cfc6d7"/><circle cx="18" cy="21" r="6" fill="#a99fb3"/><path d="M8 40c1-7 5-10 10-10s9 3 10 10z" fill="#a99fb3"/><rect x="36" y="12" width="40" height="3" fill="#bdb3c6"/><rect x="36" y="19" width="52" height="3" fill="#bdb3c6"/><rect x="36" y="26" width="30" height="3" fill="#bdb3c6"/><rect x="6" y="48" width="88" height="3" fill="#bdb3c6"/><rect x="6" y="54" width="88" height="3" fill="#bdb3c6"/></svg>`;
+const faceSvg=(ok,h=64)=>`<svg viewBox="0 0 64 64" style="height:${h}px;width:auto" aria-label="Face"><rect width="64" height="64" rx="6" fill="${ok?'#e3eeee':'#f3f3f3'}"/><ellipse cx="32" cy="30" rx="15" ry="19" fill="none" stroke="${ok?'#008081':'#b9b9b9'}" stroke-width="2" stroke-dasharray="${ok?'0':'4 3'}"/><circle cx="32" cy="26" r="7" fill="${ok?'#8fb9b8':'#cfcfcf'}"/><path d="M19 52c2-9 7-13 13-13s11 4 13 13z" fill="${ok?'#8fb9b8':'#cfcfcf'}"/></svg>`;
+const verified=id=>((W.flow||{})[K+':'+id]||1)>=3;
+function signerCard(id,opts={}){const x=c(), p=x.P[id], o=signers().find(q=>q.id===id), num=ppNo(id), mine=id===YOU();
+  const idRow=(ok,extra='')=>`<div class="flex flex-wrap items-center gap-4 px-5 py-4">${ppSvg(52)}${faceSvg(ok,52)}<div class="min-w-0 text-base"><b class="block">${esc(p.name)}</b><span class="text-sm text-muted-foreground">Passport ${num}${ok?' · face matched to its photo (Didit) in Documents':''}</span>${extra}</div></div>`;
+  if(signedOk(id)) return `<div class="flex flex-wrap items-center gap-4 px-5 py-4">${ppSvg(48)}${faceSvg(true,48)}<div class="min-w-0">${sigSvg(id,40)}<div class="text-sm text-muted-foreground">Signed 6 October 2026 · face matched to passport ${num}</div></div></div>`;
+  if(opts.back) return idRow(false)+`<div class="flex flex-col gap-3 border-t border-border px-5 py-4"><b>Check it’s still you</b><p class="text-base text-muted-foreground">Your face check was in an earlier session. Check again before signing. Your passport stays as it is.</p><div>${btn('Check my face',true,`data-fl="${id}:3"`)}</div></div>`;
+  if(!verified(id)) return idRow(false)+`<div class="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4"><span class="text-base text-muted-foreground">${mine?'Finish your passport and face check in Documents first. You sign straight after.':'Waiting for their passport and face check.'}</span>${mine?btn('Go to Documents',true,'data-go="docs"'):''}</div>`;
+  return idRow(true)+`<div class="flex flex-col gap-3 border-t border-border px-5 py-4"><div class="text-sm">Your signature goes on ${docLinks(o)}.</div><div class="text-base">${DECL}</div><a class="text-sm font-bold text-brand-text underline underline-offset-2">Read the full declaration</a>${signBox(id)}<div>${btn('Sign',true,`data-flsign="${id}" ${hasSig(id)?'':'disabled style="opacity:.45"'}`)}</div></div>`}
+function progress(id){return verified(id)?'Verified in Documents, not signed yet':'Waiting for passport and face check'}
+function sign(){const x=c(), L=signers(), you=YOU(), me=L.find(o=>o.id===you), tot=L.length, n=L.filter(o=>o.id&&signedOk(o.id)).length;
+  const rows=L.filter(o=>o!==me).map(o=>{
+    if(!o.id) return `<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-4 py-3.5"><div class="min-w-0"><b class="block">${esc(x.C[o.co].name)}</b><span class="text-sm text-muted-foreground">Nobody chosen to sign</span></div><button class="text-sm font-bold text-brand-text underline underline-offset-2" data-go="stake">Choose in Stakeholders</button></div>`;
+    const p=x.P[o.id], done=signedOk(o.id), st=stepOf(o.id);
+    const right=done?`<span class="flex items-center gap-3">${ppSvg(26)}${faceSvg(true,26)}${sigSvg(o.id,26)}</span>`
+      :`<span class="flex flex-col items-end gap-1 text-sm"><span class="text-muted-foreground">${progress(o.id)}</span><button class="font-bold text-brand-text underline underline-offset-2" data-copylink>${verified(o.id)?'Send reminder':'Copy link'}</button></span>`;
+    return `<div class="grid items-center gap-x-4 gap-y-2 px-4 py-3.5" style="grid-template-columns:minmax(0,1fr) auto"><div class="min-w-0"><b>${esc(p.name)}</b><div class="text-sm text-muted-foreground">${esc(o.why.join(' · '))}</div><div class="mt-1 text-sm">Signs ${docLinks(o)}</div></div>${right}</div>`}).join('');
+  const mine=me?`<section class="overflow-hidden rounded-lg border border-border bg-card"><div class="bg-surface-sunken px-5 py-3.5"><b class="block">${esc(x.P[you].name)} <span class="text-sm font-medium text-muted-foreground">(you)</span></b><span class="text-sm text-muted-foreground">${esc(me.why.join(' · '))} · signs ${me.docs.join(', ')}</span></div>${signerCard(you)}</section>`:'';
+  const left=tot-n;
+  return wrap(title('Signatures')+`<p class="text-base text-muted-foreground">Everyone signs straight after the passport and face check they did in Documents. ${n} of ${tot} signed.</p>`+mine
+    +(rows?`<div>${lbl('Others')}${box(rows)}<p class="mt-2 text-sm text-muted-foreground">They sign at the end of their own link: documents, face check, then signature.</p></div>`:'')
+    +(left?`<p class="text-sm text-muted-foreground">${left===1?'One signature':left+' signatures'} still missing. Next turns on when everyone has signed.</p>`:''))+devModal()+prevModal();
+}
+function devModal(){const d=W.dev; if(!d||!d.link) return ''; const x=c(), p=x.P[d.id], o=signers().find(q=>q.id===d.id);
+  return `<div class="fixed inset-x-0 bottom-0 z-40 overflow-auto bg-background px-4" style="top:var(--wbar-h,0px)"><div class="mx-auto flex w-full max-w-[38rem] flex-col gap-5 py-10"><div class="text-sm text-muted-foreground">${esc(x.company)} · ${esc(x.P[YOU()].name)} is setting up this company</div><div><b class="block text-2xl">${esc(p.name)}</b><span class="text-sm text-muted-foreground">${esc(o.why.join(' · '))}</span></div>
+  ${d.back?'':`<div class="text-sm text-muted-foreground">✓ Documents · ✓ Face check · Signature</div>`}<section class="overflow-hidden rounded-lg border border-border bg-card">${signerCard(d.id,{back:d.back})}</section>${signedOk(d.id)?`<p class="text-base text-muted-foreground">${esc(x.P[YOU()].name)} submits the application once everyone has signed.</p>`:''}</div></div>${prevModal()}`}
+function prevModal(){const d=W.prev; if(!d) return ''; const x=c(), L=signers().filter(o=>o.docs.includes(d));
+  const line=o=>`<div><div style="height:46px;border-bottom:1px ${o.id&&signedOk(o.id)?'solid #333':'dashed #aaa'};display:flex;align-items:flex-end">${o.id&&signedOk(o.id)?sigSvg(o.id,40):''}</div><div style="font-size:11px;margin-top:3px">${esc(o.id?x.P[o.id].name:x.C[o.co].name)}</div></div>`;
+  return `<div class="fixed inset-x-0 bottom-0 z-50 grid place-items-center overflow-auto bg-black/40 p-4" style="top:var(--wbar-h,0px)"><div class="flex w-full max-w-[40rem] flex-col gap-4 rounded-card border border-border bg-card p-6 shadow-card"><div class="flex items-center justify-between gap-3"><b class="text-lg">${esc(d)}</b>${btn('Close',false,'data-prevclose')}</div>
+  <div style="background:#fff;color:#222;border:1px solid #ddd;padding:28px 30px;font:12px/1.6 'Times New Roman',serif;min-height:420px;display:flex;flex-direction:column"><div style="text-align:center;font-size:15px;font-weight:700;margin-bottom:12px">${esc(d.replace(/ \(.*\)$/,''))}</div><div style="font-size:11px;color:#777;text-align:center;margin-bottom:10px">${esc(x.company)}</div>${Array.from({length:12},(_,i)=>`<div style="height:6px;background:#ecebeb;border-radius:3px;margin:8px 0;width:${i%4===3?'60%':'100%'}"></div>`).join('')}<div style="margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:16px 24px;padding-top:20px">${L.map(line).join('')}</div></div>
+  <p class="text-sm text-muted-foreground">Signatures are placed on the final document when Masdar City issues it.</p></div></div>`}
+function mountPads(){document.querySelectorAll('canvas[data-pad]').forEach(cv=>{const id=cv.dataset.pad, key=K+':'+id, g=cv.getContext('2d'); let strokes=(SIGD().sig[key]||[]).map(a=>a.slice()), cur=null;
+  const btns=()=>document.querySelectorAll(`[data-signme="${id}"],[data-devsign="${id}"],[data-flsign="${id}"]`).forEach(b=>{const ok=strokes.some(a=>a.length>3); b.disabled=!ok; b.style.opacity=ok?'':'.45'});
+  const draw=()=>{g.clearRect(0,0,cv.width,cv.height); g.lineWidth=2.2; g.lineCap='round'; g.strokeStyle='#1d2124'; strokes.forEach(a=>{g.beginPath(); a.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])); g.stroke()}); btns()};
+  const r=cv.getBoundingClientRect(), dpr=devicePixelRatio||1; cv.width=r.width*dpr; cv.height=r.height*dpr; g.setTransform(dpr,0,0,dpr,0,0);
+  const pt=e=>{const b=cv.getBoundingClientRect(); return [e.clientX-b.left,e.clientY-b.top]};
+  cv.onpointerdown=e=>{cur=[pt(e)]; strokes.push(cur); cv.setPointerCapture(e.pointerId)};
+  cv.onpointermove=e=>{if(cur){cur.push(pt(e)); draw()}};
+  cv.onpointerup=()=>{cur=null; SIGD().sig[key]=strokes; draw()};
+  const cl=document.querySelector(`[data-padclear="${id}"]`); if(cl) cl.onclick=()=>{strokes=[]; SIGD().sig[key]=[]; draw()};
+  draw()})}
+
+/* ---------- 11 Review ---------- */
 function review(){
   const x=c(), m=compute();
   return wrap(title('Review and Submit')+card(`<div class="text-base font-bold text-muted-foreground">Company</div><div class="grid gap-2" style="grid-template-columns:160px 1fr"><span class="text-muted-foreground">Type</span><b>${isBranch()?'Branch':'Limited company'}</b><span class="text-muted-foreground">Name</span><b>${esc(x.company)}</b><span class="text-muted-foreground">Activities</span><b>${x.activity}</b><span class="text-muted-foreground">Package</span><b>Business One · 2 years</b><span class="text-muted-foreground">Beneficial owners</span><b>${Object.keys(m.bo).map(id=>esc(x.P[id].name)).join(', ')||'None yet'}</b></div>`)
-   +card(`<div class="text-base font-bold text-muted-foreground">Declaration${fb('D17')}${fb('V6')}</div><p>By signing, you confirm that:</p><ul class="flex flex-col gap-1.5 text-base" style="list-style:disc;padding-left:18px"><li>The information in this application is true and complete, and the company will follow Masdar City Free Zone’s rules.</li><li>Masdar City may issue the licence, certificate of incorporation, Memorandum of Association, Articles of Association and lease digitally, on its standard templates.</li><li>They need no physical signatures. Certified hard copies are a separate application with its own fee.</li></ul><a class="text-base font-bold text-brand-text underline underline-offset-2">Read the full declaration</a><div><div class="text-base font-bold text-muted-foreground">Signing as</div><b>${esc(x.P[Object.keys(x.P).find(id=>x.P[id].roles?.mgr)||Object.keys(x.P)[0]].name)}</b></div><div class="h-28 rounded-card border border-border"></div>`)
+   +card(`<div class="text-base font-bold text-muted-foreground">Signatures</div>${signers().map(sg=>`<div class="flex items-center justify-between gap-3"><span><b>${sg.id?esc(x.P[sg.id].name):esc(x.C[sg.co].name)}</b> <span class="text-sm text-muted-foreground">${esc(sg.why.join(' · '))}</span></span><span class="text-sm ${sg.id&&signedOk(sg.id)?'font-bold text-brand-text':'text-muted-foreground'}">${sg.id&&signedOk(sg.id)?'✓ Signed':'Not signed'}</span></div>`).join('')}<a class="text-base font-bold text-brand-text underline underline-offset-2" data-go="sign">Change</a>`)
 );
 }
 
@@ -580,7 +645,7 @@ function services(){
 }
 
 /* ---------- Shell ---------- */
-const SCR={legal,activities,name:nameStep,manager,prepay,decision,package:pkg,pkgafter:()=>pkg(true),payment,stake,own,docs,addl,review,overview,services};
+const SCR={legal,activities,name:nameStep,manager,prepay,decision,package:pkg,pkgafter:()=>pkg(true),payment,stake,own,docs,addl,sign,review,overview,services};
 const ALL=[...STEPS,...AFTER];
 function render(){
   document.getElementById('side-co').textContent=c().company;
@@ -593,13 +658,14 @@ function render(){
   if(document.getElementById('w-case')){ document.getElementById('w-case').innerHTML=ORDER.map(k=>`<option value="${k}" ${k===K?'selected':''}>${CASES[k].label}</option>`).join('');
   document.getElementById('w-risk').value=W.risk; document.getElementById('w-check').value=W.check; }
   const n=document.getElementById('next'); const m=compute();
-  const block=SCREEN==='own'&&ownErrors(m).length;
+  const block=(SCREEN==='own'&&ownErrors(m).length)||(SCREEN==='sign'&&!allSigned());
   const preBlock=(SCREEN==='manager'&&(mgrBlocked()||W.preRound>1))||(SCREEN==='payment'&&!(W.ref&&W.terms));
   n.disabled=!!(block||preBlock); n.style.opacity=(block||preBlock)?'.45':'';
-  n.textContent=SCREEN==='review'?'Sign and submit →':SCREEN==='payment'?'Pay '+aedN(pkTotal())+' and Continue →':'Next →';
+  n.textContent=SCREEN==='review'?'Submit →':SCREEN==='payment'?'Pay '+aedN(pkTotal())+' and Continue →':'Next →';
   try{localStorage.setItem(SKEY,JSON.stringify({D,K,S:SCREEN,W,x_up,x_add}))}catch(_){}
   const org=document.querySelector('.org'); if(org) org.scrollLeft=(org.scrollWidth-org.clientWidth)/2;
   document.querySelectorAll('.nmin').forEach(fitName);
+  mountPads();
 }
 const MEASURE=document.createElement('canvas').getContext('2d');
 
@@ -657,6 +723,19 @@ document.addEventListener('click',e=>{
     if(kind==='role'){const r=p[2]; x.P[id].roles[r]=on; if(r==='sh'){ if(on) x.shares[id]=x.shares[id]??0; else delete x.shares[id]}}
     render(); return}
   const pu=t.closest('[data-pup]'); if(pu){const [id,k]=pu.dataset.pup.split(':'); x_up[upKey(id,k)]=`${k==='pp'?'passport':k==='eid'?'emirates-id':k==='poa'?'proof-of-address':k==='sof'?'source-of-funds':'degree'}.pdf`; render(); return}
+  const smd=t.closest('[data-smode]'); if(smd){const [id,m]=smd.dataset.smode.split(':'); W.smode=W.smode||{}; W.smode[id]=m; render(); return}
+  const flw=t.closest('[data-fl]'); if(flw){const [id,n]=flw.dataset.fl.split(':'); setStep(id,+n); render(); return}
+  const fsg=t.closest('[data-flsign]'); if(fsg){if(fsg.disabled) return; SIGD().signed[K+':'+fsg.dataset.flsign]=true; render(); return}
+  if(t.closest('[data-devface]')){W.face=W.face||{}; W.face[K+':'+W.dev.id]=true; W.dev.step=2; render(); return}
+  const pv=t.closest('[data-prev]'); if(pv){W.prev=pv.dataset.prev; render(); return}
+  if(t.closest('[data-prevclose]')){W.prev=null; render(); return}
+  const sm=t.closest('[data-signme]'); if(sm){if(sm.disabled) return; SIGD().signed[K+':'+sm.dataset.signme]=true; render(); return}
+  const rs=t.closest('[data-resign]'); if(rs){const k=K+':'+rs.dataset.resign; delete SIGD().signed[k]; SIGD().sig[k]=[]; if(SIGD().typed) delete SIGD().typed[k]; setStep(rs.dataset.resign,3); render(); return}
+  const dv=t.closest('[data-dev]'); if(dv){W.dev={id:dv.dataset.dev,step:1}; render(); return}
+  const ds=t.closest('[data-devstep]'); if(ds){W.dev.step=+ds.dataset.devstep; render(); return}
+  const dg=t.closest('[data-devsign]'); if(dg){if(dg.disabled) return; SIGD().signed[K+':'+dg.dataset.devsign]=true; W.dev.step=W.dev.link?4:3; render(); return}
+  if(t.closest('[data-devclose]')){W.dev=null; render(); return}
+  const cp=t.closest('[data-copylink]'); if(cp){cp.textContent=cp.textContent==='Send reminder'?'Reminder sent':'Link copied'; return}
   const au=t.closest('[data-aup]'); if(au){const [id,k]=au.dataset.aup.split(':'); x_add[upKey(id,k)]=k==='bs'?'bank-statement-jul-sep.pdf':k==='rv'?'residence-visa.pdf':'old-passport.pdf'; render(); return}
   const tg=t.closest('[data-tog]'); if(tg){const id=tg.dataset.tog; OPEN[id]=!(OPEN[id]??false); render(); return}
   const sg=t.closest('[data-stage]'); if(sg){W.stage=+sg.dataset.stage; render(); return}
@@ -677,7 +756,7 @@ document.addEventListener('change',e=>{const d=e.target.dataset, x=c(), v=e.targ
   if(d.exec!==undefined){let id=v; if(id==='__new'){id=newId('p'); x.P[id]=newPerson()} x.C[d.exec].exec=id; render(); return}
   if(d.controller!==undefined){x.controller=v; render(); return}
 });
-document.addEventListener('input',e=>{const d=e.target.dataset, x=c(), v=e.target.value; if(d.mf){W.mgr[d.mf]=v; const n=document.getElementById('next'); if(n){const b=mgrBlocked(); n.disabled=b; n.style.opacity=b?'.45':''} return} if(d.muid!==undefined){W.mgr.uid=v; const n=document.getElementById('next'); if(n){const b=mgrBlocked(); n.disabled=b; n.style.opacity=b?'.45':''} return}
+document.addEventListener('input',e=>{const d=e.target.dataset, x=c(), v=e.target.value; if(d.typed!==undefined){SIGD().typed=SIGD().typed||{}; SIGD().typed[K+':'+d.typed]=v; keep(`[data-typed="${d.typed}"]`,render); return} if(d.mf){W.mgr[d.mf]=v; const n=document.getElementById('next'); if(n){const b=mgrBlocked(); n.disabled=b; n.style.opacity=b?'.45':''} return} if(d.muid!==undefined){W.mgr.uid=v; const n=document.getElementById('next'); if(n){const b=mgrBlocked(); n.disabled=b; n.style.opacity=b?'.45':''} return}
   if(d.split) keep(`[data-split="${d.split}"]`,()=>{x.shares[d.split]=parseInt(v)||0; render()});
   else if(d.opct){const [cid,id]=d.opct.split(':'); keep(`[data-opct="${d.opct}"]`,()=>{x.owners[cid].find(o=>o.id===id).pct=parseFloat(v)||0; render()})}
   else if(d.cap) keep(`[data-cap="${d.cap}"]`,()=>{x.capital[d.cap]=parseInt(v.replace(/,/g,''))||0; render()});
