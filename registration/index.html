@@ -515,7 +515,7 @@ function docs(){
 x_add={};
 function addl(){
   const m=compute(), x=c();
-  if(W.check==='none') return wrap(title('Additional Documents')+card(`<b class="text-lg">Nothing more is needed${fb('V12')}</b><p class="text-base text-muted-foreground">Go on to Review.</p>`));
+  if(W.check==='none'&&!funds()) return wrap(title('Additional Documents')+card(`<b class="text-lg">Nothing more is needed${fb('V12')}</b><p class="text-base text-muted-foreground">Go on to Review.</p>`));
   const items=[];
   if(W.check==='uid'){
     const res=Object.keys(x.P).find(id=>x.P[id].uae&&roleText(x.P[id]));
@@ -523,10 +523,11 @@ function addl(){
     if(res) items.push([res,{k:'rv',label:'UAE residence visa',hint:'Current or expired.'}]);
     if(mgr) items.push([mgr,{k:'pl',label:'Passport you last entered the UAE on',hint:'The photo page. Expired is fine.'}]);
   }
-  if(W.check==='hit'){
-    Object.keys(m.bo).forEach(b=>items.push([b,{k:'bs',label:'Bank statement',hint:'The last three months, or a letter from the bank.'}]));
+  if(W.check==='hit'||funds()){
+    const direct=isBranch()?[x.parent]:Object.keys(x.shares);
+    direct.forEach(id=>items.push([id,x.C[id]?{k:'sof',label:'Source of funds',hint:'The company’s latest audited financial statements, or its bank statements for the last 3 months.',co:true}:{k:'sof',label:'Source of funds',hint:'Bank statements for the last 3 months.'}]));
   }
-  return wrap(title('Additional Documents'+fb('V12'))+(items.length?items.map(([id,dd])=>`<section class="overflow-hidden rounded-lg border border-border bg-card"><div class="bg-surface-sunken px-4 py-3.5"><b class="block">${esc(x.P[id].name)}</b><small class="text-sm text-muted-foreground">${esc(roleText(x.P[id])||boWhy(id,m))}</small></div>${(()=>{const got=x_add[upKey(id,dd.k)]; return `<div class="grid items-start gap-3 border-t border-border px-4 py-3" style="grid-template-columns:1fr auto"><div><b>${dd.label}</b><p class="mt-px text-sm text-muted-foreground">${got?'✓ '+got:dd.hint}</p></div><button class="text-sm font-bold text-brand-text underline" data-aup="${id}:${dd.k}">${got?'Replace':'Upload'}</button></div>`})()}</section>`).join(''):card('<p>Nobody in this case matches. Try another case.</p>')));
+  return wrap(title('Additional Documents'+fb('V12'))+(items.some(([,dd])=>dd.k==='sof')?`<p class="text-base text-muted-foreground">${W.risk==='Medium-high'||W.risk==='High'?'Because of the risk rating':'Share capital is over AED 100,000, so'} Masdar City need the source of funds from each direct shareholder${isBranch()?' (for a branch, the parent company)':''}.</p>`:'')+(items.length?items.map(([id,dd])=>`<section class="overflow-hidden rounded-lg border border-border bg-card"><div class="bg-surface-sunken px-4 py-3.5"><b class="block">${esc(x.P[id]?x.P[id].name:x.C[id].name)}</b><small class="text-sm text-muted-foreground">${esc(x.P[id]?(roleText(x.P[id])||boWhy(id,m)):(isBranch()?'Parent company':'Shareholder · '+fmt(x.shares[id]||0)))}</small></div>${(()=>{const got=x_add[upKey(id,dd.k)]; return `<div class="grid items-start gap-3 border-t border-border px-4 py-3" style="grid-template-columns:1fr auto"><div><b>${dd.label}</b><p class="mt-px text-sm text-muted-foreground">${got?'✓ '+got:dd.hint}</p></div><button class="text-sm font-bold text-brand-text underline" data-aup="${id}:${dd.k}">${got?'Replace':'Upload'}</button></div>`})()}</section>`).join(''):card('<p>Nobody in this case matches. Try another case.</p>')));
 }
 
 
